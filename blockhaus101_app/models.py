@@ -1,22 +1,167 @@
 from django.db import models
+import json
+import os
+from random import randint, choice
+from django.conf import settings
+from datetime import datetime, timedelta
+from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
 
-class ArtistStored(models.Model):
-	name = models.CharField("Artist name", max_length=80)
+
+JSON_PATH = os.path.join(settings.APP_ROOT, 'json_data')
+print(JSON_PATH)
+
+PERIOD = 10
+
+class Artist(models.Model):
+	name = models.CharField("Nom de l'artiste", max_length=80)
 	GENDER_CHOICES =(
 		('f', 'female'),
 		('m', 'male')
 	)
-	gender = models.CharField("Gender", max_length=6, choices=GENDER_CHOICES)
-	disclipline = models.CharField("Discipline", max_length=1000)
-	bio = models.CharField("Biography", max_length=2000)
-	startdate = models.DateTimeField("Date of website beginning appearance")
-	enddate = models.DateTimeField("Date of website end of appearance")
+	gender = models.CharField("Genre de l'artiste", max_length=6, choices=GENDER_CHOICES)
+	discipline = models.CharField("Discipline de l'artiste", max_length=80)
+	bio = models.TextField("Biographie de l'artiste", max_length=2000)
+	startdate = models.DateTimeField("Date de début d'exposition", blank=True, null=True)
+	enddate = models.DateTimeField("Date de fin d'exposition", blank=True, null=True)
+	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.name)
+	def save(self, *args, **kwargs):
+		print("########### TRYING TO SAVE")
+		try:
+			self.startdate = Artist.objects.latest('enddate').enddate
+			self.enddate = self.startdate + timedelta(days=PERIOD)
+			print("########### AT LEAST ONE ARTIST ALREADY PRESENT")
+		except:
+			self.startdate = datetime.now()
+			self.enddate = datetime.now() + timedelta(days=PERIOD)
+			print("########### NO ARTIST")
+		super(Artist, self).save(*args, **kwargs)
+	def generate(self):
+		# first name and genre
+		firstnames_dict = json.load(open(os.path.join(JSON_PATH, 'FIRSTNAME.json')))
+		firstname_nb = choice(list(firstnames_dict.keys()))
+		firstname = list(firstnames_dict[firstname_nb].values())[0]
+		self.gender = list(firstnames_dict[firstname_nb].values())[1]
+		# last name
+		lastname_dict = json.load(open(os.path.join(JSON_PATH, 'LASTNAME.json')))
+		lastname_nb = choice(list(lastname_dict.keys()))
+		lastname = list(lastname_dict[lastname_nb].values())[0]
+		# full name
+		self.name = firstname + ' ' + lastname
+		# discipline
+		discipline_dict = json.load(open(os.path.join(JSON_PATH, 'DISCIPLINE.json')))
+		discipline_nb = choice(list(discipline_dict.keys()))
+		self.discipline = list(discipline_dict[discipline_nb].values())[0]
+		# bio
+		self.bio = self.bio + ' ' + self.create_bio_sentence(4, 6)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(7, 11)
+		if randint(1, 3) == 3:
+			self.bio = self.bio + ' ' + self.create_bio_sentence(12, 16)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(17, 20)
 
-class ExpoStored(models.Model):
-	name = models.CharField("Exhibition title", max_length=80)
-	body = models.TextField("Exhibition text", max_length=3000)
-	artist = models.ForeignKey(ArtistStored, related_name="expo_artist", on_delete="PROTECT")
+	def create_bio_sentence(self, min_line = None, max_line = None):
+		biosentence = ""
+		bios_struc = json.load(open(os.path.join(JSON_PATH, 'bio.json')))
+		if min_line and max_line:
+			nb = randint(min_line-4, max_line-4)
+		else:
+			nb = int(choice(list(bios_struc.keys())))
+		self.bio_structure = bios_struc[str(nb)]
+		index_dict = json.load(open(os.path.join(JSON_PATH, 'index2.json')))
+		pos = 0
+		for k,v in self.bio_structure.items():
+			if v == "SELF": # si c'est l'artiste
+				biosentence = add_string_to_sentence(biosentence, pos, self.name)
+			elif v == "SELFDISCIPLINE":
+				biosentence = add_string_to_sentence(biosentence, pos, self.discipline)
+			elif v == "EXPO":
+				biosentence = biosentence + ' ' + self.create_expo_title()
+			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				biosentence = add_string_to_sentence(biosentence, pos, choose_random_word(v))
+			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
+				biosentence = add_string_to_sentence(biosentence, pos, v)
+			pos += 1
+		biosentence = correct_sentence(biosentence)
+		if self.gender == "f": # si l'artiste est du genre féminin
+			biosentence = biosentence.replace(" il ", " elle ")
+			biosentence = biosentence.replace(" né ", " née ")
+			biosentence = biosentence.replace("Né ", "Née ")
+		return biosentence
+
+	def create_expo_title(self):
+		expo_title = ""
+		expos_struc = json.load(open(os.path.join(JSON_PATH, 'expos.json')))
+		nb = int(choice(list(expos_struc.keys())))
+		expo_structure = expos_struc[str(nb)]
+		index_dict = json.load(open(os.path.join(JSON_PATH, 'index2.json')))
+		pos = 0
+		for k,v in expo_structure.items():
+			if v == "SELF": # si c'est l'artiste
+				expo_title = add_string_to_sentence(expo_title, pos, self.name)
+			elif v == "SELFDISCIPLINE":
+				expo_title = add_string_to_sentence(expo_title, pos, self.discipline)
+			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				expo_title = add_string_to_sentence(expo_title, pos, choose_random_word(v))
+			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
+				expo_title = add_string_to_sentence(expo_title, pos, v)
+			pos += 1
+		return expo_title
+
+
+class ExpoTitle(models.Model):
+	title = models.CharField("Titre de l'exposition", max_length=80)
+	artist = models.ForeignKey(Artist, related_name="artist_expotitle", on_delete="PROTECT")
+	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
-		return (self.name)
+		return (self.title)
+	def generate(self, artist: Artist()):
+		self.artist = artist
+		self.title = artist.create_expo_title() 
+
+
+class ExpoText(models.Model):
+	text = models.TextField("Texte de l'exposition", max_length=3000)
+	title = models.ForeignKey(ExpoTitle, related_name="title_expotext", on_delete="PROTECT", verbose_name="Titre de l'exposition")
+	slug = models.SlugField(default=None, null=True, blank=True,max_length=150, verbose_name="URL")
+	created = models.DateTimeField(auto_now=True)
+	def __str__(self):
+		return (self.text[:60])
+	def save(self, *args, **kwargs):
+		slug_string = "{}-{}".format(self.title.artist.name, self.title.title)
+		unique_slugify(self, slug_string)
+		super(ExpoText, self).save(*args, **kwargs)
+	def generate(self, artist: Artist()):
+		self.text = ""
+		if randint(1, 2) == 2:
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 4, 4)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 5, 9)
+		if randint(1, 3) == 3:
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 10, 13)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 14, 23)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 24, 36)
+	def create_expo_sentence(self, guide_file: str(), artist: Artist(), min_line = None, max_line = None):
+		sentences_struc = json.load(open(os.path.join(JSON_PATH, '{}.json'.format(guide_file))))
+		sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
+		if min_line and max_line:
+			self.nb = randint(min_line-4, max_line-4)
+		else:
+			self.nb = int(choice(list(sentences_struc.keys())))
+		structure = sentences_struc[self.nb]
+		index_dict = json.load(open(os.path.join(JSON_PATH, 'index2.json')))
+		sentence = ""
+		pos = 0
+		for k,v in structure.items():
+			if v == "SELF": # si c'est l'artiste
+				sentence = add_string_to_sentence(sentence, pos, artist.name)
+			elif v == "SELFDISPLINE":
+				sentence = add_string_to_sentence(sentence, pos, artist.discipline)
+			elif v == "EXPO":
+				sentence = add_string_to_sentence(sentence, pos, artist.create_expo_title())
+			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				sentence = add_string_to_sentence(sentence, pos, choose_random_word(v))
+			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
+				sentence = add_string_to_sentence(sentence, pos, v)
+			pos += 1
+		sentence = correct_sentence(sentence)
+		return sentence

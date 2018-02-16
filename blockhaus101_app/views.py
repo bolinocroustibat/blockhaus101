@@ -1,41 +1,50 @@
 from django.shortcuts import render
-from django.template.loader import render_to_string
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, Http404
 import os
 import re
 import requests
 import urllib
 import xmltodict
 import json
+from datetime import datetime
 import blockhaus101_app
-from blockhaus101_app.create import Artist, Expo
-
-import random
-path = os.path.join(os.path.dirname(blockhaus101_app.__file__), 'json_data')
+from .models import *
 
 def index(request):
-	# verify if id of expo by GET
-	# if yes:
-		# get expo + artist from database
-		# send to the template for display
-	# if no:
-		# checks if there is an artist for this period
-		# if yes:
-			# get last/current artist from database
-			# generate expo with this artist
-			# record expo in the database
-			# send to the template for display
-		# if no:
-			# generate new artist
-			# records it in the database
-			# send to the template for display
+	try: # try to get an artist for current period
+		artist = (Artist.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
+		print("CURRENT ARTIST : {}".format(artist.name))
+	except:
+		artist = Artist()
+		Artist.generate(artist)
+		artist.save()
+		print("THERE IS NO CURRENT ARTIST IN THE TIME RANGE, {} HAS BEEN GENERATED AND SAVED".format(artist.name))
+	expo_title = ExpoTitle()
+	ExpoTitle.generate(expo_title, artist)
+	expo_title.save()
+	expo_text = ExpoText()
+	ExpoText.generate(expo_text, artist)
+	expo_text.title = expo_title
+	expo_text.save()
+	return render(request,'index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': expo_title.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
 
+def exhibition(request, slug):
+	try: # get expo + artist from database from expo slug
+		text = ExpoText.objects.get(slug=slug)
+		title = ExpoTitle.obects.get(title_expotext=text)
+		artist = Artist.objects.get(artist_expotitle=title)
+		return render(request,'index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': expo_title.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
+	except ExpoText.DoesNotExist:
+		raise Http404("Cette expo n'existe pas")
+
+def past_exhibitions(request):
+	return render(request)
+
+def generate(request):
 	artist = Artist()
-	expo_title = Expo(artist).title
-	expo_text = Expo(artist).text
-	html = render_to_string('index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': expo_title, 'expo_text': expo_text, 'artist_gender': artist.gender})
-	return HttpResponse(html)
-
+	Artist.generate(artist)
+	artist.save()
+	return render(request,'generate.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'artist_startdate': artist.startdate, 'artist_enddate': artist.enddate})
 
 def build_json(request):
 	url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
@@ -70,11 +79,3 @@ def build_json(request):
 		except:
 			print('ERROR WHILE TRYING TO CACHE "{}"'.format(key))
 	return HttpResponse('{}'.format("Les fichiers de cache ont été créés !"))
-
-
-def past_exhibitions(request):
-	pass
-
-def test(request):
-	artist = Artist()
-	return HttpResponse(artist.name)

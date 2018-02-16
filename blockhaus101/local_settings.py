@@ -17,7 +17,7 @@ DEBUG = True
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql', 
-		'NAME': 'blockhaus101-django',
+		'NAME': 'blockhaus101_django',
 		'USER': 'root',
 		'PASSWORD': 'root',
 		'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
