@@ -1,8 +1,3 @@
-html {
-    height: 100vh; /* set viewport constraint */
-    min-height: 100%; /* enforce height */
-}
-
 body{
 	background: white; 
 	color:black;
@@ -22,6 +17,7 @@ h1 .big_h1 {
 
 a{
 	color:#555;
+	cursor: pointer;
 }
 
 a:hover{
@@ -58,14 +54,6 @@ li .active {
 	font-weight: bold;
 }
 
-#generate-button input{
-	width:270px;
-	height:40px;
-	margin:20px 0 20px 0;
-	cursor:pointer;
-	font-size: 1.1em;
-}
-
 .project-wrapper{
 	display:block;
 	max-width:600px;
@@ -78,6 +66,7 @@ li .active {
 .project-wrapper a{
 	text-decoration:none;
 }
+
 .project-wrapper a:hover{
 	text-decoration:underline;
 }

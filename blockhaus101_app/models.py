@@ -76,7 +76,7 @@ class Artist(models.Model):
 			elif v == "SELFDISCIPLINE":
 				biosentence = add_string_to_sentence(biosentence, pos, self.discipline)
 			elif v == "EXPO":
-				biosentence = biosentence + ' ' + self.create_expo_title()
+				biosentence = add_string_to_sentence(biosentence, pos, self.create_expo_title())
 			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
 				biosentence = add_string_to_sentence(biosentence, pos, choose_random_word(v))
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
