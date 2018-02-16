@@ -1,9 +1,9 @@
 *.pyc
 CACHE/
 local_settings.py
-blockhaus101/__pycache__/
-blockhaus101_app/__pycache__/
-env/
+*/__pycache__/*
+blockhaus101/__pycache__/*
+blockhaus101_app/__pycache__/*
 db.sqlite3
 */.DS_Store
 .vscode/
