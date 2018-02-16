@@ -1,0 +1,13 @@
+*.pyc
+CACHE/
+local_settings.py
+blockhaus101/__pycache__/
+blockhaus101_app/__pycache__/
+env/
+db.sqlite3
+*/.DS_Store
+.vscode/
+.DS_Store
+upload/
+debug.log
+.htpasswd
