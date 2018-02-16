@@ -1,6 +1,8 @@
 certifi==2018.1.18
 chardet==3.0.4
 Django==2.0.2
+django-appconf==1.0.2
+django-debug-toolbar==1.9.1
 httplib2==0.10.3
 idna==2.6
 lxml==4.1.1
@@ -9,9 +11,12 @@ pyasn1==0.4.2
 pyasn1-modules==0.2.1
 PyMySQL==0.8.0
 pytz==2017.3
+rcssmin==1.0.6
 requests==2.18.4
+rjsmin==1.0.12
 rsa==3.4.2
 six==1.11.0
+sqlparse==0.2.4
 uritemplate==3.0.0
 urllib3==1.22
 xmltodict==0.11.0

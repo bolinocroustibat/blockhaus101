@@ -12,10 +12,6 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
@@ -27,9 +23,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SITE_ROOT = os.path.abspath(os.path.dirname(__file__))
+# Django debug toolbar authorized IPs
+INTERNAL_IPS = ('127.0.0.1',)
 
 # Application definition
 
@@ -40,7 +35,8 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-	'blockhaus101_app'
+    'debug_toolbar',
+	'blockhaus101_app',
 ]
 
 MIDDLEWARE = [
@@ -51,6 +47,7 @@ MIDDLEWARE = [
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 ROOT_URLCONF = 'blockhaus101.urls'
@@ -92,11 +89,15 @@ AUTH_PASSWORD_VALIDATORS = [
 	},
 ]
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SITE_ROOT = os.path.abspath(os.path.dirname(__file__))
+APP_ROOT = os.path.join(BASE_DIR, 'blockhaus101_app/')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'fr-FR'
 
 TIME_ZONE = 'UTC'
 
@@ -104,7 +105,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
