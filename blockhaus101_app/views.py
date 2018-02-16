@@ -30,9 +30,9 @@ def index(request):
 
 def exhibition(request, slug):
 	try: # get expo + artist from database from expo slug
-		text = ExpoText.objects.get(slug=slug)
-		title = ExpoTitle.obects.get(title_expotext=text)
-		artist = Artist.objects.get(artist_expotitle=title)
+		expo_text = ExpoText.objects.get(slug=slug)
+		expo_title = ExpoTitle.objects.get(title_expotext=expo_text)
+		artist = Artist.objects.get(artist_expotitle=expo_title)
 		return render(request,'index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': expo_title.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
 	except ExpoText.DoesNotExist:
 		raise Http404("Cette expo n'existe pas")
