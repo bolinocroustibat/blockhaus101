@@ -88,6 +88,8 @@ AUTH_PASSWORD_VALIDATORS = [
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SITE_ROOT = os.path.abspath(os.path.dirname(__file__))
 APP_ROOT = os.path.join(BASE_DIR, 'blockhaus101_app/')
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(APP_ROOT, 'static/')
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
