@@ -13,6 +13,7 @@ from .models import *
 def index(request):
 	try: # try to get an artist for current period
 		artist = (Artist.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
+		# expo_title = ExpoTitle.objects.filter(artist=artist) # in case we also want a fixes title, do something like that
 		print("CURRENT ARTIST : {}".format(artist.name))
 	except:
 		artist = Artist()
