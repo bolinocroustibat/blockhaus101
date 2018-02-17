@@ -18,11 +18,6 @@ import os
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '+%umqk%=)x=%_l3+++*a28wjom@99zeykg$1*z+1&u$v1=_pys'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
 # Django debug toolbar authorized IPs
 INTERNAL_IPS = ('127.0.0.1',)
 
