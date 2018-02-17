@@ -38,7 +38,22 @@ def exhibition(request, slug):
 		raise Http404("Cette expo n'existe pas")
 
 def past_exhibitions(request):
-	return render(request)
+	full_exhibs = list()
+	artists = Artist.objects.filter(enddate__lte=datetime.now()) # get all artist with enddate before today
+	for a in artists:
+		items = dict()
+		items["startdate"] = a.startdate
+		items["enddate"] = a.enddate
+		expo_title = ExpoTitle()
+		ExpoTitle.generate(expo_title, a)
+		expo_text = ExpoText()
+		ExpoText.generate(expo_text, a)
+		items["name"] = a.name
+		items["bio"] = a.bio
+		items["title"] = expo_title.title
+		items["text"] = expo_text.text
+		full_exhibs.append(items)
+	return render(request,'past_exhibitions.html', {'full_exhibs': full_exhibs})
 
 def generate(request):
 	artist = Artist()
