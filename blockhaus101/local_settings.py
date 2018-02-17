@@ -14,6 +14,8 @@ pymysql.install_as_MySQLdb()
 
 DEBUG = True
 
+ALLOWED_HOSTS = ['*']
+
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.mysql', 

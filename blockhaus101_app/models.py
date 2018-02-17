@@ -35,7 +35,7 @@ class Artist(models.Model):
 		except:
 			self.startdate = datetime.now()
 			self.enddate = datetime.now() + timedelta(days=PERIOD)
-			print("########### NO ARTIST")
+			print("########### NO ARTIST, FIRST TO SAVE")
 		super(Artist, self).save(*args, **kwargs)
 	def generate(self):
 		# first name and genre
