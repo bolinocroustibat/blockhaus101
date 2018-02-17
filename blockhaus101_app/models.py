@@ -6,10 +6,6 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
 
-
-JSON_PATH = os.path.join(settings.APP_ROOT, 'json_data')
-print(JSON_PATH)
-
 PERIOD = 10
 
 class Artist(models.Model):
@@ -39,18 +35,18 @@ class Artist(models.Model):
 		super(Artist, self).save(*args, **kwargs)
 	def generate(self):
 		# first name and genre
-		firstnames_dict = json.load(open(os.path.join(JSON_PATH, 'FIRSTNAME.json')))
+		firstnames_dict = json.load(open(os.path.join(settings.JSON_PATH, 'FIRSTNAME.json')))
 		firstname_nb = choice(list(firstnames_dict.keys()))
 		firstname = list(firstnames_dict[firstname_nb].values())[0]
 		self.gender = list(firstnames_dict[firstname_nb].values())[1]
 		# last name
-		lastname_dict = json.load(open(os.path.join(JSON_PATH, 'LASTNAME.json')))
+		lastname_dict = json.load(open(os.path.join(settings.JSON_PATH, 'LASTNAME.json')))
 		lastname_nb = choice(list(lastname_dict.keys()))
 		lastname = list(lastname_dict[lastname_nb].values())[0]
 		# full name
 		self.name = firstname + ' ' + lastname
 		# discipline
-		discipline_dict = json.load(open(os.path.join(JSON_PATH, 'DISCIPLINE.json')))
+		discipline_dict = json.load(open(os.path.join(settings.JSON_PATH, 'DISCIPLINE.json')))
 		discipline_nb = choice(list(discipline_dict.keys()))
 		self.discipline = list(discipline_dict[discipline_nb].values())[0]
 		# bio
@@ -62,13 +58,13 @@ class Artist(models.Model):
 
 	def create_bio_sentence(self, min_line = None, max_line = None):
 		biosentence = ""
-		bios_struc = json.load(open(os.path.join(JSON_PATH, 'bio.json')))
+		bios_struc = json.load(open(os.path.join(settings.JSON_PATH, 'bio.json')))
 		if min_line and max_line:
 			nb = randint(min_line-4, max_line-4)
 		else:
 			nb = int(choice(list(bios_struc.keys())))
 		self.bio_structure = bios_struc[str(nb)]
-		index_dict = json.load(open(os.path.join(JSON_PATH, 'index2.json')))
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		pos = 0
 		for k,v in self.bio_structure.items():
 			if v == "SELF": # si c'est l'artiste
@@ -91,10 +87,10 @@ class Artist(models.Model):
 
 	def create_expo_title(self):
 		expo_title = ""
-		expos_struc = json.load(open(os.path.join(JSON_PATH, 'expos.json')))
+		expos_struc = json.load(open(os.path.join(settings.JSON_PATH, 'expos.json')))
 		nb = int(choice(list(expos_struc.keys())))
 		expo_structure = expos_struc[str(nb)]
-		index_dict = json.load(open(os.path.join(JSON_PATH, 'index2.json')))
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		pos = 0
 		for k,v in expo_structure.items():
 			if v == "SELF": # si c'est l'artiste
@@ -141,14 +137,14 @@ class ExpoText(models.Model):
 		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 14, 23)
 		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 24, 36)
 	def create_expo_sentence(self, guide_file: str(), artist: Artist(), min_line = None, max_line = None):
-		sentences_struc = json.load(open(os.path.join(JSON_PATH, '{}.json'.format(guide_file))))
+		sentences_struc = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
 		sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
 		if min_line and max_line:
 			self.nb = randint(min_line-4, max_line-4)
 		else:
 			self.nb = int(choice(list(sentences_struc.keys())))
 		structure = sentences_struc[self.nb]
-		index_dict = json.load(open(os.path.join(JSON_PATH, 'index2.json')))
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		sentence = ""
 		pos = 0
 		for k,v in structure.items():

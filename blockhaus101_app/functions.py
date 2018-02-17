@@ -7,14 +7,12 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 
 
-JSON_PATH = os.path.join(settings.APP_ROOT, 'json_data')
-
 ########################################
 ## COMMON FUNCTIONS TO SEVERAL CLASSES #
 ########################################
 
 def choose_random_word(type: str()):
-	words_dict = json.load(open(os.path.join(JSON_PATH, '{}.json'.format(type))))
+	words_dict = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(type))))
 	nb = random.choice(list(words_dict.keys()))
 	word = list(words_dict[nb].values())[0]
 	try: #s'il y a une deuxième colonne au tableau, on la met dans un genre

@@ -85,11 +85,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SITE_ROOT = os.path.abspath(os.path.dirname(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # BASE_DIR is where your manage.py lies
+SITE_ROOT = os.path.abspath(os.path.dirname(__file__)) # SITE_ROOT is BASE_DIR + your_project_name (where settings.py is)
 APP_ROOT = os.path.join(BASE_DIR, 'blockhaus101_app/')
+#STATIC_ROOT = os.path.join(APP_ROOT, 'static/')
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.11/howto/static-files/
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(APP_ROOT, 'static/')
+
+print("###### BASE DIR :")
+print(BASE_DIR)
+print("###### SITE ROOT :")
+print(SITE_ROOT)
+print("###### APP_ROOT :")
+print(APP_ROOT)
+
+# Blockhaus specific - path to json cache
+JSON_PATH = os.path.join(APP_ROOT, 'json_data')
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
@@ -104,11 +118,6 @@ USE_L10N = True
 
 USE_TZ = False
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-
-STATIC_URL = '/static/'
 
 # Import local settings
 from blockhaus101.local_settings import *
