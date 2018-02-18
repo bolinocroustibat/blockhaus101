@@ -6,7 +6,8 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
 
-PERIOD = 10
+# period (in days) between two exhibitions for next creations
+PERIOD = 7
 
 class Artist(models.Model):
 	name = models.CharField("Nom de l'artiste", max_length=80)
@@ -17,22 +18,10 @@ class Artist(models.Model):
 	gender = models.CharField("Genre de l'artiste", max_length=6, choices=GENDER_CHOICES)
 	discipline = models.CharField("Discipline de l'artiste", max_length=80)
 	bio = models.TextField("Biographie de l'artiste", max_length=2000)
-	startdate = models.DateTimeField("Date de début d'exposition", blank=True, null=True)
-	enddate = models.DateTimeField("Date de fin d'exposition", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.name)
-	def save(self, *args, **kwargs):
-		print("########### TRYING TO SAVE")
-		try:
-			self.startdate = Artist.objects.latest('enddate').enddate
-			self.enddate = self.startdate + timedelta(days=PERIOD)
-			print("########### AT LEAST ONE ARTIST ALREADY PRESENT")
-		except:
-			self.startdate = datetime.now()
-			self.enddate = datetime.now() + timedelta(days=PERIOD)
-			print("########### NO ARTIST, FIRST TO SAVE")
-		super(Artist, self).save(*args, **kwargs)
+
 	def generate(self):
 		# first name and genre
 		firstnames_list = json.load(open(os.path.join(settings.JSON_PATH, 'FIRSTNAME.json')))
@@ -62,7 +51,7 @@ class Artist(models.Model):
 		else:
 			nb = randrange(0,len(possible_structures_list))
 		bio_structure = possible_structures_list[nb]
-		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
 		pos = 0
 		for v in bio_structure:
 			if v == "SELF": # si c'est l'artiste
@@ -84,30 +73,44 @@ class Artist(models.Model):
 		return biosentence
 
 	def create_expo_title(self):
-		expo_title = ""
+		title = ""
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'expos.json')))
 		expo_structure = choice(possible_structures_list)
-		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
 		pos = 0
 		for w in expo_structure:
 			if w == "SELF": # si c'est l'artiste
-				expo_title = add_string_to_sentence(expo_title, pos, self.name)
+				title = add_string_to_sentence(title, pos, self.name)
 			elif w == "SELFDISCIPLINE":
-				expo_title = add_string_to_sentence(expo_title, pos, self.discipline)
+				title = add_string_to_sentence(title, pos, self.discipline)
 			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				expo_title = add_string_to_sentence(expo_title, pos, choose_random_word(w))
+				title = add_string_to_sentence(title, pos, choose_random_word(w))
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
-				expo_title = add_string_to_sentence(expo_title, pos, w)
+				title = add_string_to_sentence(title, pos, w)
 			pos += 1
-		return expo_title
+		#title = correct_sentence(title)
+		return title
 
 
-class ExpoTitle(models.Model):
+class Exhibition(models.Model):
 	title = models.CharField("Titre de l'exposition", max_length=80)
-	artist = models.ForeignKey(Artist, related_name="artist_expotitle", on_delete="PROTECT")
+	artist = models.ForeignKey(Artist, related_name="artist_exhibition", on_delete="PROTECT")
+	startdate = models.DateTimeField("Date de début d'exposition", blank=True, null=True)
+	enddate = models.DateTimeField("Date de fin d'exposition", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.title)
+	def save(self, *args, **kwargs):
+		print("## TRYING TO SAVE NEW EXHIBITION...")
+		try:
+			self.startdate = Exhibition.objects.latest('enddate').enddate
+			self.enddate = self.startdate + timedelta(days=PERIOD)
+			print("## AT LEAST ONE EXHIBITION ALREADY PRESENT")
+		except:
+			self.startdate = datetime.now()
+			self.enddate = datetime.now() + timedelta(days=PERIOD)
+			print("## NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
+		super(Exhibition, self).save(*args, **kwargs)
 	def generate(self, artist: Artist()):
 		self.artist = artist
 		self.title = artist.create_expo_title() 
@@ -115,16 +118,18 @@ class ExpoTitle(models.Model):
 
 class ExpoText(models.Model):
 	text = models.TextField("Texte de l'exposition", max_length=3000)
-	title = models.ForeignKey(ExpoTitle, related_name="title_expotext", on_delete="PROTECT", verbose_name="Titre de l'exposition")
+	exhibition = models.ForeignKey(Exhibition, related_name="exhibition_expotext", on_delete="PROTECT", verbose_name="Exposition")
 	slug = models.SlugField(default=None, null=True, blank=True,max_length=150, verbose_name="URL")
+	ip = models.GenericIPAddressField("Adresse IP du créateur", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.text[:60])
 	def save(self, *args, **kwargs):
-		slug_string = "{}-{}".format(self.title.artist.name, self.title.title)
+		slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
 		unique_slugify(self, slug_string)
 		super(ExpoText, self).save(*args, **kwargs)
-	def generate(self, artist: Artist()):
+	def generate(self, artist: Artist(), ip=None):
+		self.ip = ip
 		self.text = ""
 		if randint(1, 2) == 2:
 			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 4, 4)
@@ -141,7 +146,7 @@ class ExpoText(models.Model):
 		else:
 			nb = randrange(0,len(possible_structures_list))
 		structure = possible_structures_list[nb]
-		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
 		sentence = ""
 		pos = 0
 		for w in structure:

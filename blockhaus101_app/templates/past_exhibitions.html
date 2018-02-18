@@ -1,30 +1,23 @@
 {% extends "base.html" %}
 
+{% block meta %}
+<title>blockhaus 101 - expositions précédentes</title>
+<meta name="Description" content="" />
+<meta property="og:title" content="blockhaus 101 - expositions précédentes" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="" />
+{% endblock %}
+
+
 {% block content %}
-<div id="main-wrapper" class="col-10 offset-1 mt-5">
-
-<h1>
-	<span class="big_h1">blockhaus 101</span>
-	pop-up galerie - paris
-</h1>
-
-<nav class="row">
-	<ul>
-		<li><a href="past-exhibitions.html">past exhibitions</a></li> | 
-		<li><a class="active" href="current-exhibitions.html">current exhibitions</a></li> | 
-		<li><a href="contact.html">contact</a></li> | 
-		<li><a href="twitter/com/blockhaus101">follow @Blockhaus101 on Twitter</a></li>
-	</ul>
-</nav>
 
 {% for e in full_exhibs %}
-du {{ e.startdate|date:"d M Y" }} au {{ e.enddate|date:"d M Y" }} :
+<div class="past-expo-date mb-4 mt-5">Du {{ e.startdate|date:"d M Y" }} au {{ e.enddate|date:"d M Y" }} :</div>
 <div class="project-wrapper">
-	<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title }}</span>
+	<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title|capfirst }}</span>
 	<div class="bio">{{ e.bio }}</div>
 	<div class="text">{{ e.text }}</div>
 </div>
 {% endfor %}
 
-</div>
 {% endblock %}

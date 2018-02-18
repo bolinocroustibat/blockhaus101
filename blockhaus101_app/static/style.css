@@ -25,7 +25,6 @@ a:hover{
 }
 
 nav {
-	margin: 0 0 50px 0;
 	font-family: helvetica,sans-serif;
 }
 
@@ -54,12 +53,15 @@ li .active {
 	font-weight: bold;
 }
 
+.past-expo-date {
+	font-family: helvetica,sans-serif;
+}
+
 .project-wrapper{
 	display:block;
 	max-width:600px;
 	padding-left:15px;
 	border-left: 1px solid black;
-	margin: 40px 0 40px 0;
 	cursor:pointer;
 }
 
@@ -108,21 +110,4 @@ li .active {
 	right:20px;
 	font-size:0.4em;
 	color:#F3F3F3;
-}
-
-@media screen and (max-width:700px) {
-	h1 {
-	margin: 0 0 15px 0;
-	font-size:1.2em;
-	}
-	#share-wrapper{
-	font-size:0.6em;
-	}
-	#bottom-right-wrapper {
-	bottom: 0px; 
-	right:-80px;
-	}
-	img{
-	width:30%;
-	}
 }
