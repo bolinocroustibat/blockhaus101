@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block meta %}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="project-wrapper">
+	<span class="artist">{{ artist_name }} | {{ artist_gender }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
+	<div class="bio">{{ artist_bio }}</div>
+</div>
+
+{% endblock %}
