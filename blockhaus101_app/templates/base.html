@@ -50,9 +50,9 @@
 
 	<nav class="mt-3 mb-5">
 		<ul>
-			<li><a href="{% url 'index' %}">exposition en cours</a></li> | 
-			<li><a href="{% url 'past_exhibitions' %}" class="active">expositions précédentes</a></li> | 
-			<li><a href="">manifeste</a></li> | 
+			<li><a href="{% url 'index' %}" class="{% if request.resolver_match.url_name == "index" %}active{% endif %}">exposition en cours</a></li> | 
+			<li><a href="{% url 'past_exhibitions' %}" class="{% if request.resolver_match.url_name == "past_exhibitions" %}active{% endif %}">expositions précédentes</a></li> | 
+			<li><a href="{% url 'manifesto' %}" class="{% if request.resolver_match.url_name == "manifesto" %}active{% endif %}">manifeste</a></li> | 
 			<li><a href="twitter/com/blockhaus101">suivez @Blockhaus101 sur Twitter</a></li>
 		</ul>
 	</nav>
