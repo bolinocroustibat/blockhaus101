@@ -21,7 +21,9 @@ class Artist(models.Model):
 	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.name)
-
+	class Meta:
+		verbose_name = "Artiste"
+		verbose_name_plural = "Artistes"
 	def generate(self):
 		# first name and genre
 		firstnames_list = json.load(open(os.path.join(settings.JSON_PATH, 'FIRSTNAME.json')))
@@ -100,6 +102,9 @@ class Exhibition(models.Model):
 	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.title)
+	class Meta:
+		verbose_name = "Exposition"
+		verbose_name_plural = "Expositions"
 	def save(self, *args, **kwargs):
 		print("## TRYING TO SAVE NEW EXHIBITION...")
 		try:
@@ -124,6 +129,9 @@ class ExpoText(models.Model):
 	created = models.DateTimeField(auto_now=True)
 	def __str__(self):
 		return (self.text[:60])
+	class Meta:
+		verbose_name = "Texte d'expositions"
+		verbose_name_plural = "Textes d'expositions"
 	def save(self, *args, **kwargs):
 		slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
 		unique_slugify(self, slug_string)

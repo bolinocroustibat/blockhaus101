@@ -18,6 +18,9 @@ SITE_ROOT = os.path.abspath(os.path.dirname(__file__)) # SITE_ROOT is BASE_DIR +
 # Blockhaus specific - path to json cache
 JSON_PATH = os.path.join(os.path.abspath(os.path.join(BASE_DIR, 'blockhaus101_app', 'json_data')), '')
 
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.11/howto/static-files/
+STATIC_URL = '/static/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
@@ -37,7 +40,7 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
-    'debug_toolbar',
+	'debug_toolbar',
 	'blockhaus101_app',
 ]
 

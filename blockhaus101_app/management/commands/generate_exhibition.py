@@ -8,7 +8,7 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		artist = Artist()
 		Artist.generate(artist)
-		print(artist.name)
-		print(artist.discipline)
-		print(artist.bio)
 		artist.save()
+		exhibition = Exhibition()
+		Exhibition.generate(exhibition, artist)
+		exhibition.save()

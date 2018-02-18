@@ -65,11 +65,12 @@ def past_exhibitions(request):
 		full_exhibs.append(exhibition)
 	return render(request,'past_exhibitions.html', {'full_exhibs': full_exhibs})
 
-def generate(request):
+def test_exhibition(request):
 	artist = Artist()
 	Artist.generate(artist)
-	artist.save()
-	return render(request,'generate.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'artist_startdate': artist.startdate, 'artist_enddate': artist.enddate})
+	exhibition = Exhibition()
+	Exhibition.generate(exhibition, artist)
+	return render(request,'text_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
 
 def build_json(request):
 	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
