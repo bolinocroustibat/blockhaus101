@@ -1,21 +1,15 @@
 {% extends "base.html" %}
 
+{% block meta %}
+<title>blockhaus 101 - {{ artist_name }} - {{ expo_title|capfirst }}</title>
+<meta name="Description" content="{{ expo_text }}" />
+<meta property="og:title" content="blockhaus 101 - {{ artist_name }} - {{ expo_title|capfirst }}" />
+<meta property="og:description" content="{{ expo_text }}" />
+<meta property="og:image" content="" />
+{% endblock %}
+
+
 {% block content %}
-<div id="main-wrapper" class="col-10 offset-1 mt-5">
-
-<h1>
-	<span class="big_h1">blockhaus 101</span>
-	pop-up galerie - paris
-</h1>
-
-<nav class="row">
-	<ul>
-		<li><a href="past-exhibitions.html">past exhibitions</a></li> | 
-		<li><a class="active" href="current-exhibitions.html">current exhibitions</a></li> | 
-		<li><a href="contact.html">contact</a></li> | 
-		<li><a href="twitter/com/blockhaus101">follow @Blockhaus101 on Twitter</a></li>
-	</ul>
-</nav>
 
 <div class="project-wrapper">
 	<span class="artist">{{ artist_name }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
@@ -23,5 +17,4 @@
 	<div class="text">{{ expo_text }}</div>
 </div>
 
-</div>
 {% endblock %}

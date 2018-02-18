@@ -3,13 +3,13 @@ from .models import *
 
 # Register your models here.
 
+class ExhibitionAdmin(admin.ModelAdmin):
+	model = Exhibition
+admin.site.register(Exhibition, ExhibitionAdmin)
+
 class ArtistAdmin(admin.ModelAdmin):
 	model = Artist
 admin.site.register(Artist, ArtistAdmin)
-
-class ExpoTitleAdmin(admin.ModelAdmin):
-	model = ExpoTitle
-admin.site.register(ExpoTitle, ExpoTitleAdmin)
 
 class ExpoTextAdmin(admin.ModelAdmin):
 	model = ExpoText
