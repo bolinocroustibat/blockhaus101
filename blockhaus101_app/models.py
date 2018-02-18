@@ -1,7 +1,7 @@
 from django.db import models
 import json
 import os
-from random import randint, choice
+from random import randint, randrange, choice
 from django.conf import settings
 from datetime import datetime, timedelta
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
@@ -35,20 +35,18 @@ class Artist(models.Model):
 		super(Artist, self).save(*args, **kwargs)
 	def generate(self):
 		# first name and genre
-		firstnames_dict = json.load(open(os.path.join(settings.JSON_PATH, 'FIRSTNAME.json')))
-		firstname_nb = choice(list(firstnames_dict.keys()))
-		firstname = list(firstnames_dict[firstname_nb].values())[0]
-		self.gender = list(firstnames_dict[firstname_nb].values())[1]
+		firstnames_list = json.load(open(os.path.join(settings.JSON_PATH, 'FIRSTNAME.json')))
+		firstname_list = choice(firstnames_list)
+		firstname = firstname_list[0]
+		self.gender = firstname_list[1]
 		# last name
-		lastname_dict = json.load(open(os.path.join(settings.JSON_PATH, 'LASTNAME.json')))
-		lastname_nb = choice(list(lastname_dict.keys()))
-		lastname = list(lastname_dict[lastname_nb].values())[0]
+		lastname_list = json.load(open(os.path.join(settings.JSON_PATH, 'LASTNAME.json')))
+		lastname = choice(lastname_list)
 		# full name
 		self.name = firstname + ' ' + lastname
 		# discipline
 		discipline_dict = json.load(open(os.path.join(settings.JSON_PATH, 'DISCIPLINE.json')))
-		discipline_nb = choice(list(discipline_dict.keys()))
-		self.discipline = list(discipline_dict[discipline_nb].values())[0]
+		self.discipline = choice(discipline_dict)
 		# bio
 		self.bio = self.bio + ' ' + self.create_bio_sentence(4, 6)
 		self.bio = self.bio + ' ' + self.create_bio_sentence(7, 11)
@@ -58,15 +56,15 @@ class Artist(models.Model):
 
 	def create_bio_sentence(self, min_line = None, max_line = None):
 		biosentence = ""
-		bios_struc = json.load(open(os.path.join(settings.JSON_PATH, 'bio.json')))
+		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'bio.json')))
 		if min_line and max_line:
 			nb = randint(min_line-4, max_line-4)
 		else:
-			nb = int(choice(list(bios_struc.keys())))
-		self.bio_structure = bios_struc[str(nb)]
+			nb = randrange(0,len(possible_structures_list))
+		bio_structure = possible_structures_list[nb]
 		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		pos = 0
-		for k,v in self.bio_structure.items():
+		for v in bio_structure:
 			if v == "SELF": # si c'est l'artiste
 				biosentence = add_string_to_sentence(biosentence, pos, self.name)
 			elif v == "SELFDISCIPLINE":
@@ -87,20 +85,19 @@ class Artist(models.Model):
 
 	def create_expo_title(self):
 		expo_title = ""
-		expos_struc = json.load(open(os.path.join(settings.JSON_PATH, 'expos.json')))
-		nb = int(choice(list(expos_struc.keys())))
-		expo_structure = expos_struc[str(nb)]
+		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'expos.json')))
+		expo_structure = choice(possible_structures_list)
 		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		pos = 0
-		for k,v in expo_structure.items():
-			if v == "SELF": # si c'est l'artiste
+		for w in expo_structure:
+			if w == "SELF": # si c'est l'artiste
 				expo_title = add_string_to_sentence(expo_title, pos, self.name)
-			elif v == "SELFDISCIPLINE":
+			elif w == "SELFDISCIPLINE":
 				expo_title = add_string_to_sentence(expo_title, pos, self.discipline)
-			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				expo_title = add_string_to_sentence(expo_title, pos, choose_random_word(v))
+			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				expo_title = add_string_to_sentence(expo_title, pos, choose_random_word(w))
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
-				expo_title = add_string_to_sentence(expo_title, pos, v)
+				expo_title = add_string_to_sentence(expo_title, pos, w)
 			pos += 1
 		return expo_title
 
@@ -137,27 +134,29 @@ class ExpoText(models.Model):
 		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 14, 23)
 		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 24, 36)
 	def create_expo_sentence(self, guide_file: str(), artist: Artist(), min_line = None, max_line = None):
-		sentences_struc = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
-		sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
+		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
+		#sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
 		if min_line and max_line:
-			self.nb = randint(min_line-4, max_line-4)
+			nb = randint(min_line-4, max_line-4)
 		else:
-			self.nb = int(choice(list(sentences_struc.keys())))
-		structure = sentences_struc[self.nb]
+			nb = randrange(0,len(possible_structures_list))
+		structure = possible_structures_list[nb]
+		print("######")
+		print(structure)
 		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		sentence = ""
 		pos = 0
-		for k,v in structure.items():
-			if v == "SELF": # si c'est l'artiste
+		for w in structure:
+			if w == "SELF": # si c'est l'artiste
 				sentence = add_string_to_sentence(sentence, pos, artist.name)
-			elif v == "SELFDISPLINE":
+			elif w == "SELFDISPLINE":
 				sentence = add_string_to_sentence(sentence, pos, artist.discipline)
-			elif v == "EXPO":
+			elif w == "EXPO":
 				sentence = add_string_to_sentence(sentence, pos, artist.create_expo_title())
-			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				sentence = add_string_to_sentence(sentence, pos, choose_random_word(v))
+			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				sentence = add_string_to_sentence(sentence, pos, choose_random_word(w))
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
-				sentence = add_string_to_sentence(sentence, pos, v)
+				sentence = add_string_to_sentence(sentence, pos, w)
 			pos += 1
 		sentence = correct_sentence(sentence)
 		return sentence
