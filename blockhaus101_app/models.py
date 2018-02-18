@@ -41,12 +41,12 @@ class Artist(models.Model):
 		self.gender = firstname_list[1]
 		# last name
 		lastname_list = json.load(open(os.path.join(settings.JSON_PATH, 'LASTNAME.json')))
-		lastname = choice(lastname_list)
+		lastname = choice(lastname_list)[0]
 		# full name
 		self.name = firstname + ' ' + lastname
 		# discipline
 		discipline_dict = json.load(open(os.path.join(settings.JSON_PATH, 'DISCIPLINE.json')))
-		self.discipline = choice(discipline_dict)
+		self.discipline = choice(discipline_dict)[0]
 		# bio
 		self.bio = self.bio + ' ' + self.create_bio_sentence(4, 6)
 		self.bio = self.bio + ' ' + self.create_bio_sentence(7, 11)
@@ -141,8 +141,6 @@ class ExpoText(models.Model):
 		else:
 			nb = randrange(0,len(possible_structures_list))
 		structure = possible_structures_list[nb]
-		print("######")
-		print(structure)
 		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index2.json')))
 		sentence = ""
 		pos = 0
