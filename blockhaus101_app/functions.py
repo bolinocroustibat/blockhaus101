@@ -2,7 +2,7 @@ import json
 import os
 import re
 import blockhaus101_app
-import random
+from random import choice
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
@@ -13,13 +13,12 @@ from django.template.defaultfilters import slugify
 
 def choose_random_word(type: str()):
 	words_dict = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(type))))
-	nb = random.choice(list(words_dict.keys()))
-	word = list(words_dict[nb].values())[0]
+	chosen_word = choice(words_dict)
 	try: #s'il y a une deuxième colonne au tableau, on la met dans un genre
-		gender = list(words_dict[nb].values())[1]
+		gender = chosen_word[1]
 	except:
 		gender = ""
-	return word
+	return chosen_word[0]
 
 
 def add_string_to_sentence(sentence: str(), pos: int(), string: str()):
@@ -28,6 +27,7 @@ def add_string_to_sentence(sentence: str(), pos: int(), string: str()):
 	else:
 		sentence = sentence + ' ' + string
 	return sentence
+
 
 def correct_sentence(sentence: str()):
 	correction_dict = { # we could also use "replace(old, new)": https://www.tutorialspoint.com/python/string_replace.htm

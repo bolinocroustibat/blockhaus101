@@ -18,18 +18,6 @@ SITE_ROOT = os.path.abspath(os.path.dirname(__file__)) # SITE_ROOT is BASE_DIR +
 # Blockhaus specific - path to json cache
 JSON_PATH = os.path.join(os.path.abspath(os.path.join(BASE_DIR, 'blockhaus101_app', 'json_data')), '')
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(os.path.abspath(os.path.join(BASE_DIR, 'blockhaus101_app', 'static')), '')
-
-print("###### BASE DIR :")
-print(BASE_DIR)
-print("###### SITE ROOT :")
-print(SITE_ROOT)
-print("###### STATIC_ROOT :")
-print(STATIC_ROOT)
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
