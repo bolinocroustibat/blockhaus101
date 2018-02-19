@@ -6,7 +6,7 @@ import requests
 import urllib
 import xmltodict
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import blockhaus101_app
 from .models import *
 
@@ -34,10 +34,12 @@ def index(request):
 		print("## IP {}".format(ip))
 	except:
 		ExpoText.generate(expo_text, artist)
-		print("## COULDN'T RETRIEVE IP")	
+		print("## COULDN'T RETRIEVE IP")
+	expo_startdate = exhibition.startdate.date()
+	expo_enddate = exhibition.enddate.date()
 	expo_text.exhibition = exhibition
 	expo_text.save()
-	return render(request,'index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
+	return render(request,'index.html', {'expo_startdate': expo_startdate, 'expo_enddate': expo_enddate, 'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
 
 def exhibition(request, slug):
 	try: # get expo + artist from database from expo slug
@@ -54,8 +56,14 @@ def past_exhibitions(request):
 #	artists = Artist.objects.filter(enddate__lte=datetime.now()) # get all artist with enddate before today
 	for e in exhibitions:
 		exhibition = dict()
-		exhibition["startdate"] = e.startdate
-		exhibition["enddate"] = e.enddate
+		exhibition["startdate"] = e.startdate.date()
+		try: # try to get the startdate of most recent exhibition (previous on the loop
+			if e.enddate.date() == previous_expo_startdate: # if this startdate is the same day as the enddate
+				exhibition["enddate"] = e.enddate.date() - timedelta(days=1) # remove one day to the enddate
+			else:
+				exhibition["enddate"] = e.enddate.date()
+		except:
+			exhibition["enddate"] = e.enddate.date()
 		exhibition["title"] = e.title
 		exhibition["name"] = e.artist.name
 		exhibition["bio"] = e.artist.bio
@@ -63,6 +71,7 @@ def past_exhibitions(request):
 		ExpoText.generate(expo_text, e.artist)
 		exhibition["text"] = expo_text.text
 		full_exhibs.append(exhibition)
+		previous_expo_startdate = exhibition["startdate"] # record startdate for next iteration
 	return render(request,'past_exhibitions.html', {'full_exhibs': full_exhibs})
 
 def test_exhibition(request):

@@ -12,7 +12,7 @@
 {% block content %}
 
 {% for e in full_exhibs %}
-<div class="past-expo-date mb-4 mt-5">Du {{ e.startdate|date:"d M Y" }} au {{ e.enddate|date:"d M Y" }} :</div>
+<div class="past-expo-date mb-4 mt-5">Du {{ e.startdate }} au {{ e.enddate }} :</div>
 <div class="project-wrapper">
 	<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title|capfirst }}</span>
 	<div class="bio">{{ e.bio }}</div>
