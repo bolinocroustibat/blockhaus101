@@ -4,9 +4,10 @@ local_settings.py
 blockhaus101/__pycache__/
 blockhaus101_app/__pycache__/
 db.sqlite3
-*/.DS_Store
-.DS_Store
-.vscode/
+*.DS_Store
+*.vscode/
 debug.log
-.htpasswd
+*.htpasswd
 static/
+*.sublime-project
+*.sublime-workspace
