@@ -7,7 +7,6 @@
 
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">	
-
 	{% block meta %}
 	{% endblock %}
 
@@ -52,8 +51,7 @@
 		<ul>
 			<li><a href="{% url 'index' %}" class="{% if request.resolver_match.url_name == "index" %}active{% endif %}">en ce moment</a></li>&nbsp;&nbsp;|&nbsp;&nbsp;
 			<li><a href="{% url 'manifesto' %}" class="{% if request.resolver_match.url_name == "manifesto" %}active{% endif %}">manifeste</a></li>&nbsp;&nbsp;|&nbsp;&nbsp;
-			<li><a href="{% url 'past_exhibitions' %}" class="{% if request.resolver_match.url_name == "past_exhibitions" %}active{% endif %}">expositions précédentes</a></li>&nbsp;&nbsp;|&nbsp;&nbsp;
-			<li><a href="twitter/com/blockhaus101">@Blockhaus101 sur Twitter</a></li>
+			<li><a href="{% url 'past_exhibitions' %}" class="{% if request.resolver_match.url_name == "past_exhibitions" %}active{% endif %}">expositions précédentes</a></li>&nbsp;&nbsp;|&nbsp;&nbsp;<li><a href="twitter/com/blockhaus101">@Blockhaus101 sur Twitter</a></li>
 		</ul>
 	</nav>
 
