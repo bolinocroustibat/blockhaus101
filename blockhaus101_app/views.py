@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import blockhaus101_app
 from .models import *
 
+
 def index(request):
 	try: # try to get an artist for current period
 		# artist = (Artist.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
@@ -41,6 +42,7 @@ def index(request):
 	expo_text.save()
 	return render(request,'index.html', {'expo_startdate': expo_startdate, 'expo_enddate': expo_enddate, 'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
 
+
 def exhibition(request, slug):
 	try: # get expo + artist from database from expo slug
 		expo_text = ExpoText.objects.get(slug=slug)
@@ -49,6 +51,7 @@ def exhibition(request, slug):
 		return render(request,'index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
 	except ExpoText.DoesNotExist:
 		raise Http404("Cette expo n'existe pas")
+
 
 def past_exhibitions(request):
 	full_exhibs = list()
@@ -74,12 +77,14 @@ def past_exhibitions(request):
 		previous_expo_startdate = exhibition["startdate"] # record startdate for next iteration
 	return render(request,'past_exhibitions.html', {'full_exhibs': full_exhibs})
 
+
 def test_exhibition(request):
 	artist = Artist()
 	Artist.generate(artist)
 	exhibition = Exhibition()
 	Exhibition.generate(exhibition, artist)
 	return render(request,'text_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
+
 
 def build_json(request):
 	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
