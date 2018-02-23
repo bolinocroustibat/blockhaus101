@@ -11,8 +11,10 @@
 
 {% block content %}
 
+{% if manifesto_text %}
 <div class="col-lg-6 col-12 p-0">
 	{{ manifesto_text }}
 </div>
+{% endif %}
 
 {% endblock %}

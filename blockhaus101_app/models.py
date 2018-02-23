@@ -9,7 +9,7 @@ from blockhaus101_app.functions import choose_random_word, add_string_to_sentenc
 
 
 class SiteSettings(SingletonModel):
-	manifesto = models.TextField("Texte du manifeste", max_length=3000)
+	manifesto = models.TextField("Texte du manifeste", max_length=3000, default="")
 	period = models.IntegerField("Période entre deux expositions, en jours", default=7)
 	class Meta:
 		verbose_name = "Réglages généraux de Blockhaus101"
