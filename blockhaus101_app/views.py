@@ -53,6 +53,11 @@ def exhibition(request, slug):
 		raise Http404("Cette expo n'existe pas")
 
 
+def manifesto(request):
+	manifesto_text = SiteSettings.objects.get().manifesto
+	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
+
+
 def past_exhibitions(request):
 	full_exhibs = list()
 	exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by('-enddate') # get all artist with enddate before today
