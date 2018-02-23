@@ -13,7 +13,7 @@
 
 {% for e in full_exhibs %}
 <div class="past-expo-date mb-4 mt-5">Du {{ e.startdate }} au {{ e.enddate }} :</div>
-<div class="project-wrapper">
+<div class="col-lg-6 col-12 project-wrapper">
 	<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title|capfirst }}</span>
 	<div class="bio">{{ e.bio }}</div>
 	<div class="text">{{ e.text }}</div>
@@ -21,7 +21,7 @@
 {% endfor %}
 
 {% if not full_exhibs.exhibition %}
-Il n'y a pas encore d'expositions passées !
+	Il n'y a pas encore d'expositions passées !
 {% endif %}
 
 {% endblock %}

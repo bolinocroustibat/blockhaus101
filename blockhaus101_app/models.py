@@ -1,4 +1,5 @@
 from django.db import models
+from solo.models import SingletonModel
 import json
 import os
 from random import randint, randrange, choice
@@ -6,8 +7,12 @@ from django.conf import settings
 from datetime import datetime, timedelta
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
 
-# period (in days) between two exhibitions for next creations
-PERIOD = 7
+
+class SiteSettings(SingletonModel):
+	manifesto = models.TextField("Texte du manifeste", max_length=3000)
+	period = models.IntegerField("Période entre deux expositions, en jours", default=7)
+	class Meta:
+		verbose_name = "Réglages généraux de Blockhaus101"
 
 class Artist(models.Model):
 	name = models.CharField("Nom de l'artiste", max_length=80)
@@ -109,11 +114,11 @@ class Exhibition(models.Model):
 		print("## TRYING TO SAVE NEW EXHIBITION...")
 		try:
 			self.startdate = Exhibition.objects.latest('enddate').enddate
-			self.enddate = self.startdate + timedelta(days=PERIOD)
+			self.enddate = self.startdate + timedelta(days=SiteSettings.objects.get().period)
 			print("## AT LEAST ONE EXHIBITION ALREADY PRESENT")
 		except:
 			self.startdate = datetime.now()
-			self.enddate = datetime.now() + timedelta(days=PERIOD)
+			self.enddate = datetime.now() + timedelta(days=SiteSettings.objects.get().period)
 			print("## NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
 		super(Exhibition, self).save(*args, **kwargs)
 	def generate(self, artist: Artist()):
