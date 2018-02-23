@@ -54,7 +54,10 @@ def exhibition(request, slug):
 
 
 def manifesto(request):
-	manifesto_text = SiteSettings.objects.get().manifesto
+	try:
+		manifesto_text = SiteSettings.objects.get().manifesto
+	except:
+		manifesto_text = ""
 	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
 
 
