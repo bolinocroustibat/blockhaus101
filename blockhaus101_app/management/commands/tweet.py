@@ -32,7 +32,7 @@ class Command(BaseCommand):
 						expo_startdate_string = expo_startdate_string[1:]
 					tweet = add_string_to_sentence(tweet, pos, expo_startdate_string)
 				elif w == "EXPOENDDATE":
-					expo_enddate_string = '{:%d %B}'.format(exhibition.enddate).replace(" 0", " ")
+					expo_enddate_string = '{:%d %B}'.format(exhibition.enddate)
 					if expo_enddate_string[0] == "0":
 						expo_enddate_string = expo_enddate_string[1:]
 					tweet = add_string_to_sentence(tweet, pos, expo_enddate_string)
