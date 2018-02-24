@@ -3,14 +3,12 @@ from django.apps import apps
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
 from blockhaus101_app.models import *
 import tweepy
-import locale
 
 class Command(BaseCommand):
 	help = 'Generate new tweet'
 
 	def handle(self, *args, **options):
 		try: # try to get an artist for current period
-			locale.setlocale(locale.LC_TIME, "fr_FR.utf8") # french date
 			exhibition = (Exhibition.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
 			artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
 			tweet = ""

@@ -10,7 +10,6 @@ from datetime import datetime, timedelta
 import tweepy
 import blockhaus101_app
 from .models import *
-import locale
 
 
 def index(request):
@@ -137,9 +136,11 @@ def test_exhibition(request):
 
 def test_tweet(request):
 	try: # try to get an artist for current period
-		locale.setlocale(locale.LC_TIME, "fr_FR.utf8") # french date
 		exhibition = (Exhibition.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
 		artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
+	except:
+		return HttpResponse("ERROR WHILE TRYING TO GET THE CURRENT EXHIBITION AND/OR ARTIST")
+	try:
 		tweet = ""
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets.json')))
 		nb = randrange(0,len(possible_structures_list))
@@ -159,7 +160,7 @@ def test_tweet(request):
 					expo_startdate_string = expo_startdate_string[1:]
 				tweet = add_string_to_sentence(tweet, pos, expo_startdate_string)
 			elif w == "EXPOENDDATE":
-				expo_enddate_string = '{:%d %B}'.format(exhibition.enddate).replace(" 0", " ")
+				expo_enddate_string = '{:%d %B}'.format(exhibition.enddate)
 				if expo_enddate_string[0] == "0":
 					expo_enddate_string = expo_enddate_string[1:]
 				tweet = add_string_to_sentence(tweet, pos, expo_enddate_string)
@@ -169,7 +170,7 @@ def test_tweet(request):
 				tweet = add_string_to_sentence(tweet, pos, w)
 			pos += 1
 		tweet = correct_sentence(tweet)
-		return render(request,'test_tweet.html', {'tweet': tweet})
 	except:
-		return HttpResponse("ERROR WHILE CREATING THE TWEET, PROBABLY WHILE TRYING TO GET THE CURRENT EXHIBITION AND/OR ARTIST")
+		return HttpResponse("ERROR WHILE CREATING THE TWEET")
+	return render(request,'test_tweet.html', {'tweet': tweet})
 
