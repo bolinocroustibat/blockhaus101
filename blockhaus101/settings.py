@@ -18,8 +18,16 @@ SITE_ROOT = os.path.abspath(os.path.dirname(__file__)) # SITE_ROOT is BASE_DIR +
 # Blockhaus specific - path to json cache
 JSON_PATH = os.path.join(os.path.abspath(os.path.join(BASE_DIR, 'blockhaus101_app', 'json_data/')), '')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+# TWEEPY
+# The consumer keys can be found on your application's Details
+# page located at https://dev.twitter.com/apps (under "OAuth settings")
+TWITTER_CONSUMER_KEY="NY2nHNNVMEMYarF3dnnVHmHnK"
+TWITTER_CONSUMER_SECRET="ID89Z7VOYc0SpSnRLc24iWCffbrrkU6yCdzSgCQfzhDVEuO4de"
+# The access tokens can be found on your applications's Details
+# page located at https://dev.twitter.com/apps (located
+# under "Your access token")
+TWITTER_ACCESS_TOKEN="845743348908478466-7QcSj9koknxYAaOrGk03N9ix8xcmJs1"
+TWITTER_ACCESS_TOKEN_SECRET="6XdmNzhpJH5BzDQpknhC0romDuoFKyAqORT7mwJN8CpWd"
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '+%umqk%=)x=%_l3+++*a28wjom@99zeykg$1*z+1&u$v1=_pys'
