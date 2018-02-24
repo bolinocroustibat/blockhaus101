@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.apps import apps
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
 from blockhaus101_app.models import *
+import tweepy
 
 class Command(BaseCommand):
 	help = 'Generate new tweet'

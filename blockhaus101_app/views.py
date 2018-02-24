@@ -7,6 +7,7 @@ import urllib
 import xmltodict
 import json
 from datetime import datetime, timedelta
+import tweepy
 import blockhaus101_app
 from .models import *
 
@@ -91,7 +92,7 @@ def test_exhibition(request):
 	Artist.generate(artist)
 	exhibition = Exhibition()
 	Exhibition.generate(exhibition, artist)
-	return render(request,'text_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
+	return render(request,'test_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
 
 
 def build_json(request):
@@ -132,15 +133,19 @@ def build_json(request):
 			print('ERROR WHILE TRYING TO CACHE "{}"'.format(key))
 	return HttpResponse('{}'.format("Les fichiers de cache ont été créés !"))
 
-# def test(request):
-# 	json_url = 'https://spreadsheets.google.com/feeds/list/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/oyb70va/public/values?alt=json'
-# 	json_data = requests.get(json_url).json()
-# 	trimmed_json_data = list()
-# 	for e in json_data['feed']['entry'][2:]:
-# 		element = list()
-# 		for k, v in e.items():
-# 			if k.startswith('gsx'):
-# 				element.append(v["$t"])
-# 		trimmed_json_data.append(element)
-# 	print(json.dumps(trimmed_json_data))
+def test(request):
+	auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+	auth.set_access_token(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
+	api = tweepy.API(auth)
+	try:
+		# If the application settings are set for "Read and Write" then
+		# this line should tweet out the message to your account's
+		# timeline. The "Read and Write" setting is on https://dev.twitter.com/apps
+		api.update_status(status='Updating using OAuth authentication via Tweepy!')
+		# If the authentication was successful, you should
+		# see the name of the account print out
+		return HttpResponse(api.me().name)
+	except:
+		return HttpResponse("error while conecting")
+
 	

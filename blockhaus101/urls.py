@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.conf import settings
 
 urlpatterns = [
-	url(r'^admin/', admin.site.urls),
+	url(r'^admin101/', admin.site.urls),
 	url(r'^', include('blockhaus101_app.urls')),
 ]
 
