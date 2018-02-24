@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 import tweepy
 import blockhaus101_app
 from .models import *
+import locale
 
 
 def index(request):
@@ -87,14 +88,6 @@ def past_exhibitions(request):
 	return render(request,'past_exhibitions.html', {'full_exhibs': full_exhibs})
 
 
-def test_exhibition(request):
-	artist = Artist()
-	Artist.generate(artist)
-	exhibition = Exhibition()
-	Exhibition.generate(exhibition, artist)
-	return render(request,'test_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
-
-
 def build_json(request):
 	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
 	path = os.path.join(os.path.dirname(blockhaus101_app.__file__), 'json_data')
@@ -133,19 +126,50 @@ def build_json(request):
 			print('ERROR WHILE TRYING TO CACHE "{}"'.format(key))
 	return HttpResponse('{}'.format("Les fichiers de cache ont été créés !"))
 
-def test(request):
-	auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
-	auth.set_access_token(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
-	api = tweepy.API(auth)
-	try:
-		# If the application settings are set for "Read and Write" then
-		# this line should tweet out the message to your account's
-		# timeline. The "Read and Write" setting is on https://dev.twitter.com/apps
-		api.update_status(status='Updating using OAuth authentication via Tweepy!')
-		# If the authentication was successful, you should
-		# see the name of the account print out
-		return HttpResponse(api.me().name)
-	except:
-		return HttpResponse("error while conecting")
 
-	
+def test_exhibition(request):
+	artist = Artist()
+	Artist.generate(artist)
+	exhibition = Exhibition()
+	Exhibition.generate(exhibition, artist)
+	return render(request,'test_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
+
+
+def test_tweet(request):
+	try: # try to get an artist for current period
+		locale.setlocale(locale.LC_TIME, "fr_FR") # french date
+		exhibition = (Exhibition.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
+		artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
+		tweet = ""
+		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets.json')))
+		nb = randrange(0,len(possible_structures_list))
+		tweet_structure = possible_structures_list[nb]
+		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
+		pos = 0
+		for w in tweet_structure:
+			if w == "SELF": # si c'est l'artiste
+				tweet = add_string_to_sentence(tweet, pos, artist.name)
+			elif w == "SELFDISCIPLINE":
+				tweet = add_string_to_sentence(tweet, pos, artist.discipline)
+			elif w == "EXPO":
+				tweet = add_string_to_sentence(tweet, pos, exhibition.title)
+			elif w == "EXPOSTARTDATE":
+				expo_startdate_string = '{:%d %B}'.format(exhibition.startdate)
+				if expo_startdate_string[0] == "0":
+					expo_startdate_string = expo_startdate_string[1:]
+				tweet = add_string_to_sentence(tweet, pos, expo_startdate_string)
+			elif w == "EXPOENDDATE":
+				expo_enddate_string = '{:%d %B}'.format(exhibition.enddate).replace(" 0", " ")
+				if expo_enddate_string[0] == "0":
+					expo_enddate_string = expo_enddate_string[1:]
+				tweet = add_string_to_sentence(tweet, pos, expo_enddate_string)
+			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				tweet = add_string_to_sentence(tweet, pos, choose_random_word(w))
+			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
+				tweet = add_string_to_sentence(tweet, pos, w)
+			pos += 1
+		tweet = correct_sentence(tweet)
+		return render(request,'test_tweet.html', {'tweet': tweet})
+	except:
+		return HttpResponse("ERROR WHILE CREATING THE TWEET, PROBABLY WHILE TRYING TO GET THE CURRENT EXHIBITION AND/OR ARTIST")
+

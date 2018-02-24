@@ -22,7 +22,7 @@ def choose_random_word(type: str()):
 
 
 def add_string_to_sentence(sentence: str(), pos: int(), string: str()):
-	if (pos == 0) or (sentence[-1:] == "-") or (sentence[-1:] == "“") or (string[:1] == ",") or (string[:1] == ".") or (string[:1] == "²") or (string[:1] == "”"): # pas d'espace avant si c'est le premier mot de la phrase, si le mot précédent se termine par un tiret ou un guillemet ouvrant, ou si le mot suivant est un point ou une virgule ou un carré ou un guillemet fermant
+	if (pos == 0) or (sentence[-1:] == "-") or (sentence[-1:] == "“") or (sentence[-1:] == '"') or (string[:1] == ",") or (string[:1] == ".") or (string[:1] == "²") or (string[:1] == "”") or (string[:1] == '"'): # pas d'espace avant si c'est le premier mot de la phrase, si le mot précédent se termine par un tiret ou un guillemet ouvrant, ou si le mot suivant est un point ou une virgule ou un carré ou un guillemet fermant
 		sentence = sentence + string
 	else:
 		sentence = sentence + ' ' + string

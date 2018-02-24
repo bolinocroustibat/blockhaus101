@@ -75,8 +75,11 @@ class Artist(models.Model):
 		biosentence = correct_sentence(biosentence)
 		if self.gender == "f": # si l'artiste est du genre féminin
 			biosentence = biosentence.replace(" il ", " elle ")
+			biosentence = biosentence.replace("qu'il ", "qu'elle ")
+			biosentence = biosentence.replace("Il ", " Elle ")
 			biosentence = biosentence.replace(" né ", " née ")
 			biosentence = biosentence.replace("Né ", "Née ")
+			biosentence = biosentence.replace("iplômé ", "iplômée ")
 		return biosentence
 
 	def create_expo_title(self):

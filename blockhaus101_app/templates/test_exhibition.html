@@ -1,14 +1,30 @@
-{% extends "base.html" %}
+{% load static %}
 
-{% block meta %}
-{% endblock %}
+<!DOCTYPE html>
+<html lang="fr">
 
+<head>
 
-{% block content %}
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">	
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="{% static 'style.css' %}" rel="stylesheet" type="text/css" media="all" />
 
-<div class="project-wrapper">
-	<span class="artist">{{ artist_name }} | {{ artist_gender }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
-	<div class="bio">{{ artist_bio }}</div>
+</head>
+
+<body>
+
+<div id="main-wrapper" class="col-10 offset-1 mt-5">
+
+	<div class="project-wrapper">
+		<span class="artist">{{ artist_name }} | {{ artist_gender }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
+		<div class="bio">{{ artist_bio }}</div>
+	</div>
+
+	<a href="{% url 'test_exhibition' %}" class="btn btn-lg mt-5">Tester une autre expo</a>
+
 </div>
 
-{% endblock %}
+</body>
+
+</html>
