@@ -137,7 +137,7 @@ def test_exhibition(request):
 
 def test_tweet(request):
 	try: # try to get an artist for current period
-		locale.setlocale(locale.LC_TIME, "fr_FR") # french date
+		locale.setlocale(locale.LC_TIME, "fr_FR.utf8") # french date
 		exhibition = (Exhibition.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
 		artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
 		tweet = ""
