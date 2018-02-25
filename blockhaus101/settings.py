@@ -18,6 +18,9 @@ SITE_ROOT = os.path.abspath(os.path.dirname(__file__)) # SITE_ROOT is BASE_DIR +
 # Blockhaus specific - path to json cache
 JSON_PATH = os.path.join(os.path.abspath(os.path.join(BASE_DIR, 'blockhaus101_app', 'json_data/')), '')
 
+# where the static files will go when doing a collectstatic if debug=false
+STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
+
 # TWEEPY
 # The consumer keys can be found on your application's Details
 # page located at https://dev.twitter.com/apps (under "OAuth settings")

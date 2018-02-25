@@ -41,8 +41,8 @@ class Artist(models.Model):
 		# full name
 		self.name = firstname + ' ' + lastname
 		# discipline
-		discipline_dict = json.load(open(os.path.join(settings.JSON_PATH, 'DISCIPLINE.json')))
-		self.discipline = choice(discipline_dict)[0]
+		discipline_list = json.load(open(os.path.join(settings.JSON_PATH, 'DISCIPLINE.json')))
+		self.discipline = choice(discipline_list)[0]
 		# bio
 		self.bio = self.bio + ' ' + self.create_bio_sentence(4, 6)
 		self.bio = self.bio + ' ' + self.create_bio_sentence(7, 11)
