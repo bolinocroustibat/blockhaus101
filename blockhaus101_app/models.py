@@ -114,19 +114,20 @@ class Exhibition(models.Model):
 		verbose_name = "Exposition"
 		verbose_name_plural = "Expositions"
 	def save(self, *args, **kwargs):
-		try:
-			period = SiteSettings.objects.get().period
-		except:
-			period = 7
-		print("## NOW TRYING TO SAVE NEW EXHIBITION...")
-		try:
-			self.startdate = Exhibition.objects.latest('enddate').enddate
-			self.enddate = self.startdate + timedelta(days=period)
-			print("## AT LEAST ONE EXHIBITION ALREADY PRESENT, EXHIBITION SAVED ACCORDING TO PREVIOUS!")
-		except:
-			self.startdate = datetime.now()
-			self.enddate = datetime.now() + timedelta(days=period)
-			print("## NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
+		if not self.startdate or not self.enddate:
+			try:
+				period = SiteSettings.objects.get().period
+			except:
+				period = 7
+			print("## NOW TRYING TO SAVE NEW EXHIBITION...")
+			try:
+				self.startdate = Exhibition.objects.latest('enddate').enddate
+				self.enddate = self.startdate + timedelta(days=period)
+				print("## AT LEAST ONE EXHIBITION ALREADY PRESENT, EXHIBITION SAVED ACCORDING TO PREVIOUS!")
+			except:
+				self.startdate = datetime.now()
+				self.enddate = datetime.now() + timedelta(days=period)
+				print("## NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
 		super(Exhibition, self).save(*args, **kwargs)
 	def generate(self, artist: Artist()):
 		self.artist = artist
