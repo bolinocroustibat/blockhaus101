@@ -6,6 +6,7 @@ import requests
 import urllib
 import xmltodict
 import json
+from collections import OrderedDict
 from datetime import datetime, timedelta
 import tweepy
 import blockhaus101_app
@@ -110,7 +111,7 @@ def build_json(request):
 		try:
 			json_url = "https://spreadsheets.google.com/feeds/list/{}/{}/public/values?alt=json".format(spreadsheet_key, value)
 			print(json_url) # TEST
-			json_data = requests.get(json_url).json()
+			json_data = requests.get(json_url).json(object_pairs_hook=OrderedDict)
 			trimmed_json_data = list()
 			for e in json_data['feed']['entry'][2:]:
 				element = list()

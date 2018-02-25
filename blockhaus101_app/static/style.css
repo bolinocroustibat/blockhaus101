@@ -1,18 +1,29 @@
 body{
 	background: white; 
 	color:black;
-	font-family: courier;
+	font-family: helvetica,sans-serif;
 }
 
 h1 {
-	font-family: helvetica,sans-serif;
-	font-size:2em;
+	font-size: 2em;
 	font-weight:bold;
 }
 
 h1 .big_h1 {
-	display:block;
-	font-size:1.8em;
+	display: block;
+	font-size: 1.8em;
+}
+
+@media (max-width: 600px) {
+	h1 {
+		font-size: 1.2em;
+	}
+	nav {
+		font-size: 0.8em;
+	}
+	.project-wrapper {
+		font-size: 0.8em;
+	}
 }
 
 a{
@@ -22,10 +33,6 @@ a{
 
 a:hover{
 	color:#000;
-}
-
-nav {
-	font-family: helvetica,sans-serif;
 }
 
 nav ul{
@@ -53,14 +60,10 @@ li .active {
 	font-weight: bold;
 }
 
-.past-expo-date {
-	font-family: helvetica,sans-serif;
-}
-
 .project-wrapper{
-	padding-left:15px;
+	padding-left: 15px;
 	border-left: 1px solid black;
-	cursor:pointer;
+	font-family: courier;
 }
 
 .project-wrapper a{
