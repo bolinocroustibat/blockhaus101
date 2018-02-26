@@ -7,12 +7,21 @@ import tweepy
 class Command(BaseCommand):
 	help = 'Generate new tweet'
 
+	def add_arguments(self, parser):
+		parser.add_argument('--tweet1', dest='tweet1', default=False, help=u'Tweet 1')
+		parser.add_argument('--tweet2', dest='tweet2', default=False, help=u'Tweet 2')
+
 	def handle(self, *args, **options):
 		try: # try to get an artist for current period
 			exhibition = (Exhibition.objects.filter(startdate__lte=datetime.now()).filter(enddate__gte=datetime.now()))[0]
 			artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
 			tweet = ""
-			possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets.json')))
+			if options['tweet1']:
+				print("################# GENERATE TWEET 1")
+				possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets1.json')))
+			else:
+				print("################# GENERATE TWEET 2")
+				possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets2.json')))	
 			nb = randrange(0,len(possible_structures_list))
 			tweet_structure = possible_structures_list[nb]
 			index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
