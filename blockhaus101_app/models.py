@@ -152,13 +152,16 @@ class ExpoText(models.Model):
 	def generate(self, artist: Artist(), ip=None):
 		self.ip = ip
 		self.text = ""
-		if randint(1, 2) == 2:
+		if randint(1, 3) == 1:
 			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 4, 4)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 5, 9)
-		if randint(1, 3) == 3:
-			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 10, 13)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 14, 23)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 24, 36)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 5, 10)
+		if randint(1, 3) == 1:
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 11, 14)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 15, 24)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 25, 36)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 37, 39)
+		if artist.gender == "f": # si l'artiste est du genre féminin
+			self.text = self.text.replace(" Il ", " Elle ")
 	def create_expo_sentence(self, guide_file: str(), artist: Artist(), min_line = None, max_line = None):
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
 		#sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
