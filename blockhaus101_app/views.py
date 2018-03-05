@@ -55,12 +55,12 @@ def exhibition(request, slug):
 		raise Http404("Cette expo n'existe pas")
 
 
-def manifesto(request):
-	try:
-		manifesto_text = SiteSettings.objects.get().manifesto
-	except:
-		manifesto_text = ""
-	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
+# def manifesto(request):
+# 	try:
+# 		manifesto_text = SiteSettings.objects.get().manifesto
+# 	except:
+# 		manifesto_text = ""
+# 	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
 
 
 def past_exhibitions(request):
@@ -85,7 +85,7 @@ def past_exhibitions(request):
 		exhibition["text"] = expo_text.text
 		full_exhibs.append(exhibition)
 		previous_expo_startdate = exhibition["startdate"] # record startdate for next iteration
-	return render(request,'past_exhibitions.html', {'full_exhibs': full_exhibs})
+	return render(request,'past-exhibitions.html', {'full_exhibs': full_exhibs})
 
 
 def build_json(request):
@@ -111,7 +111,7 @@ def build_json(request):
 		try:
 			json_url = "https://spreadsheets.google.com/feeds/list/{}/{}/public/values?alt=json".format(spreadsheet_key, value)
 			print(json_url) # TEST
-			json_data = requests.get(json_url).json(object_pairs_hook=OrderedDict)
+			json_data = requests.get(json_url).json(object_pairs_hook= OrderedDict)
 			trimmed_json_data = list()
 			for e in json_data['feed']['entry'][2:]:
 				element = list()
@@ -132,7 +132,7 @@ def test_exhibition(request):
 	Artist.generate(artist)
 	exhibition = Exhibition()
 	Exhibition.generate(exhibition, artist)
-	return render(request,'test_exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
+	return render(request,'test-exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
 
 
 def test_tweet(request):
@@ -173,5 +173,5 @@ def test_tweet(request):
 		tweet = correct_sentence(tweet)
 	except:
 		return HttpResponse("ERROR WHILE CREATING THE TWEET")
-	return render(request,'test_tweet.html', {'tweet': tweet})
+	return render(request,'test-tweet.html', {'tweet': tweet})
 
