@@ -3,6 +3,7 @@ local_settings.py
 /__pycache__/
 blockhaus101/__pycache__/
 blockhaus101_app/__pycache__/
+blockhaus101_app/json_data/*
 db.sqlite3
 *.DS_Store
 *.vscode/
