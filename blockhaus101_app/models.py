@@ -152,17 +152,19 @@ class ExpoText(models.Model):
 	def generate(self, artist: Artist(), ip=None):
 		self.ip = ip
 		self.text = ""
+		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
 		if randint(1, 3) == 1:
-			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 4, 4)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 5, 10)
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 4, 4)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 5, 10)
 		if randint(1, 3) == 1:
-			self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 11, 14)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 15, 24)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 25, 36)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", artist, 37, 39)
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 11, 14)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 15, 24)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 25, 36)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 37, 39)
 		if artist.gender == "f": # si l'artiste est du genre féminin
 			self.text = self.text.replace(" Il ", " Elle ")
-	def create_expo_sentence(self, guide_file: str(), artist: Artist(), min_line = None, max_line = None):
+		print(forbidden_words)
+	def create_expo_sentence(self, guide_file: str(), forbidden_words, artist: Artist(), min_line = None, max_line = None):
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
 		#sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
 		if min_line and max_line:
@@ -181,7 +183,8 @@ class ExpoText(models.Model):
 			elif w == "EXPO":
 				sentence = add_string_to_sentence(sentence, pos, artist.create_expo_title())
 			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				sentence = add_string_to_sentence(sentence, pos, choose_random_word(w))
+				chosen_word = choose_random_word(word_type=w, forbidden_words=forbidden_words)
+				sentence = add_string_to_sentence(sentence, pos, chosen_word)
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
 				sentence = add_string_to_sentence(sentence, pos, w)
 			pos += 1
