@@ -23,21 +23,23 @@ def index(request):
 	except:
 		print("## THERE IS NO CURRENT EXHIBITION IN THE TIME RANGE")
 		artist = Artist()
-		Artist.generate(artist)
+		artist.generate()
 		artist.save()
-		exhibition = Exhibition()
-		Exhibition.generate(exhibition, artist)
-		exhibition.save()
 		print('## NEW ARTIST "{}" HAS BEEN GENERATED AND SAVED'.format(artist.name))
+		exhibition = Exhibition()
+		exhibition.artist = artist
+		exhibition.generate()
+		exhibition.save()
 		print('## NEW EXHIBITION "{}" HAS BEEN GENERATED AND SAVED'.format(exhibition.title))
 	expo_text = ExpoText()
+	expo_text.exhibition = exhibition
 	try: # store IP adress
 		ip = request.META.get('REMOTE_ADDR')
-		ExpoText.generate(expo_text, artist, ip)
+		expo_text.generate(ip)
 		print("## IP {}".format(ip))
 	except:
-		ExpoText.generate(expo_text, artist)
 		print("## COULDN'T RETRIEVE IP")
+		expo_text.generate()
 	expo_startdate = exhibition.startdate.date()
 	expo_enddate = exhibition.enddate.date()
 	expo_text.exhibition = exhibition
@@ -81,7 +83,8 @@ def past_exhibitions(request):
 		exhibition["name"] = e.artist.name
 		exhibition["bio"] = e.artist.bio
 		expo_text = ExpoText()
-		ExpoText.generate(expo_text, e.artist)
+		expo_text.exhibition = e
+		expo_text.generate()
 		exhibition["text"] = expo_text.text
 		full_exhibs.append(exhibition)
 		previous_expo_startdate = exhibition["startdate"] # record startdate for next iteration
