@@ -2,7 +2,7 @@ import json
 import os
 import re
 import blockhaus101_app
-from random import choice
+import random
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
@@ -11,14 +11,23 @@ from django.template.defaultfilters import slugify
 ## COMMON FUNCTIONS TO SEVERAL CLASSES #
 ########################################
 
-def choose_random_word(type: str()):
-	words_dict = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(type))))
-	chosen_word = choice(words_dict)
-	try: #s'il y a une deuxième colonne au tableau, on la met dans un genre
-		gender = chosen_word[1]
+def choose_random_word(word_type: str(), forbidden_words: str()=None):
+	words_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(word_type))))
+	choice_key = random.randrange(len(words_list)) # choose an random key in the list
+	try:
+		while choice_key == forbidden_words[word_type]:
+			print('## CLEF "{}" POUR MOT DE TYPE "{}" DEJA UTILISE DANS LA PHRASE, ON PREND UN AUTRE'.format(choice_key, word_type))
+			choice_key = random.randrange(len(words_dict))
+			if choice_key != forbidden_words[word_type]:
+				break
+	except:
+		pass
+	forbidden_words[word_type] = choice_key
+	try: # s'il y a une deuxième colonne au tableau, on la met dans un genre
+		gender = words_list[choice_key][1]
 	except:
 		gender = ""
-	return chosen_word[0]
+	return words_list[choice_key][0]
 
 
 def add_string_to_sentence(sentence: str(), pos: int(), string: str()):
@@ -57,24 +66,26 @@ def correct_sentence(sentence: str()):
 	" la A": " l’A",
 	" la E": " l’E",
 	" la É": " l’É",
-	" la U": " l’U",
 	" la I": " l’I",
 	" la O": " l’O",
+	" la U": " l’U",
 	" le A": " l’A",
 	" le E": " l’E",
 	" le É": " l’É",
-	" le U": " l’U",
 	" le I": " l’I",
 	" le O": " l’O",
+	" le U": " l’U",
 	" le la ": " la ",
 	" le le ": " le ",
 	" le les ": " les ",
+	" un l'": " un ",
 	" un l’": " un ",
 	" un la ": " une ",
 	" un le ": " un ",
 	" un les ": " des ",
 	" son la ": " sa ",
 	" son le ": " son ",
+	" son l'": " son ",
 	" son l’": " son ",
 	" son les ": " ses ",
 	" que a": " qu’a",
@@ -117,10 +128,7 @@ def strtr(string, correction_dict: dict()):
 Taken from SmileyChris' post @ https://djangosnippets.org/snippets/690/
 """
 import re
-
 from django.template.defaultfilters import slugify
-
-
 def unique_slugify(instance, value, slug_field_name='slug', queryset=None,slug_separator='-'):
 	"""
 	Calculates a unique slug of ``value`` for an instance.
