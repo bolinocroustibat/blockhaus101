@@ -129,9 +129,8 @@ class Exhibition(models.Model):
 				self.enddate = datetime.now() + timedelta(days=period)
 				print("## NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
 		super(Exhibition, self).save(*args, **kwargs)
-	def generate(self, artist: Artist()):
-		self.artist = artist
-		self.title = artist.create_expo_title() 
+	def generate(self):
+		self.title = self.artist.create_expo_title() 
 
 
 class ExpoText(models.Model):
@@ -143,28 +142,28 @@ class ExpoText(models.Model):
 	def __str__(self):
 		return (self.text[:60])
 	class Meta:
-		verbose_name = "Texte d'expositions"
+		verbose_name = "Texte d'exposition"
 		verbose_name_plural = "Textes d'expositions"
 	def save(self, *args, **kwargs):
 		slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
 		unique_slugify(self, slug_string)
 		super(ExpoText, self).save(*args, **kwargs)
-	def generate(self, artist: Artist(), ip=None):
+	def generate(self, ip=None):
 		self.ip = ip
 		self.text = ""
 		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
 		if randint(1, 3) == 1:
-			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 4, 4)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 5, 10)
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 4, 4)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 5, 10)
 		if randint(1, 3) == 1:
-			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 11, 14)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 15, 24)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 25, 36)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, artist, 37, 39)
-		if artist.gender == "f": # si l'artiste est du genre féminin
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 11, 14)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 15, 24)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 25, 36)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 37, 39)
+		if self.exhibition.artist.gender == "f": # si l'artiste est du genre féminin
 			self.text = self.text.replace(" Il ", " Elle ")
 		print(forbidden_words)
-	def create_expo_sentence(self, guide_file: str(), forbidden_words, artist: Artist(), min_line = None, max_line = None):
+	def create_expo_sentence(self, guide_file: str(), forbidden_words, min_line = None, max_line = None):
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
 		#sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys
 		if min_line and max_line:
@@ -177,11 +176,13 @@ class ExpoText(models.Model):
 		pos = 0
 		for w in structure:
 			if w == "SELF": # si c'est l'artiste
-				sentence = add_string_to_sentence(sentence, pos, artist.name)
+				sentence = add_string_to_sentence(sentence, pos, self.exhibition.artist.name)
 			elif w == "SELFDISPLINE":
-				sentence = add_string_to_sentence(sentence, pos, artist.discipline)
+				sentence = add_string_to_sentence(sentence, pos, self.exhibition.artist.discipline)
+			elif w == "SELFEXPO":
+				sentence = add_string_to_sentence(sentence, pos, self.exhibition.title)
 			elif w == "EXPO":
-				sentence = add_string_to_sentence(sentence, pos, artist.create_expo_title())
+				sentence = add_string_to_sentence(sentence, pos, self.exhibition.artist.create_expo_title())
 			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
 				chosen_word = choose_random_word(word_type=w, forbidden_words=forbidden_words)
 				sentence = add_string_to_sentence(sentence, pos, chosen_word)
