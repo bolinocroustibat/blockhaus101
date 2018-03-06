@@ -91,6 +91,8 @@ def past_exhibitions(request):
 def build_json(request):
 	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
 	path = os.path.join(os.path.dirname(blockhaus101_app.__file__), 'json_data')
+	if not os.path.exists(path):
+		os.makedirs(path)
 	found_key = re.search('/d/(.+?)/', google_sheet_url)
 	if found_key:
 		spreadsheet_key = found_key.group(1)
