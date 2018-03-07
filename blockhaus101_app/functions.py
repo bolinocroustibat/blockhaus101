@@ -7,27 +7,30 @@ from django.conf import settings
 from django.template.defaultfilters import slugify
 
 
-########################################
-## COMMON FUNCTIONS TO SEVERAL CLASSES #
-########################################
+######################
+## COMMON FUNCTIONS ##
+######################
 
 def choose_random_word(word_type: str(), forbidden_words: str()=None):
 	words_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(word_type))))
-	choice_key = random.randrange(len(words_list)) # choose an random key in the list
+	chosen_key = random.randrange(len(words_list)) # choose an random key in the list
 	try:
-		while choice_key == forbidden_words[word_type]:
-			print('## CLEF "{}" POUR MOT DE TYPE "{}" DEJA UTILISE DANS LA PHRASE, ON PREND UN AUTRE'.format(choice_key, word_type))
-			choice_key = random.randrange(len(words_dict))
-			if choice_key != forbidden_words[word_type]:
+		while chosen_key in forbidden_words[word_type]:
+			print('## CLEF "{}" POUR MOT DE TYPE "{}" DEJA UTILISE DANS LA PHRASE, ON PREND UN AUTRE'.format(chosen_key, word_type))
+			chosen_key = random.randrange(len(words_dict))
+			if chosen_key not in forbidden_words[word_type]:
 				break
 	except:
 		pass
-	forbidden_words[word_type] = choice_key
+	# add the key to the array of already used words
+	if not forbidden_words.get(word_type):
+		forbidden_words[word_type] = list()
+	forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the array of already used words
 	try: # s'il y a une deuxième colonne au tableau, on la met dans un genre
-		gender = words_list[choice_key][1]
+		gender = words_list[chosen_key][1]
 	except:
 		gender = ""
-	return words_list[choice_key][0]
+	return words_list[chosen_key][0]
 
 
 def add_string_to_sentence(sentence: str(), pos: int(), string: str()):
