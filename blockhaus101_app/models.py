@@ -44,13 +44,14 @@ class Artist(models.Model):
 		discipline_list = json.load(open(os.path.join(settings.JSON_PATH, 'DISCIPLINE.json')))
 		self.discipline = choice(discipline_list)[0]
 		# bio
-		self.bio = self.bio + ' ' + self.create_bio_sentence(4, 6)
-		self.bio = self.bio + ' ' + self.create_bio_sentence(7, 11)
+		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 4, 6)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 7, 11)
 		if randint(1, 3) == 3:
-			self.bio = self.bio + ' ' + self.create_bio_sentence(12, 16)
-		self.bio = self.bio + ' ' + self.create_bio_sentence(17, 20)
+			self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 12, 16)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 17, 20)
 
-	def create_bio_sentence(self, min_line = None, max_line = None):
+	def create_bio_sentence(self, forbidden_words, min_line = None, max_line = None):
 		biosentence = ""
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'bio.json')))
 		if min_line and max_line:
@@ -60,17 +61,18 @@ class Artist(models.Model):
 		bio_structure = possible_structures_list[nb]
 		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
 		pos = 0
-		for v in bio_structure:
-			if v == "SELF": # si c'est l'artiste
+		for w in bio_structure:
+			if w == "SELF": # si c'est l'artiste
 				biosentence = add_string_to_sentence(biosentence, pos, self.name)
-			elif v == "SELFDISCIPLINE":
+			elif w == "SELFDISCIPLINE":
 				biosentence = add_string_to_sentence(biosentence, pos, self.discipline)
-			elif v == "EXPO":
+			elif w == "EXPO":
 				biosentence = add_string_to_sentence(biosentence, pos, self.create_expo_title())
-			elif v in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				biosentence = add_string_to_sentence(biosentence, pos, choose_random_word(v))
+			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
+				chosen_word = choose_random_word(word_type=w, forbidden_words=forbidden_words)
+				biosentence = add_string_to_sentence(biosentence, pos, chosen_word)
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
-				biosentence = add_string_to_sentence(biosentence, pos, v)
+				biosentence = add_string_to_sentence(biosentence, pos, w)
 			pos += 1
 		biosentence = correct_sentence(biosentence)
 		if self.gender == "f": # si l'artiste est du genre féminin

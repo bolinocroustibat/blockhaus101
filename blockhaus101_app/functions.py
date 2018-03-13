@@ -2,7 +2,7 @@ import json
 import os
 import re
 import blockhaus101_app
-import random
+from random import randrange
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
@@ -11,21 +11,22 @@ from django.template.defaultfilters import slugify
 ## COMMON FUNCTIONS ##
 ######################
 
-def choose_random_word(word_type: str(), forbidden_words: str()=None):
+def choose_random_word(word_type: str(), forbidden_words = None):
 	words_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(word_type))))
-	chosen_key = random.randrange(len(words_list)) # choose an random key in the list
+	chosen_key = randrange(len(words_list)) # choose an random key in the list
 	try:
 		while chosen_key in forbidden_words[word_type]:
 			print('## CLEF "{}" POUR MOT DE TYPE "{}" DEJA UTILISE DANS LA PHRASE, ON PREND UN AUTRE'.format(chosen_key, word_type))
-			chosen_key = random.randrange(len(words_dict))
+			chosen_key = randrange(len(words_dict))
 			if chosen_key not in forbidden_words[word_type]:
 				break
+		if forbidden_words:
+			# add the key to the array of already used words
+			if not forbidden_words.get(word_type):
+				forbidden_words[word_type] = list()
+			forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the array of already used words
 	except:
 		pass
-	# add the key to the array of already used words
-	if not forbidden_words.get(word_type):
-		forbidden_words[word_type] = list()
-	forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the array of already used words
 	try: # s'il y a une deuxième colonne au tableau, on la met dans un genre
 		gender = words_list[chosen_key][1]
 	except:
