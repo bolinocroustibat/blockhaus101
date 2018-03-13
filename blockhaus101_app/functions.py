@@ -20,10 +20,9 @@ def choose_random_word(word_type: str(), forbidden_words = None):
 			chosen_key = randrange(len(words_dict))
 			if chosen_key not in forbidden_words[word_type]:
 				break
-		# add the key to the array of already used words
 		if not forbidden_words.get(word_type):
-			forbidden_words[word_type] = list()
-		forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the array of already used words
+			forbidden_words[word_type] = list() # create the forbidden words type array for this type of word if it doesn't exist
+		forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the forbidden words array
 	except:
 		pass
 	try: # s'il y a une deuxième colonne au tableau, on la met dans un genre
