@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 
 {% block meta %}
-<title>blockhaus 101 - infos pratiques</title>
+<title>blockhaus 101 - prendre rendez-vous</title>
 <meta name="Description" content="" />
-<meta property="og:title" content="blockhaus 101 - manifeste" />
+<meta property="og:title" content="blockhaus 101 - prendre rendez-vous" />
 <meta property="og:description" content="" />
 <meta property="og:image" content="" />
 {% endblock %}
@@ -15,7 +15,19 @@
 	blockhaus 101<br/>
 	75020 Paris<br/>
 	<br/>
-	Sur rendez-vous uniquement au +33 6 98 96 36 46
+	Sur rendez-vous uniquement en remplissant ce formulaire :
+	<form role="form" action= "" method="POST">
+		<!-- {{ form_contact }} -->
+		{{ form_contact.management_form }}
+		{% for form in form_contact %}
+			<div class="form-item">
+				{{ form.label_tag }}
+				{{ form }}
+			</div>
+		{% endfor %}
+		{% csrf_token %}
+		<input type="submit" class="btn btn-primary" value="Envoyer le message">
+	</form>
 </div>
 
 {% endblock %}
