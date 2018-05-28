@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, Http404
+from django.core.mail import send_mail
 import os
 import re
 import requests
