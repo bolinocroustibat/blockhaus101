@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import tweepy
 import blockhaus101_app
 from .models import *
+from .forms import FormContact
 
 
 def index(request):
@@ -90,6 +91,23 @@ def past_exhibitions(request):
 		previous_expo_startdate = exhibition["startdate"] # record startdate for next iteration
 	return render(request,'past-exhibitions.html', {'full_exhibs': full_exhibs})
 
+def pratique(request):
+	form_contact = FormContact()
+	message = None
+	if request.method == 'POST': # Checks to see if we get a POST back...
+		form = FormContact(request.POST) # ...in which case we pass in that request.
+		if form.is_valid(): # Checks to see form is valid
+			send_mail(
+			'Mail envoyé depuis le site Blockhaus101',
+			'Expéditeur : '+form.cleaned_data['name']+' <br/> E-mail expéditeur : '+form.cleaned_data['email']+' <br/> Téléphone expéditeur : '+form.cleaned_data['phone']+' / Texte du message : '+form.cleaned_data['text'],
+			form.cleaned_data['email'],
+			['moi@adriencarepntier.com'],
+			fail_silently=False,
+			)
+			message ="Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais."
+		else:
+			message ="Votre message n'a pas été envoyé, vérifiez que tous les champs ont été remplis et que votre adresse e-mail est bien valide."
+	return render(request,'infos-pratiques.html', {'form_contact':form_contact, 'message':message})
 
 def build_json(request):
 	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
