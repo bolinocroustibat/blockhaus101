@@ -10,8 +10,12 @@
 
 
 {% block content %}
-
-<div class="past-expo-date mb-4 mt-5">Du {{ expo_startdate }} au {{ expo_enddate }}</div>
+<div class="past-expo-date mb-4 mt-5">
+{% load solo_tags %}
+{% get_solo 'blockhaus101_app.SiteSettings' as site_settings %}
+{{ site_settings.description }}
+<br>
+Du {{ expo_startdate }} au {{ expo_enddate }} :</div>
 <div class="col-lg-8 col-12 mb-5 project-wrapper">
 	<span class="artist">{{ artist_name }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
 	<div class="bio">{{ artist_bio }}</div>
