@@ -26,10 +26,6 @@ h1 .big_h1 {
 	}
 }
 
-.description {
-	font-size: 0.9em;
-}
-
 a{
 	color:#555;
 	cursor: pointer;
@@ -40,6 +36,7 @@ a:hover{
 }
 
 nav ul{
+	font-size: 0.9em;
 	max-width: 680px;
 	border: 1px solid black;
 	padding: 0 5px 0 5px;
@@ -53,11 +50,11 @@ nav li{
 li{
 	color:#777;
 	list-style-type:square;
-	margin:40px 0 40px 0;
+	margin: 40px 0 40px 0;
 }
 
 li a{
-	color:#000;
+	color: #000;
 	text-decoration: none;
 }
 
