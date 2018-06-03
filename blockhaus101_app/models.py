@@ -45,9 +45,9 @@ class Artist(models.Model):
 		self.discipline = choice(discipline_list)[0]
 		# bio
 		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
-		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 4, 6)
-		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 7, 11)
-		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 12, 21)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 4, 7)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 8, 12)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 13, 22)
 		if randint(1, 3) == 2:
 			self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 22, 29)
 
