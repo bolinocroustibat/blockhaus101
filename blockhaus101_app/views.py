@@ -154,10 +154,14 @@ def build_json(request):
 
 def test_exhibition(request):
 	artist = Artist()
-	Artist.generate(artist)
+	artist.generate()
 	exhibition = Exhibition()
-	Exhibition.generate(exhibition, artist)
-	return render(request,'test-exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender})
+	exhibition.artist = artist
+	exhibition.generate()
+	expo_text = ExpoText()
+	expo_text.exhibition = exhibition
+	expo_text.generate()
+	return render(request,'test-exhibition.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'artist_gender': artist.gender, 'expo_text': expo_text.text})
 
 
 def test_tweet(request):

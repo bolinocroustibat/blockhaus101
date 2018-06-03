@@ -19,6 +19,7 @@
 	<div class="project-wrapper">
 		<span class="artist">{{ artist_name }} | {{ artist_gender }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
 		<div class="bio">{{ artist_bio }}</div>
+		<div class="text">{{ expo_text }}</div>
 	</div>
 
 	<a href="{% url 'test_exhibition' %}" class="btn btn-lg mt-5">Tester une autre expo</a>
