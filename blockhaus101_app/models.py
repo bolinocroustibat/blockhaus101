@@ -47,9 +47,9 @@ class Artist(models.Model):
 		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
 		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 4, 6)
 		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 7, 11)
-		if randint(1, 3) == 3:
-			self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 12, 16)
-		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 17, 20)
+		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 12, 21)
+		if randint(1, 3) == 2:
+			self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 22, 29)
 
 	def create_bio_sentence(self, forbidden_words, min_line = None, max_line = None):
 		biosentence = ""
@@ -82,6 +82,8 @@ class Artist(models.Model):
 			biosentence = biosentence.replace(" né ", " née ")
 			biosentence = biosentence.replace("Né ", "Née ")
 			biosentence = biosentence.replace("iplômé ", "iplômée ")
+			biosentence = biosentence.replace("marqué ", "marquée ")
+			biosentence = biosentence.replace("obsédé ", "obsédée ")
 		return biosentence
 
 	def create_expo_title(self):
@@ -156,12 +158,12 @@ class ExpoText(models.Model):
 		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
 		if randint(1, 3) == 1:
 			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 4, 4)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 5, 10)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 5, 17)
 		if randint(1, 3) == 1:
-			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 11, 14)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 15, 24)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 25, 36)
-		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 37, 39)
+			self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 18, 21)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 22, 31)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 32, 43)
+		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 44, 46)
 		if self.exhibition.artist.gender == "f": # si l'artiste est du genre féminin
 			self.text = self.text.replace(" Il ", " Elle ")
 		print(forbidden_words)
