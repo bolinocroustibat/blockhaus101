@@ -102,7 +102,7 @@ def pratique(request):
 			'Mail envoyé depuis le site Blockhaus101',
 			'Expéditeur : '+form.cleaned_data['name']+' <br/> E-mail expéditeur : '+form.cleaned_data['email']+' <br/> Téléphone expéditeur : '+form.cleaned_data['phone']+' / Texte du message : '+form.cleaned_data['text'],
 			form.cleaned_data['email'],
-			['moi@adriencarepntier.com'],
+			['moi@adriencarpentier.com'],
 			fail_silently=False,
 			)
 			message ="Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais."
