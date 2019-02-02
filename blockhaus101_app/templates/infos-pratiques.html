@@ -11,21 +11,36 @@
 
 {% block content %}
 
-<div class="col-lg-8 col-12 p-0">
-	blockhaus 101<br/>
-	75020 Paris
+<div class="col-lg-8 col-12 p-0 mb-5">
+	<p>blockhaus 101<br />
+	75020 Paris</p>
+
 	<div class="mt-5">
-		Vous pouvez vous rendre à la galerie Blockhaus 101 sur rendez-vous uniquement en remplissant ce formulaire :
-		<form role="form" action= "" method="POST">
-			{% for form in form_contact %}
+		{% if message %}
+			<p class="message">{{message}}</p>
+		{% else %}
+			<p>Vous demander une visite à la galerie Blockhaus 101 sur rendez-vous uniquement en remplissant ce formulaire :
+			<form role="form" action= "" method="POST">
 				<div class="mt-3">
-					{{ form.label_tag }}
-					{{ form }}
+					{{ form_contact.name.label_tag }}
+					{{ form_contact.name }}
 				</div>
-			{% endfor %}
-			{% csrf_token %}
-			<input type="submit" class="btn btn-primary mt-3" value="Envoyer votre demande">
-		</form>
+				<div class="mt-3">
+					{{ form_contact.email.label_tag }}
+					{{ form_contact.email }}
+				</div>
+				<div class="mt-3">
+					{{ form_contact.phone.label_tag }}
+					{{ form_contact.phone }}
+				</div>
+				<div class="mt-3">
+					{{ form_contact.text.label_tag }}
+					{{ form_contact.text }}
+				</div>
+				{% csrf_token %}
+				<input type="submit" class="btn btn-primary mt-3" value="Envoyer votre demande">
+			</form>
+		{% endif %}
 	</div>
 </div>
 
