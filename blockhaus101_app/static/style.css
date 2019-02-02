@@ -115,3 +115,7 @@ li .active {
 	font-size:0.4em;
 	color:#F3F3F3;
 }
+
+label[for="id_botcatcher"] {
+	display: none;
+}
