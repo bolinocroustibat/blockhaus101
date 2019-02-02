@@ -116,6 +116,10 @@ li .active {
 	color:#F3F3F3;
 }
 
+.message {
+	color: red;
+}
+
 label[for="id_botcatcher"] {
 	display: none;
 }
