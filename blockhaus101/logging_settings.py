@@ -1,4 +1,6 @@
-LOGGING_LEVEL = 'DEBUG'
+from .settings import LOGGING_LEVEL
+
+# Logging
 LOGGING = {
 	'version': 1,
 	'disable_existing_loggers': False,

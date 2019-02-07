@@ -1,5 +1,4 @@
 import os
-from .logging_settings import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # BASE_DIR is where your manage.py lies
@@ -106,9 +105,12 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Local settings
 try:
 	from .local_settings import *
 except Exception:
 	print('Note: local_settings.py not present. Using default settings.')
+	LOGGING_LEVEL = 'DEBUG'
+
+# Logging
+from .logging_settings import *
