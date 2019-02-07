@@ -17,10 +17,10 @@ class Command(BaseCommand):
 			artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
 			tweet = ""
 			if options['tweet1']:
-				print("################# GENERATE TWEET 1")
+				logger.info("###############GENERATE TWEET 1")
 				possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets1.json')))
 			else:
-				print("################# GENERATE TWEET 2")
+				logger.info("###############GENERATE TWEET 2")
 				possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, 'tweets2.json')))	
 			nb = randrange(0,len(possible_structures_list))
 			tweet_structure = possible_structures_list[nb]
@@ -50,7 +50,7 @@ class Command(BaseCommand):
 				pos += 1
 			tweet = correct_sentence(tweet)
 		except:
-			print("ERROR WHILE CREATING THE TWEET, PROBABLY WHILE TRYING TO GET THE PERIOD ARTIST")
+			logger.info("ERROR WHILE CREATING THE TWEET, PROBABLY WHILE TRYING TO GET THE PERIOD ARTIST")
 		try:
 			auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
 			auth.set_access_token(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET)
@@ -58,12 +58,12 @@ class Command(BaseCommand):
 			# If the authentication was successful, you should see the name of the account print out
 			twitter_account_name = api.me().name
 		except:
-			print("ERROR while connecting to Twitter account")
+			logger.info("ERROR while connecting to Twitter account")
 		try:
 			# If the application settings are set for "Read and Write" then this line should tweet out the message to your account's timeline. The "Read and Write" setting is on https://dev.twitter.com/apps
 			api.update_status(status=tweet)
-			print('{}  --> envoyé sur le compte Twitter "{}"'.format(tweet, twitter_account_name))
+			logger.info('{}  --> envoyé sur le compte Twitter "{}"'.format(tweet, twitter_account_name))
 		except:
-			print('ERROR WHILE TRYING TO SEND TWEET TO "{}" ACCOUNT'.format(twitter_account_name))
+			logger.info('ERROR WHILE TRYING TO SEND TWEET TO "{}" ACCOUNT'.format(twitter_account_name))
 
 

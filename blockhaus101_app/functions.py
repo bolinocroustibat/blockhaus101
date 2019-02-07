@@ -1,10 +1,13 @@
+from django.template.defaultfilters import slugify
+
 import json
 import os
 import re
 import blockhaus101_app
 from random import randrange
+
 from django.conf import settings
-from django.template.defaultfilters import slugify
+from .utils import logger
 
 
 ######################
@@ -14,22 +17,24 @@ from django.template.defaultfilters import slugify
 def choose_random_word(word_type: str(), forbidden_words = None):
 	words_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(word_type))))
 	chosen_key = randrange(len(words_list)) # choose an random key in the list
-	try:
+	if forbidden_words.get(word_type):
+		# logger.debug('Ce type de mot "{}" a été déjà rencontré !'.format(word_type))
 		while chosen_key in forbidden_words[word_type]:
-			print('## CLEF "{}" POUR MOT DE TYPE "{}" DEJA UTILISE DANS LA PHRASE, ON PREND UN AUTRE'.format(chosen_key, word_type))
-			chosen_key = randrange(len(words_dict))
+			logger.debug('Clef "{}" pour le mot "{}" a déjà été utilisée, on prend une autre...'.format(chosen_key, word_type))
+			chosen_key = randrange(len(words_list))
 			if chosen_key not in forbidden_words[word_type]:
+				logger.debug("...ok, on a trouvé une autre.")
 				break
-		if not forbidden_words.get(word_type):
-			forbidden_words[word_type] = list() # create the forbidden words type array for this type of word if it doesn't exist
-		forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the forbidden words array
-	except:
-		pass
+	else:
+		# logger.debug("Ce type de mot '{}' n'a pas été déjà rencontré".format(word_type))
+		forbidden_words[word_type] = list() # create the forbidden words type array for this type of word if it doesn't exist
+	forbidden_words[word_type].append(chosen_key) # add the key to the array of the word type in the forbidden words array
+	word = words_list[chosen_key][0] # store the chosen word
 	try: # s'il y a une deuxième colonne au tableau, on la met dans un genre
 		gender = words_list[chosen_key][1]
 	except:
 		gender = ""
-	return words_list[chosen_key][0]
+	return word
 
 
 def add_string_to_sentence(sentence: str(), pos: int(), string: str()):
