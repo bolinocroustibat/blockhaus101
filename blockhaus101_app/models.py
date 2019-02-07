@@ -1,20 +1,27 @@
 from django.db import models
 from solo.models import SingletonModel
+
 import json
 import os
 from random import randint, randrange, choice
-from django.conf import settings
 from datetime import datetime, timedelta
+
 from blockhaus101_app.functions import choose_random_word, add_string_to_sentence, correct_sentence, strtr, unique_slugify
+from django.conf import settings
+from .utils import logger
 
 
 class SiteSettings(SingletonModel):
+
 	description = models.TextField("Texte du header", max_length=1000, default="")
 	period = models.IntegerField("Période entre deux expositions, en jours", default=7)
+
 	class Meta:
 		verbose_name = "Réglages généraux de Blockhaus101"
 
+
 class Artist(models.Model):
+
 	name = models.CharField("Nom de l'artiste", max_length=80)
 	GENDER_CHOICES =(
 		('f', 'female'),
@@ -24,11 +31,14 @@ class Artist(models.Model):
 	discipline = models.CharField("Discipline de l'artiste", max_length=80)
 	bio = models.TextField("Biographie de l'artiste", max_length=2000)
 	created = models.DateTimeField(auto_now=True)
+
 	def __str__(self):
 		return (self.name)
+
 	class Meta:
-		verbose_name = "Artiste"
-		verbose_name_plural = "Artistes"
+		verbose_name = "artiste"
+		verbose_name_plural = "artistes"
+
 	def generate(self):
 		# first name and genre
 		firstnames_list = json.load(open(os.path.join(settings.JSON_PATH, 'FIRSTNAME.json')))
@@ -50,6 +60,7 @@ class Artist(models.Model):
 		self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 13, 22)
 		if randint(1, 3) == 2:
 			self.bio = self.bio + ' ' + self.create_bio_sentence(forbidden_words, 22, 29)
+		logger.debug("Les mots de la biographie déjà utilisés et à ne pas réutiliser sont : {}".format(forbidden_words))
 
 	def create_bio_sentence(self, forbidden_words, min_line = None, max_line = None):
 		biosentence = ""
@@ -92,66 +103,79 @@ class Artist(models.Model):
 		expo_structure = choice(possible_structures_list)
 		index_dict = json.load(open(os.path.join(settings.JSON_PATH, 'index.json')))
 		pos = 0
+		forbidden_words = dict() # dictionnary which stores words that have been already used in the sentence
 		for w in expo_structure:
 			if w == "SELF": # si c'est l'artiste
 				title = add_string_to_sentence(title, pos, self.name)
 			elif w == "SELFDISCIPLINE":
 				title = add_string_to_sentence(title, pos, self.discipline)
 			elif w in index_dict.keys(): # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				title = add_string_to_sentence(title, pos, choose_random_word(w))
+				chosen_word = choose_random_word(word_type=w, forbidden_words=forbidden_words)
+				title = add_string_to_sentence(title, pos, chosen_word)
 			else: # si l'élément est inconnu, c'est que c'est un mot et pas un code !
 				title = add_string_to_sentence(title, pos, w)
 			pos += 1
 		#title = correct_sentence(title)
+		logger.debug("Les mots du titre de l'expo déjà utilisés et à ne pas réutiliser sont : {}".format(forbidden_words))
 		return title
 
 
 class Exhibition(models.Model):
+
 	title = models.CharField("Titre de l'exposition", max_length=80)
 	artist = models.ForeignKey(Artist, related_name="artist_exhibition", on_delete="PROTECT")
 	startdate = models.DateTimeField("Date de début d'exposition", blank=True, null=True)
 	enddate = models.DateTimeField("Date de fin d'exposition", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
+
 	def __str__(self):
 		return (self.title)
+
 	class Meta:
 		verbose_name = "Exposition"
 		verbose_name_plural = "Expositions"
+
 	def save(self, *args, **kwargs):
 		if not self.startdate or not self.enddate:
 			try:
 				period = SiteSettings.objects.get().period
 			except:
 				period = 7
-			print("## NOW TRYING TO SAVE NEW EXHIBITION...")
+			logger.debug("NOW TRYING TO SAVE NEW EXHIBITION...")
 			try:
 				self.startdate = Exhibition.objects.latest('enddate').enddate
 				self.enddate = self.startdate + timedelta(days=period)
-				print("## AT LEAST ONE EXHIBITION ALREADY PRESENT, EXHIBITION SAVED ACCORDING TO PREVIOUS!")
+				logger.debug("AT LEAST ONE EXHIBITION ALREADY PRESENT, EXHIBITION SAVED ACCORDING TO PREVIOUS!")
 			except:
 				self.startdate = datetime.now()
 				self.enddate = datetime.now() + timedelta(days=period)
-				print("## NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
+				logger.debug("NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
 		super(Exhibition, self).save(*args, **kwargs)
+
 	def generate(self):
 		self.title = self.artist.create_expo_title() 
 
 
 class ExpoText(models.Model):
+
 	text = models.TextField("Texte de l'exposition", max_length=3000)
 	exhibition = models.ForeignKey(Exhibition, related_name="exhibition_expotext", on_delete="PROTECT", verbose_name="Exposition")
 	slug = models.SlugField(default=None, null=True, blank=True,max_length=150, verbose_name="URL")
 	ip = models.GenericIPAddressField("Adresse IP du créateur", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
+
 	def __str__(self):
 		return (self.text[:60])
+
 	class Meta:
 		verbose_name = "Texte d'exposition"
 		verbose_name_plural = "Textes d'expositions"
+
 	def save(self, *args, **kwargs):
 		slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
 		unique_slugify(self, slug_string)
 		super(ExpoText, self).save(*args, **kwargs)
+
 	def generate(self, ip=None):
 		self.ip = ip
 		self.text = ""
@@ -166,7 +190,8 @@ class ExpoText(models.Model):
 		self.text = self.text + ' ' + self.create_expo_sentence("phrases", forbidden_words, 44, 46)
 		if self.exhibition.artist.gender == "f": # si l'artiste est du genre féminin
 			self.text = self.text.replace(" Il ", " Elle ")
-		print(forbidden_words)
+		logger.debug("Les mots du texte du médiateur culturel déjà utilisés et à ne pas réutiliser sont : {}".format(forbidden_words))
+
 	def create_expo_sentence(self, guide_file: str(), forbidden_words, min_line = None, max_line = None):
 		possible_structures_list = json.load(open(os.path.join(settings.JSON_PATH, '{}.json'.format(guide_file))))
 		#sentences_struc = { int(key):sentences_struc[key] for key in sentences_struc } # convert string keys to integer keys

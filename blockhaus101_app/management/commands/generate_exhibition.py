@@ -10,5 +10,6 @@ class Command(BaseCommand):
 		Artist.generate(artist)
 		artist.save()
 		exhibition = Exhibition()
-		Exhibition.generate(exhibition, artist)
+		exhibition.artist = artist
+		exhibition.generate()
 		exhibition.save()
