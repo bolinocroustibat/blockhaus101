@@ -3,15 +3,15 @@ import logging
 # Project logger
 logger = logging.getLogger('blockhaus101')
 
-# Auth logging for fail2ban
-authlogger = logging.getLogger('auth-logger')
-authlogger.setLevel(logging.WARN)
-handler = logging.handlers.RotatingFileHandler(
-	'auth.log',
-	maxBytes=500000,
-	backupCount=5
-)
-authlogger.addHandler(handler)
+# # Auth logging for fail2ban
+# authlogger = logging.getLogger('auth-logger')
+# authlogger.setLevel(logging.WARN)
+# handler = logging.handlers.RotatingFileHandler(
+# 	'auth.log',
+# 	maxBytes=500000,
+# 	backupCount=5
+# )
+# authlogger.addHandler(handler)
 
 
 def get_client_ip(request):
