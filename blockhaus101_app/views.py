@@ -53,6 +53,7 @@ def exhibition(request, slug):
 		artist = Artist.objects.get(artist_exhibition=exhibition)
 		return render(request,'index.html', {'artist_name': artist.name, 'artist_bio': artist.bio, 'expo_title': exhibition.title, 'expo_text': expo_text.text, 'artist_gender': artist.gender})
 	except ExpoText.DoesNotExist:
+		logger.error('Exhibition not found.')
 		raise Http404("Cette expo n'existe pas")
 
 
@@ -104,8 +105,10 @@ def pratique(request):
 				html_message = 'Expéditeur : ' + form.cleaned_data['name'] + ' <br/> E-mail expéditeur : '+form.cleaned_data['email']+' <br/> Téléphone expéditeur : ' + form.cleaned_data['phone'] + ' <br/> Texte du message : '+form.cleaned_data['text']
 			)
 			form = FormContact()
+			logger.info("Email de contact envoyé !")
 			message ="Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais."
 		else:
+			logger.warning("Formulaire non valide")
 			message ="Votre demande n'a pas été envoyé, vérifiez que tous les champs ont été remplis."
 	return render(request,'infos-pratiques.html', {'form_contact': form, 'message': message})
 
@@ -114,7 +117,7 @@ def build_json(request):
 	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
 	path = os.path.join(os.path.dirname(blockhaus101_app.__file__), 'json_data')
 	if not os.path.exists(path):
-		logger.debug("LE REPERTOIRE DE CAHE N'EXISTE PAS, ON LE CREE")
+		logger.debug("Cache folder does not exist, it will be created")
 		os.makedirs(path)
 	found_key = re.search('/d/(.+?)/', google_sheet_url)
 	if found_key:
@@ -129,9 +132,9 @@ def build_json(request):
 	try:
 		with open(os.path.join(path, 'index.json'), 'w') as outfile:
 			outfile.write(json.dumps(index_dict))
-		logger.debug('Index cache file "index.json" was successfully created!')
+		logger.debug('JSON main cache file "index.json" was successfully created!')
 	except:
-		logger.error('ERROR WHILE TRYING TO CREATE INDEX FILE')
+		logger.error('Error while trying to create main cache file "index.json"')
 	for key, value in index_dict.items():
 		try:
 			json_url = "https://spreadsheets.google.com/feeds/list/{}/{}/public/values?alt=json".format(spreadsheet_key, value)
@@ -148,6 +151,6 @@ def build_json(request):
 				outfile.write(json.dumps(trimmed_json_data))
 			logger.debug('JSON cache file "{}" was successfully created!'.format(key))
 		except:
-			logger.error('ERROR WHILE TRYING TO CACHE "{}"'.format(key))
+			logger.error('Error while trying to create cache file for "{}"'.format(key))
 	return HttpResponse('{}'.format("Les fichiers de cache ont été créés !"))
 
