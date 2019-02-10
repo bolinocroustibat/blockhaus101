@@ -1,20 +1,14 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, Http404
 from django.core.mail import send_mail
-import os
-import re
-import requests
-import urllib
-import xmltodict
-import json
-from collections import OrderedDict
 from datetime import datetime, timedelta
 import tweepy
 
 import blockhaus101_app
 from .models import *
 from .forms import FormContact
-from .utils import logger, get_client_ip
+from .utils import logger, get_client_ip, build_cache
+from blockhaus101.settings import GOOGLE_SHEET_URL
 
 
 def index(request):
@@ -114,43 +108,6 @@ def pratique(request):
 
 
 def build_json(request):
-	google_sheet_url = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
-	path = os.path.join(os.path.dirname(blockhaus101_app.__file__), 'json_data')
-	if not os.path.exists(path):
-		logger.debug("Cache folder does not exist, it will be created")
-		os.makedirs(path)
-	found_key = re.search('/d/(.+?)/', google_sheet_url)
-	if found_key:
-		spreadsheet_key = found_key.group(1)
-	xml_url = "https://spreadsheets.google.com/feeds/worksheets/{}/public/full".format(spreadsheet_key)
-	file = urllib.request.urlopen(xml_url)
-	data = file.read()
-	file.close()
-	datadict = xmltodict.parse(data)
-	index_dict = dict((e["title"]['#text'], e["id"].partition("/full/")[2]) for e in list(datadict.items())[0][1]["entry"])  # Build an index dictionnary with the tab title as key, and as the value, the new tab id by separating the url of the google spreasheet tab in 3 parts around "/full/" and takes the third part (after the "full")
-	# logger.debug(index_dict) # TEST
-	try:
-		with open(os.path.join(path, 'index.json'), 'w') as outfile:
-			outfile.write(json.dumps(index_dict))
-		logger.debug('JSON main cache file "index.json" was successfully created!')
-	except:
-		logger.error('Error while trying to create main cache file "index.json"')
-	for key, value in index_dict.items():
-		try:
-			json_url = "https://spreadsheets.google.com/feeds/list/{}/{}/public/values?alt=json".format(spreadsheet_key, value)
-			# logger.debug(json_url) # TEST
-			json_data = requests.get(json_url).json(object_pairs_hook= OrderedDict)
-			trimmed_json_data = list()
-			for e in json_data['feed']['entry'][2:]:
-				element = list()
-				for k, v in e.items():
-					if k.startswith('gsx'):
-						element.append(v["$t"])
-				trimmed_json_data.append(element)
-			with open(os.path.join(path, '{}.json'.format(key)), 'w') as outfile:
-				outfile.write(json.dumps(trimmed_json_data))
-			logger.debug('JSON cache file "{}" was successfully created!'.format(key))
-		except:
-			logger.error('Error while trying to create cache file for "{}"'.format(key))
+	build_cache(GOOGLE_SHEET_URL)
 	return HttpResponse('{}'.format("Les fichiers de cache ont été créés !"))
 
