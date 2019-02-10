@@ -10,6 +10,9 @@ JSON_PATH = os.path.join(os.path.abspath(os.path.join(BASE_DIR, 'blockhaus101_ap
 # where the static files will go when doing a collectstatic if debug=false
 STATIC_ROOT = os.path.join(SITE_ROOT, 'static')
 
+# Google Sheet URL
+GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1PrD3UqdqmJM_GpTwfN_JSxQjs6TmsxGxVijUHQ4N58Y/edit#gid=6545"
+
 # TWEEPY
 # The consumer keys can be found on your application's Details
 # page located at https://dev.twitter.com/apps (under "OAuth settings")
