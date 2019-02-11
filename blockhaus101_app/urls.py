@@ -6,7 +6,6 @@ urlpatterns = ([
 	url(r'^$', views.index, name='index'),
 	url(r'^past-exhibitions/$', views.past_exhibitions, name='past_exhibitions'),
 	url(r'^infos-pratiques/$', views.pratique, name="pratique"),
-	url(r'^(?P<slug>[-\w]+)/$',views.exhibition, name='exhibition'),
 
 	# tests (now we use tests and commands)
 	# url(r'^test-exhibition/$', views.test_exhibition, name='test_exhibition'),
@@ -18,4 +17,7 @@ urlpatterns = ([
 	url(r'^robots\.txt$', TemplateView.as_view(template_name='robots.txt')),
 	# sitemap.xml
 	url(r'^sitemap\.xml$', TemplateView.as_view(template_name='sitemap.xml')),
+
+	url(r'^(?P<slug>[-\w]+)/$',views.exhibition, name='exhibition'),
+
 ])
