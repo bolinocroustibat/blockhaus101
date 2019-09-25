@@ -3,7 +3,6 @@ from django.template.defaultfilters import slugify
 import json
 import os
 import re
-import blockhaus101_app
 from random import randrange
 
 from django.conf import settings
