@@ -1,5 +1,4 @@
 from django.db import models
-from solo.models import SingletonModel
 
 import json
 import os
@@ -11,33 +10,42 @@ from django.conf import settings
 from .utils import logger
 
 
-class SiteSettings(SingletonModel):
+class Language(models.Model):
+	LANGUAGE_CHOICES =(
+		('en', 'english'),
+		('fr', 'french')
+	)
+	language = models.CharField("language", max_length=2, choices=LANGUAGE_CHOICES, default="fr")
 
-	description = models.TextField("Texte du header", max_length=1000, default="")
-	period = models.IntegerField("Période entre deux expositions, en jours", default=7)
+
+class SiteSettings(models.Model):
+
+	lang = models.ForeignKey(Language, related_name="artist", on_delete="PROTECT")
+	description = models.TextField("site header text", max_length=1000, default="")
+	period = models.IntegerField("period between two exhibitions, in days", default=7)
 
 	class Meta:
-		verbose_name = "Réglages généraux de Blockhaus101"
-
+		verbose_name = "General settings"
 
 class Artist(models.Model):
 
-	name = models.CharField("Nom de l'artiste", max_length=80)
+	lang = models.ForeignKey(Language, related_name="language_artist", on_delete="PROTECT")
+	name = models.CharField("artist name", max_length=80)
 	GENDER_CHOICES =(
 		('f', 'female'),
 		('m', 'male')
 	)
-	gender = models.CharField("Genre de l'artiste", max_length=6, choices=GENDER_CHOICES)
-	discipline = models.CharField("Discipline de l'artiste", max_length=80)
-	bio = models.TextField("Biographie de l'artiste", max_length=2000)
+	gender = models.CharField("artist gender", max_length=1, choices=GENDER_CHOICES)
+	discipline = models.CharField("artist discipline", max_length=80)
+	bio = models.TextField("artist biography", max_length=2000)
 	created = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return (self.name)
 
 	class Meta:
-		verbose_name = "artiste"
-		verbose_name_plural = "artistes"
+		verbose_name = "artist"
+		verbose_name_plural = "artists"
 
 	def generate(self):
 		# first name and genre
@@ -122,18 +130,19 @@ class Artist(models.Model):
 
 class Exhibition(models.Model):
 
-	title = models.CharField("Titre de l'exposition", max_length=80)
+	lang = models.ForeignKey(Language, related_name="language_exhibition", on_delete="PROTECT")
+	title = models.CharField("exhibition title", max_length=80)
 	artist = models.ForeignKey(Artist, related_name="artist_exhibition", on_delete="PROTECT")
-	startdate = models.DateTimeField("Date de début d'exposition", blank=True, null=True)
-	enddate = models.DateTimeField("Date de fin d'exposition", blank=True, null=True)
+	startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
+	enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
 		return (self.title)
 
 	class Meta:
-		verbose_name = "Exposition"
-		verbose_name_plural = "Expositions"
+		verbose_name = "exposition"
+		verbose_name_plural = "expositions"
 
 	def save(self, *args, **kwargs):
 		if not self.startdate or not self.enddate:
@@ -158,10 +167,11 @@ class Exhibition(models.Model):
 
 class ExpoText(models.Model):
 
-	text = models.TextField("Texte de l'exposition", max_length=3000)
+	lang = models.ForeignKey(Language, related_name="language_expotext", on_delete="PROTECT")
+	text = models.TextField("exhibition text", max_length=3000)
 	exhibition = models.ForeignKey(Exhibition, related_name="exhibition_expotext", on_delete="PROTECT", verbose_name="Exposition")
 	slug = models.SlugField(default=None, null=True, blank=True,max_length=150, verbose_name="URL")
-	ip = models.GenericIPAddressField("Adresse IP du créateur", blank=True, null=True)
+	ip = models.GenericIPAddressField("creator IP address", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 
 	def __str__(self):
