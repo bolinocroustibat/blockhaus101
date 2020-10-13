@@ -107,6 +107,7 @@ USE_L10N = True
 
 USE_TZ = False
 
+
 # Local settings
 try:
     from .local_settings import *
