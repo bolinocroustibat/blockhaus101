@@ -24,16 +24,7 @@ class Language(models.Model):
 
 class SiteSettings(models.Model):
 
-	lang = models.ForeignKey(
-		Language, related_name="language_sitesettings", on_delete="PROTECT"
-	)
-	description = models.TextField("header text", max_length=1000, default="")
-	period = models.IntegerField("period between two exhibitions, in days", default=7)
-
-	class Meta:
-		verbose_name = "General settings"
-
-	lang = models.ForeignKey(Language, related_name="artist", on_delete="PROTECT")
+	lang = models.ForeignKey(Language, related_name="language_sitesettings", on_delete="PROTECT")
 	description = models.TextField("site header text", max_length=1000, default="")
 	period = models.IntegerField("period between two exhibitions, in days", default=7)
 

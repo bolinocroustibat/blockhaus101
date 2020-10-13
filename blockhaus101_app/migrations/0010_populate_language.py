@@ -4,7 +4,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("blockhaus101_app", "0008_create_language"),
+        ("blockhaus101_app", "0008_language"),
     ]
 
     operations = [

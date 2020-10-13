@@ -12,3 +12,5 @@ debug.log
 static/
 *.sublime-project
 *.sublime-workspace
+
+poetry.lock
