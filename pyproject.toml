@@ -24,6 +24,7 @@ requests-oauthlib = "0.8.0"
 mysql-connector-python = "^8.0.19"
 xmltodict = "^0.12.0"
 tweepy = "^3.8.0"
+requests = "^2.23.0"
 
 [tool.poetry.dev-dependencies]
 
