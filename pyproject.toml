@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "blockhaus101"
-version = "0.1.0"
+version = "1"
 description = ""
 authors = ["Adrien Carpentier <moi@adriencarpentier.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "3.7.*"
 certifi = "2018.1.18"
 chardet = "3.0.4"
 coloredlogs = "10.0"
