@@ -1,8 +1,10 @@
 from django.contrib import admin
 from .models import *
-from solo.admin import SingletonModelAdmin
 
-admin.site.register(SiteSettings, SingletonModelAdmin)
+
+class SiteSettingsAdmin(admin.ModelAdmin):
+	model = SiteSettings
+admin.site.register(SiteSettings, SiteSettingsAdmin)
 
 class ExhibitionAdmin(admin.ModelAdmin):
 	model = Exhibition
