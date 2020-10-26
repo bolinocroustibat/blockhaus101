@@ -16,10 +16,13 @@ from .utils import logger
 
 
 class Language(models.Model):
-	LANGUAGE_CHOICES = (("en", "english"), ("fr", "french"))
+	LANGUAGE_CHOICES = (("en", "English"), ("fr", "French"))
 	language = models.CharField(
 		"language", max_length=2, choices=LANGUAGE_CHOICES, default="fr"
 	)
+
+	def __str__(self):
+		return self.get_language_display()
 
 
 class SiteSettings(models.Model):
@@ -29,7 +32,10 @@ class SiteSettings(models.Model):
 	period = models.IntegerField("period between two exhibitions, in days", default=7)
 
 	class Meta:
-		verbose_name = "General settings"
+		verbose_name = "General setting"
+
+	def __str__(self):
+		return "Settings {}".format(self.lang)
 
 class Artist(models.Model):
 
