@@ -23,17 +23,18 @@ logger = logging.getLogger("blockhaus101")
 # authlogger.addHandler(handler)
 
 
-def get_client_ip(request):
-	""" Give it a Django request, it gives you the client's IP as string. """
+def get_client_ip(request) -> str:
+	"""
+	Give it a Django request, it gives you the client's IP as string. """
 	x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
 	if x_forwarded_for:
-		ip = x_forwarded_for.split(',')[-1].strip()
+		ip: str = x_forwarded_for.split(',')[-1].strip()
 	else:
-		ip = request.META.get("REMOTE_ADDR")
+		ip: str = request.META.get("REMOTE_ADDR")
 	return ip
 
 
-def build_cache(google_sheet_url):
+def build_cache(google_sheet_url: str) -> None:
 	if not google_sheet_url:
 		logger.error("No Google Docs URL!")
 	else:

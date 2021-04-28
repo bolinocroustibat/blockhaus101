@@ -27,10 +27,10 @@ class Artist(models.Model):
 	bio = models.TextField("artist biography", max_length=2000)
 	created = models.DateTimeField(auto_now=True)
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return self.name
 
-	def generate(self):
+	def generate(self) -> None:
 		# first name and genre
 		firstnames_list = json.load(
 			open(os.path.join(settings.JSON_PATH, "FIRSTNAME.json"))
@@ -67,7 +67,9 @@ class Artist(models.Model):
 			)
 		)
 
-	def create_bio_sentence(self, forbidden_words, min_line=None, max_line=None):
+	def create_bio_sentence(
+		self, forbidden_words: dict, min_line: int = None, max_line: int = None
+	) -> str:
 		biosentence = ""
 		possible_structures_list = json.load(
 			open(os.path.join(settings.JSON_PATH, "bio.json"))
@@ -110,7 +112,7 @@ class Artist(models.Model):
 			biosentence = biosentence.replace("obsédé ", "obsédée ")
 		return biosentence
 
-	def create_expo_title(self):
+	def create_expo_title(self) -> str:
 		title = ""
 		possible_structures_list = json.load(
 			open(os.path.join(settings.JSON_PATH, "expos.json"))
