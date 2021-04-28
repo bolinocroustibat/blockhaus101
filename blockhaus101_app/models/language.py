@@ -7,5 +7,5 @@ class Language(models.Model):
 		"language", max_length=2, choices=LANGUAGE_CHOICES, default="fr"
 	)
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return self.get_language_display()

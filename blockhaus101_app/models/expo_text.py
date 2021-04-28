@@ -35,19 +35,19 @@ class ExpoText(models.Model):
 	ip = models.GenericIPAddressField("creator IP address", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return self.text[:60]
 
 	class Meta:
 		verbose_name = "Exhibition text"
 		verbose_name_plural = "Exhibitions texts"
 
-	def save(self, *args, **kwargs):
+	def save(self, *args, **kwargs) -> None:
 		slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
 		unique_slugify(self, slug_string)
 		super(ExpoText, self).save(*args, **kwargs)
 
-	def generate(self, ip=None):
+	def generate(self, ip:str=None) -> None:
 		self.ip = ip
 		self.text = ""
 		forbidden_words = (
@@ -95,7 +95,7 @@ class ExpoText(models.Model):
 
 	def create_expo_sentence(
 		self, guide_file: str(), forbidden_words, min_line=None, max_line=None
-	):
+	) -> str:
 		possible_structures_list = json.load(
 			open(os.path.join(settings.JSON_PATH, "{}.json".format(guide_file)))
 		)

@@ -11,7 +11,7 @@ from .utils import logger, get_client_ip, build_cache
 from blockhaus101.settings import GOOGLE_SHEET_URL
 
 
-def index(request):
+def index(request) -> HttpResponse:
 	language = Language.objects.get(language="fr")
 	description = SiteSettings.objects.get(lang=language).description
 	try:  # try to get an artist for current period
@@ -61,7 +61,7 @@ def index(request):
 	)
 
 
-def exhibition(request, slug):
+def exhibition(request, slug: str) -> HttpResponse:
 	try:  # get expo + artist from database from expo slug
 		expo_text = ExpoText.objects.get(slug=slug)
 		exhibition = Exhibition.objects.get(exhibition_expotext=expo_text)
@@ -90,7 +90,7 @@ def exhibition(request, slug):
 # 	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
 
 
-def past_exhibitions(request):
+def past_exhibitions(request) -> HttpResponse:
 	full_exhibs = list()
 	exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by(
 		"-enddate"
@@ -124,7 +124,7 @@ def past_exhibitions(request):
 	return render(request, "past-exhibitions.html", {"full_exhibs": full_exhibs})
 
 
-def pratique(request):
+def pratique(request) -> HttpResponse:
 	form = FormContact(request.POST or None)
 	message = None
 	if request.method == "POST":  # Checks to see if we get a POST back...
@@ -162,6 +162,6 @@ def pratique(request):
 	)
 
 
-def build_json(request):
+def build_json(request) -> HttpResponse:
 	build_cache(GOOGLE_SHEET_URL)
 	return HttpResponse("{}".format("Les fichiers de cache ont été créés !"))

@@ -13,5 +13,5 @@ class SiteSettings(models.Model):
 	class Meta:
 		verbose_name = "General setting"
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return "Settings {}".format(self.lang)

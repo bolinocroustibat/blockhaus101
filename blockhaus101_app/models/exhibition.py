@@ -20,10 +20,10 @@ class Exhibition(models.Model):
 	enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 
-	def __str__(self):
+	def __str__(self) -> str:
 		return self.title
 
-	def save(self, *args, **kwargs):
+	def save(self, *args, **kwargs) -> None:
 		if not self.startdate or not self.enddate:
 			try:
 				period = SiteSettings.objects.get().period
@@ -44,5 +44,5 @@ class Exhibition(models.Model):
 				)
 		super(Exhibition, self).save(*args, **kwargs)
 
-	def generate(self):
+	def generate(self) -> None:
 		self.title = self.artist.create_expo_title()
