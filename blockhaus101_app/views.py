@@ -11,8 +11,12 @@ from .utils import logger, get_client_ip, build_cache
 from blockhaus101.settings import GOOGLE_SHEET_URL
 
 
-def index(request) -> HttpResponse:
-	language = Language.objects.get(language="fr")
+def index(request, lang: str) -> HttpResponse:
+	try:
+		language = Language.objects.get(language=lang)
+	except:
+		logger.error("Language error")
+		raise Http404()
 	description = SiteSettings.objects.get(lang=language).description
 	try:  # try to get an artist for current period
 		exhibition = (
@@ -49,6 +53,7 @@ def index(request) -> HttpResponse:
 		request,
 		"index.html",
 		{
+			"lang": lang,
 			"description": description,
 			"expo_startdate": expo_startdate,
 			"expo_enddate": expo_enddate,
@@ -61,7 +66,12 @@ def index(request) -> HttpResponse:
 	)
 
 
-def exhibition(request, slug: str) -> HttpResponse:
+def exhibition(request, lang: str, slug: str) -> HttpResponse:
+	try:
+		language = Language.objects.get(language=lang)
+	except:
+		logger.error("Language error")
+		raise Http404()
 	try:  # get expo + artist from database from expo slug
 		expo_text = ExpoText.objects.get(slug=slug)
 		exhibition = Exhibition.objects.get(exhibition_expotext=expo_text)
@@ -70,6 +80,7 @@ def exhibition(request, slug: str) -> HttpResponse:
 			request,
 			"index.html",
 			{
+				"lang": lang,
 				"artist_name": artist.name,
 				"artist_bio": artist.bio,
 				"expo_title": exhibition.title,
@@ -79,8 +90,9 @@ def exhibition(request, slug: str) -> HttpResponse:
 		)
 	except ExpoText.DoesNotExist:
 		logger.error("Exhibition not found.")
-		raise Http404("Cette expo n'existe pas")
-
+		if language.language == "fr":
+			raise Http404("Cette expo n'existe pas")
+		raise Http404("Exhibition not found")
 
 # def manifesto(request):
 # 	try:
@@ -90,7 +102,12 @@ def exhibition(request, slug: str) -> HttpResponse:
 # 	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
 
 
-def past_exhibitions(request) -> HttpResponse:
+def past_exhibitions(request, lang: str) -> HttpResponse:
+	try:
+		language = Language.objects.get(language=lang)
+	except:
+		logger.error("Language error")
+		raise Http404()
 	full_exhibs = list()
 	exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by(
 		"-enddate"
@@ -121,10 +138,18 @@ def past_exhibitions(request) -> HttpResponse:
 		previous_expo_startdate = exhibition[
 			"startdate"
 		]  # record startdate for next iteration
-	return render(request, "past-exhibitions.html", {"full_exhibs": full_exhibs})
+	return render(
+		request,
+		"past-exhibitions.html",
+		{
+			"lang": lang,
+			"full_exhibs": full_exhibs
+		}
+	)
 
 
-def pratique(request) -> HttpResponse:
+def pratique(request, lang: str) -> HttpResponse:
+	language = Language.objects.get(language=lang)
 	form = FormContact(request.POST or None)
 	message = None
 	if request.method == "POST":  # Checks to see if we get a POST back...
@@ -158,7 +183,13 @@ def pratique(request) -> HttpResponse:
 			logger.warning("Formulaire non valide")
 			message = "Votre demande n'a pas été envoyé, vérifiez que tous les champs ont été remplis."
 	return render(
-		request, "infos-pratiques.html", {"form_contact": form, "message": message}
+		request,
+		"infos-pratiques.html",
+		{
+			"lang": lang,
+			"form_contact": form,
+			"message": message
+		}
 	)
 
 
