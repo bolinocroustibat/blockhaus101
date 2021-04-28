@@ -11,9 +11,7 @@
 
 {% block content %}
 <div class="past-expo-date mb-4 mt-5">
-	{% load solo_tags %}
-	{% get_solo 'blockhaus101_app.SiteSettings' as site_settings %}
-	{{ site_settings.description }}
+	{{ description }}
 	<div class="mt-5">Du {{ expo_startdate }} au {{ expo_enddate }} :</div>
 </div>
 

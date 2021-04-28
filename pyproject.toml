@@ -6,27 +6,16 @@ authors = ["Adrien Carpentier <moi@adriencarpentier.com>"]
 
 [tool.poetry.dependencies]
 python = "3.7.*"
-certifi = "2018.1.18"
-chardet = "3.0.4"
-coloredlogs = "10.0"
-Django = "2.2.*"
-django-appconf = "1.0.2"
-django-debug-toolbar = "1.9.1"
-httplib2 = "0.10.3"
-humanfriendly = "4.17"
-idna = "2.6"
-lxml = "4.3.4"
-mysql-connector-python = "^8.0.19"
-oauth2client = "4.1.2"
-oauthlib = "2.0.6"
-pyasn1 = "0.4.2"
-requests = "^2.23.0"
-requests-oauthlib = "0.8.0"
+coloredlogs = "^15.0"
+Django = "^3.2"
+django-debug-toolbar = "^3.2.1"
+PyMySQL = "^1.0.2"
+requests = "^2.25.1"
 tweepy = "^3.8.0"
 xmltodict = "^0.12.0"
 
-
 [tool.poetry.dev-dependencies]
+black = "^21.4b1"
 
 [build-system]
 requires = ["poetry>=0.12"]
