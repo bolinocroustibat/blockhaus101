@@ -10,7 +10,7 @@ import requests
 from collections import OrderedDict
 
 # Project logger
-logger = logging.getLogger('blockhaus101')
+logger = logging.getLogger("blockhaus101")
 
 # # Auth logging for fail2ban
 # authlogger = logging.getLogger('auth-logger')
@@ -25,11 +25,11 @@ logger = logging.getLogger('blockhaus101')
 
 def get_client_ip(request):
 	""" Give it a Django request, it gives you the client's IP as string. """
-	x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+	x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
 	if x_forwarded_for:
 		ip = x_forwarded_for.split(',')[-1].strip()
 	else:
-		ip = request.META.get('REMOTE_ADDR')
+		ip = request.META.get("REMOTE_ADDR")
 	return ip
 
 
@@ -49,16 +49,16 @@ def build_cache(google_sheet_url):
 			file = urllib.request.urlopen(xml_url)
 			data = file.read()
 			file.close()
-			datadict = xmltodict.parse(data)
-			index_dict = dict((e["title"]['#text'], e["id"].partition("/full/")[2]) for e in list(datadict.items())[0][1]["entry"])  # Build an index dictionnary with the tab title as key, and as the value, the new tab id by separating the url of the google spreasheet tab in 3 parts around "/full/" and takes the third part (after the "full")
-			# logger.debug(index_dict) # TEST
+			data: dict = xmltodict.parse(data)
+			index: dict = dict((e["title"]["#text"], e["id"].partition("/full/")[2]) for e in list(data.items())[0][1]["entry"])  # Build an index dictionary with the tab title as key, and as the value, the new tab id by separating the url of the google spreasheet tab in 3 parts around "/full/" and taking the third part (after the "full")
+			# logger.debug(index) # TEST
 			try:
 				with open(os.path.join(path, 'index.json'), 'w') as outfile:
-					outfile.write(json.dumps(index_dict))
+					outfile.write(json.dumps(index))
 				logger.info('JSON main cache file "index.json" was successfully created!')
 			except:
 				logger.error('Error while trying to create main cache file "index.json"')
-			for key, value in index_dict.items():
+			for key, value in index.items():
 				try:
 					json_url = "https://spreadsheets.google.com/feeds/list/{}/{}/public/values?alt=json".format(spreadsheet_key, value)
 					# logger.debug(json_url) # TEST
@@ -69,7 +69,7 @@ def build_cache(google_sheet_url):
 				for e in json_data['feed']['entry'][2:]:
 					element = list()
 					for k, v in e.items():
-						if k.startswith('gsx'):
+						if k.startswith("gsx"):
 							element.append(v["$t"])
 					trimmed_json_data.append(element)
 				try:
