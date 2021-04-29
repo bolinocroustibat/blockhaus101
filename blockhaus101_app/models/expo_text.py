@@ -39,6 +39,7 @@ class ExpoText(models.Model):
 		return self.text[:60]
 
 	class Meta:
+		db_table = "blockhaus101_expotexts"
 		verbose_name = "Exhibition text"
 		verbose_name_plural = "Exhibitions texts"
 

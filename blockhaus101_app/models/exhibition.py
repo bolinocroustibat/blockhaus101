@@ -20,6 +20,9 @@ class Exhibition(models.Model):
 	enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
 	created = models.DateTimeField(auto_now=True)
 
+	class Meta:
+		db_table = "blockhaus101_exhibitions"
+
 	def __str__(self) -> str:
 		return self.title
 

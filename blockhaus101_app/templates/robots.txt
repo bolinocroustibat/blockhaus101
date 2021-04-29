@@ -1,6 +1,6 @@
 # SEARCH ENGINE SITEMAP
 Unlike other items in the sitemap, use the full URL:
-Sitemap: http://www.blockhaus101.com/sitemap.xml
+Sitemap: https://www.blockhaus101.com/sitemap.xml
 
 # Eclut les robots sur certaines parties du site ################
 User-agent: *

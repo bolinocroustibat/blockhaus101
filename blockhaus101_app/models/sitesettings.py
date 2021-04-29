@@ -11,6 +11,7 @@ class SiteSettings(models.Model):
 	period = models.IntegerField("period between two exhibitions, in days", default=7)
 
 	class Meta:
+		db_table = "blockhaus101_settings"
 		verbose_name = "General setting"
 
 	def __str__(self) -> str:

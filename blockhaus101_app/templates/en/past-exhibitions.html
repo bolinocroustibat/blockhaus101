@@ -1,0 +1,29 @@
+{% extends "en/base.html" %}
+
+{% block meta %}
+<title>blockhaus 101 - past exhibitions</title>
+<meta name="Description" content="" />
+<meta property="og:title" content="blockhaus 101 - past exhibitions" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="" />
+{% endblock %}
+
+
+{% block content %}
+
+
+{% if not full_exhibs %}
+	There is no past exhibitions.
+{% else %}
+	{% for e in full_exhibs %}
+	<div class="past-expo-date mb-4 mt-5">From {{ e.startdate }} to {{ e.enddate }}</div>
+	<div class="col-lg-8 col-12 mb-5 project-wrapper">
+		<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title|capfirst }}</span>
+		<div class="bio">{{ e.bio }}</div>
+		<div class="text">{{ e.text }}</div>
+	</div>
+	{% endfor %}
+{% endif %}
+
+
+{% endblock %}
