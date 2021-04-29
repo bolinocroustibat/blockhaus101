@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db import models
 
 from .artist import Artist
@@ -9,7 +9,7 @@ from ..utils import logger
 
 class Exhibition(models.Model):
 
-	lang = models.ForeignKey(
+	language = models.ForeignKey(
 		Language, related_name="language_exhibition", on_delete=models.PROTECT
 	)
 	title = models.CharField("exhibition title", max_length=80)

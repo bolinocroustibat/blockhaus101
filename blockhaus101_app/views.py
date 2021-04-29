@@ -12,11 +12,12 @@ from blockhaus101.settings import GOOGLE_SHEET_URL
 
 
 def index(request, lang: str) -> HttpResponse:
-	language = Language.objects.get(language=lang)
-	description = SiteSettings.objects.get(lang=language).description
-	try:  # try to get an artist for current period
+	language = Language.objects.get(lang=lang)
+	description = SiteSettings.objects.get(language=language).description
+	try:
+	# try to get an artist for current period
 		exhibition = (
-			Exhibition.objects.filter(startdate__lte=datetime.now()).filter(
+			Exhibition.objects.filter(language=language).filter(startdate__lte=datetime.now()).filter(
 				enddate__gte=datetime.now()
 			)
 		)[0]
@@ -28,22 +29,20 @@ def index(request, lang: str) -> HttpResponse:
 		)
 	except:
 		logger.debug("THERE IS NO CURRENT EXHIBITION IN THE TIME RANGE")
-		artist = Artist(lang=language)
+		artist = Artist(language=language)
 		artist.generate()
 		artist.save()
 		logger.debug('NEW ARTIST "{}" HAS BEEN GENERATED AND SAVED'.format(artist.name))
-		exhibition = Exhibition(lang=language)
+		exhibition = Exhibition(language=language)
 		exhibition.artist = artist
 		exhibition.generate()
 		exhibition.save()
 		logger.debug(
 			'NEW EXHIBITION "{}" HAS BEEN GENERATED AND SAVED'.format(exhibition.title)
 		)
-	expo_text = ExpoText(lang=language, exhibition=exhibition)
+	expo_text = ExpoText(language=language, exhibition=exhibition)
 	ip = get_client_ip(request)
-	expo_text.generate(ip)
-	expo_startdate = exhibition.startdate.date()
-	expo_enddate = exhibition.enddate.date()
+	expo_text.generate(ip=ip)
 	expo_text.save()
 	return render(
 		request,
@@ -51,8 +50,8 @@ def index(request, lang: str) -> HttpResponse:
 		{
 			"lang": lang,
 			"description": description,
-			"expo_startdate": expo_startdate,
-			"expo_enddate": expo_enddate,
+			"expo_startdate": exhibition.startdate.date(),
+			"expo_enddate": exhibition.enddate.date(),
 			"artist_name": artist.name,
 			"artist_bio": artist.bio,
 			"expo_title": exhibition.title,
@@ -62,10 +61,12 @@ def index(request, lang: str) -> HttpResponse:
 	)
 
 
-def exhibition(request, lang: str, slug: str) -> HttpResponse:
-	language = Language.objects.get(language=lang)
+def exhibition(request, slug: str) -> HttpResponse:
 	try:  # get expo + artist from database from expo slug
 		expo_text = ExpoText.objects.get(slug=slug)
+		language = expo_text.language
+		description = SiteSettings.objects.get(language=language).description
+		lang = language.lang
 		exhibition = Exhibition.objects.get(exhibition_expotext=expo_text)
 		artist = Artist.objects.get(artist_exhibition=exhibition)
 		return render(
@@ -73,6 +74,9 @@ def exhibition(request, lang: str, slug: str) -> HttpResponse:
 			f"{lang}/index.html",
 			{
 				"lang": lang,
+				"description": description,
+				"expo_startdate": exhibition.startdate.date(),
+				"expo_enddate": exhibition.enddate.date(),
 				"artist_name": artist.name,
 				"artist_bio": artist.bio,
 				"expo_title": exhibition.title,
@@ -82,8 +86,6 @@ def exhibition(request, lang: str, slug: str) -> HttpResponse:
 		)
 	except ExpoText.DoesNotExist:
 		logger.error("Exhibition not found.")
-		if language.language == "fr":
-			raise Http404("Cette expo n'existe pas")
 		raise Http404("Exhibition not found")
 
 # def manifesto(request):
@@ -95,7 +97,7 @@ def exhibition(request, lang: str, slug: str) -> HttpResponse:
 
 
 def past_exhibitions(request, lang: str) -> HttpResponse:
-	language = Language.objects.get(language=lang)
+	language = Language.objects.get(lang=lang)
 	full_exhibs = list()
 	exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by(
 		"-enddate"
@@ -137,7 +139,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
 
 
 def contact(request, lang: str) -> HttpResponse:
-	language = Language.objects.get(language=lang)
+	language = Language.objects.get(lang=lang)
 	form = FormContact(request.POST or None)
 	message = None
 	if request.method == "POST":  # Checks to see if we get a POST back...
