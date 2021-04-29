@@ -16,7 +16,7 @@ from ..utils import logger
 
 class Artist(models.Model):
 
-	lang = models.ForeignKey(
+	language = models.ForeignKey(
 		Language, related_name="language_artist", on_delete=models.PROTECT
 	)
 	name = models.CharField("artist name", max_length=80)

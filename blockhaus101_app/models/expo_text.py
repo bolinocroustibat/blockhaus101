@@ -19,7 +19,7 @@ from ..utils import logger
 
 class ExpoText(models.Model):
 
-	lang = models.ForeignKey(
+	language = models.ForeignKey(
 		Language, related_name="language_expotext", on_delete=models.PROTECT
 	)
 	text = models.TextField("exhibition text", max_length=3000)

@@ -39,6 +39,6 @@ urlpatterns = [
 	re_path(r"^sitemap\.xml$", TemplateView.as_view(template_name="sitemap.xml")),
 
 	re_path(
-		r"^(?P<lang>fr|en)/(?P<slug>[-\w]+)/$", views.exhibition, name="exhibition"
+		r"^(?P<slug>[-\w]+)/$", views.exhibition, name="exhibition"
 	),
 ]

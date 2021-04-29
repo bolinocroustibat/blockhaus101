@@ -4,7 +4,7 @@ from .language import Language
 
 class SiteSettings(models.Model):
 
-	lang = models.ForeignKey(
+	language = models.ForeignKey(
 		Language, related_name="language_sitesettings", on_delete=models.PROTECT
 	)
 	description = models.TextField("site header text", max_length=1000, default="")
