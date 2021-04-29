@@ -26,6 +26,9 @@ class Artist(models.Model):
 	bio = models.TextField("artist biography", max_length=2000)
 	created = models.DateTimeField(auto_now=True)
 
+	class Meta:
+		db_table = "blockhaus101_artists"
+
 	def __str__(self) -> str:
 		return self.name
 

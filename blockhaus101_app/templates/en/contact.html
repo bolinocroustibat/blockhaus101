@@ -1,0 +1,47 @@
+{% extends "en/base.html" %}
+
+{% block meta %}
+<title>blockhaus 101 - book a visit</title>
+<meta name="Description" content="" />
+<meta property="og:title" content="blockhaus 101 - book a visit" />
+<meta property="og:description" content="" />
+<meta property="og:image" content="" />
+{% endblock %}
+
+
+{% block content %}
+
+<div class="col-lg-8 col-12 p-0 mb-5">
+	<p>blockhaus 101<br />
+	75020 Paris</p>
+
+	<div class="mt-5">
+		{% if message %}
+			<p class="message">{{message}}</p>
+		{% else %}
+			<p>You can book a visit to the Blockhaus 101 only by filling this form:
+			<form role="form" action= "" method="POST">
+				<div class="mt-3">
+					{{ form_contact.name.label_tag }}
+					{{ form_contact.name }}
+				</div>
+				<div class="mt-3">
+					{{ form_contact.email.label_tag }}
+					{{ form_contact.email }}
+				</div>
+				<div class="mt-3">
+					{{ form_contact.phone.label_tag }}
+					{{ form_contact.phone }}
+				</div>
+				<div class="mt-3">
+					{{ form_contact.text.label_tag }}
+					{{ form_contact.text }}
+				</div>
+				{% csrf_token %}
+				<input type="submit" class="btn btn-primary mt-3" value="Send">
+			</form>
+		{% endif %}
+	</div>
+</div>
+
+{% endblock %}

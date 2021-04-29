@@ -12,11 +12,7 @@ from blockhaus101.settings import GOOGLE_SHEET_URL
 
 
 def index(request, lang: str) -> HttpResponse:
-	try:
-		language = Language.objects.get(language=lang)
-	except:
-		logger.error("Language error")
-		raise Http404()
+	language = Language.objects.get(language=lang)
 	description = SiteSettings.objects.get(lang=language).description
 	try:  # try to get an artist for current period
 		exhibition = (
@@ -51,7 +47,7 @@ def index(request, lang: str) -> HttpResponse:
 	expo_text.save()
 	return render(
 		request,
-		"index.html",
+		f"{lang}/index.html",
 		{
 			"lang": lang,
 			"description": description,
@@ -67,18 +63,14 @@ def index(request, lang: str) -> HttpResponse:
 
 
 def exhibition(request, lang: str, slug: str) -> HttpResponse:
-	try:
-		language = Language.objects.get(language=lang)
-	except:
-		logger.error("Language error")
-		raise Http404()
+	language = Language.objects.get(language=lang)
 	try:  # get expo + artist from database from expo slug
 		expo_text = ExpoText.objects.get(slug=slug)
 		exhibition = Exhibition.objects.get(exhibition_expotext=expo_text)
 		artist = Artist.objects.get(artist_exhibition=exhibition)
 		return render(
 			request,
-			"index.html",
+			f"{lang}/index.html",
 			{
 				"lang": lang,
 				"artist_name": artist.name,
@@ -103,11 +95,7 @@ def exhibition(request, lang: str, slug: str) -> HttpResponse:
 
 
 def past_exhibitions(request, lang: str) -> HttpResponse:
-	try:
-		language = Language.objects.get(language=lang)
-	except:
-		logger.error("Language error")
-		raise Http404()
+	language = Language.objects.get(language=lang)
 	full_exhibs = list()
 	exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by(
 		"-enddate"
@@ -140,7 +128,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
 		]  # record startdate for next iteration
 	return render(
 		request,
-		"past-exhibitions.html",
+		f"{lang}/past-exhibitions.html",
 		{
 			"lang": lang,
 			"full_exhibs": full_exhibs
@@ -148,43 +136,43 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
 	)
 
 
-def pratique(request, lang: str) -> HttpResponse:
+def contact(request, lang: str) -> HttpResponse:
 	language = Language.objects.get(language=lang)
 	form = FormContact(request.POST or None)
 	message = None
 	if request.method == "POST":  # Checks to see if we get a POST back...
 		if form.is_valid():  # Checks to see form is valid
 			send_mail(
-				subject="Mail envoyé depuis le site Blockhaus101",
-				message="Expéditeur : "
+				subject="Mail from Blockhaus101 website",
+				message="Sender: "
 				+ form.cleaned_data["name"]
-				+ " / E-mail expéditeur : "
+				+ " / Sender email: "
 				+ form.cleaned_data["email"]
-				+ " / Téléphone expéditeur : "
+				+ " / Sender phone: "
 				+ form.cleaned_data["phone"]
-				+ " / Texte du message : "
+				+ " / Message text: "
 				+ form.cleaned_data["text"],
 				from_email=form.cleaned_data["email"],
 				recipient_list=["moi@adriencarpentier.com"],
 				fail_silently=False,
 				html_message="Expéditeur : "
 				+ form.cleaned_data["name"]
-				+ " <br/> E-mail expéditeur : "
+				+ " <br/> Sender email: "
 				+ form.cleaned_data["email"]
-				+ " <br/> Téléphone expéditeur : "
+				+ " <br/> Sender phone: "
 				+ form.cleaned_data["phone"]
-				+ " <br/> Texte du message : "
+				+ " <br/> Message text: "
 				+ form.cleaned_data["text"],
 			)
 			form = FormContact()
-			logger.info("Email de contact envoyé !")
+			logger.info("Contact email sent!")
 			message = "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais."
 		else:
-			logger.warning("Formulaire non valide")
+			logger.warning("Form is not valid")
 			message = "Votre demande n'a pas été envoyé, vérifiez que tous les champs ont été remplis."
 	return render(
 		request,
-		"infos-pratiques.html",
+		f"{lang}/contact.html",
 		{
 			"lang": lang,
 			"form_contact": form,

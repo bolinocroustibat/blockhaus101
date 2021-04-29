@@ -7,5 +7,8 @@ class Language(models.Model):
 		"language", max_length=2, choices=LANGUAGE_CHOICES, default="fr"
 	)
 
+	class Meta:
+		db_table = "blockhaus101_languages"
+
 	def __str__(self) -> str:
 		return self.get_language_display()
