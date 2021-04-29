@@ -45,7 +45,7 @@ class ExpoText(models.Model):
 
 	def save(self, *args, **kwargs) -> None:
 		slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
-		unique_slugify(self, slug_string)
+		unique_slugify(self, slug_string) # if this slug exists for others, add a number at the end of the slug attribute of the instance 
 		super(ExpoText, self).save(*args, **kwargs)
 
 	def generate(self, ip:str=None) -> None:
