@@ -1,5 +1,5 @@
 from .artist import Artist
 from .exhibition import Exhibition
 from .expo_text import ExpoText
-from .sitesettings import SiteSettings
+from .sitesetting import SiteSetting
 from .language import Language

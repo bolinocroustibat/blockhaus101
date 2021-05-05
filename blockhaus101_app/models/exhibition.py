@@ -3,18 +3,18 @@ from django.db import models
 
 from .artist import Artist
 from .language import Language
-from .sitesettings import SiteSettings
+from .sitesetting import SiteSetting
 from ..utils import logger
 
 
 class Exhibition(models.Model):
 
 	language = models.ForeignKey(
-		Language, related_name="language_exhibition", on_delete=models.PROTECT
+		Language, related_name="exhibitions", on_delete=models.PROTECT
 	)
 	title = models.CharField("exhibition title", max_length=80)
 	artist = models.ForeignKey(
-		Artist, related_name="artist_exhibition", on_delete=models.PROTECT
+		Artist, related_name="exhibitions", on_delete=models.PROTECT
 	)
 	startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
 	enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
@@ -29,7 +29,7 @@ class Exhibition(models.Model):
 	def save(self, *args, **kwargs) -> None:
 		if not self.startdate or not self.enddate:
 			try:
-				period = SiteSettings.objects.get().period
+				period = SiteSetting.objects.get().period
 			except:
 				period = 7
 			logger.debug("NOW TRYING TO SAVE NEW EXHIBITION...")

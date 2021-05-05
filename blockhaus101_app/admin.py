@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import *
 
 
-class SiteSettingsAdmin(admin.ModelAdmin):
-	model = SiteSettings
-admin.site.register(SiteSettings, SiteSettingsAdmin)
+class SiteSettingAdmin(admin.ModelAdmin):
+	model = SiteSetting
+admin.site.register(SiteSetting, SiteSettingAdmin)
 
 class ExhibitionAdmin(admin.ModelAdmin):
 	model = Exhibition

@@ -17,7 +17,7 @@ from ..utils import logger
 class Artist(models.Model):
 
 	language = models.ForeignKey(
-		Language, related_name="language_artist", on_delete=models.PROTECT
+		Language, related_name="artists", on_delete=models.PROTECT
 	)
 	name = models.CharField("artist name", max_length=80)
 	GENDER_CHOICES = (("f", "female"), ("m", "male"))

@@ -13,21 +13,21 @@ from blockhaus101_app.functions import (
 )
 from .language import Language
 from .exhibition import Exhibition
-from .sitesettings import SiteSettings
+from .sitesetting import SiteSetting
 from ..utils import logger
 
 
 class ExpoText(models.Model):
 
 	language = models.ForeignKey(
-		Language, related_name="language_expotext", on_delete=models.PROTECT
+		Language, related_name="expotexts", on_delete=models.PROTECT
 	)
 	text = models.TextField("exhibition text", max_length=3000)
 	exhibition = models.ForeignKey(
 		Exhibition,
-		related_name="exhibition_expotext",
+		related_name="expotexts",
 		on_delete=models.PROTECT,
-		verbose_name="Exposition",
+		verbose_name="exhibition",
 	)
 	slug = models.SlugField(
 		default=None, null=True, blank=True, max_length=150, verbose_name="URL"
