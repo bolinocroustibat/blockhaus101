@@ -13,7 +13,7 @@ from blockhaus101.settings import GOOGLE_SHEET_URL
 
 def index(request, lang: str) -> HttpResponse:
 	language = Language.objects.get(lang=lang)
-	description = SiteSettings.objects.get(language=language).description
+	description = SiteSetting.objects.get(language=language).description
 	try:
 	# try to get an artist for current period
 		exhibition = (
@@ -65,7 +65,7 @@ def exhibition(request, slug: str) -> HttpResponse:
 	try:  # get expo + artist from database from expo slug
 		expo_text = ExpoText.objects.get(slug=slug)
 		language = expo_text.language
-		description = SiteSettings.objects.get(language=language).description
+		description = SiteSetting.objects.get(language=language).description
 		lang = language.lang
 		exhibition = Exhibition.objects.get(exhibition_expotext=expo_text)
 		artist = Artist.objects.get(artist_exhibition=exhibition)
@@ -90,7 +90,7 @@ def exhibition(request, slug: str) -> HttpResponse:
 
 # def manifesto(request):
 # 	try:
-# 		manifesto_text = SiteSettings.objects.get().manifesto
+# 		manifesto_text = SiteSetting.objects.get().manifesto
 # 	except:
 # 		manifesto_text = ""
 # 	return render(request,'manifeste.html', {'manifesto_text': manifesto_text})
