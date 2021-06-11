@@ -15,35 +15,35 @@ def index(request, lang: str) -> HttpResponse:
 	language = Language.objects.get(lang=lang)
 	description = SiteSetting.objects.get(language=language).description
 	try:
-	# try to get an artist for current period
+	# try to get an exhibition for current period
 		exhibition = (
 			Exhibition.objects.filter(language=language).filter(startdate__lte=datetime.now()).filter(
 				enddate__gte=datetime.now()
 			)
 		)[0]
-		artist = Artist.objects.filter(artist_exhibition=exhibition)[0]
+		artist = Artist.objects.filter(exhibitions=exhibition)[0]
 		logger.info(
-			'CURRENT EXHIBITION DISPLAYED : {} "{}"'.format(
+			'Current exhibition displayed: {} "{}"'.format(
 				artist.name, exhibition.title
 			)
 		)
-	except:
-		logger.debug("THERE IS NO CURRENT EXHIBITION IN THE TIME RANGE")
+	except Exception as e:
+		logger.debug("There is no current exhibition in the time range")
 		artist = Artist(language=language)
 		artist.generate()
 		artist.save()
-		logger.debug('NEW ARTIST "{}" HAS BEEN GENERATED AND SAVED'.format(artist.name))
+		logger.debug('New artist "{}" has been created in DB'.format(artist.name))
 		exhibition = Exhibition(language=language)
 		exhibition.artist = artist
 		exhibition.generate()
 		exhibition.save()
 		logger.debug(
-			'NEW EXHIBITION "{}" HAS BEEN GENERATED AND SAVED'.format(exhibition.title)
+			'New echibition "{}" has been created in DB'.format(exhibition.title)
 		)
 	expo_text = ExpoText(language=language, exhibition=exhibition)
 	ip = get_client_ip(request)
 	expo_text.generate(ip=ip)
-	expo_text.save()
+	# expo_text.save()
 	return render(
 		request,
 		f"{lang}/index.html",
