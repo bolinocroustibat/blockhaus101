@@ -51,7 +51,7 @@ File `/etc/nginx/sites-available/blockhaus101.com`:
 ````
 server {
 	server_name blockhaus101.com;
-	return  301 $scheme://www.blockhaus101.com$request_uri;
+	return 301 $scheme://www.blockhaus101.com$request_uri;
 
 	listen 443 ssl http2; # managed by Certbot
 	ssl_certificate /etc/letsencrypt/live/blockhaus101.com/fullchain.pem; # managed by Certbot
