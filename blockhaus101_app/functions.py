@@ -1,11 +1,11 @@
-from django.template.defaultfilters import slugify
-
 import json
 import os
 import re
 from random import randrange
 
+from django.template.defaultfilters import slugify
 from django.conf import settings
+
 from .utils import logger
 
 
