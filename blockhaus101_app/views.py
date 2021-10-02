@@ -1,10 +1,9 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, Http404
-from django.core.mail import send_mail
 from datetime import datetime, timedelta
-import tweepy
 
-import blockhaus101_app
+from django.shortcuts import render
+from django.http import HttpResponse, Http404
+from django.core.mail import send_mail
+
 from .models import *
 from .forms import FormContact
 from .utils import logger, get_client_ip, build_cache

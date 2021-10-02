@@ -1,6 +1,4 @@
 import logging
-import blockhaus101_app
-
 import os
 import xmltodict
 import re
@@ -8,6 +6,8 @@ import urllib
 import json
 import requests
 from collections import OrderedDict
+
+import blockhaus101_app
 
 # Project logger
 logger = logging.getLogger("blockhaus101")

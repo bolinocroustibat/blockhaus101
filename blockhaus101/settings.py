@@ -79,8 +79,6 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "blockhaus101.wsgi.application"
-
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Password validation

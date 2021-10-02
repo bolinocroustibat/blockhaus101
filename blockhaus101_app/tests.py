@@ -1,11 +1,10 @@
-from django.test import TestCase
-
+import os
 import re
-import requests
-from collections import OrderedDict
 import urllib
 import xmltodict
 import json
+
+from django.test import TestCase
 
 import blockhaus101_app
 from .models import *
