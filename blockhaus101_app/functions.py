@@ -49,7 +49,7 @@ def choose_random_word(word_type: str(), forbidden_words=None) -> str:
 	return word
 
 
-def add_string_to_sentence(sentence: str(), pos: int(), string: str()) -> str:
+def add_string_to_sentence(sentence: str, pos: int, string: str) -> str:
 	if (
 		(pos == 0)
 		or (sentence[-1:] == "-")
@@ -67,7 +67,7 @@ def add_string_to_sentence(sentence: str(), pos: int(), string: str()) -> str:
 	return sentence
 
 
-def correct_sentence(sentence: str()):
+def correct_sentence(sentence: str) -> str:
 	correction_dict = {  # we could also use "replace(old, new)": https://www.tutorialspoint.com/python/string_replace.htm
 		"( ": "(",
 		" )": ")",
@@ -136,7 +136,7 @@ def correct_sentence(sentence: str()):
 	return sentence
 
 
-def strtr(string, correction_dict: dict()):
+def strtr(string: str, correction_dict: dict) -> str:
 	buffer = []
 	i, n = 0, len(string)
 	while i < n:

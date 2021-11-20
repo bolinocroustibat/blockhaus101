@@ -10,8 +10,6 @@ static/
 *.sublime-project
 *.sublime-workspace
 
-poetry.lock
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -39,6 +37,9 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+poetry.lock
+.pdm.toml
+pdm.lock
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
