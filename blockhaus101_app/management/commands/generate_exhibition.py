@@ -10,8 +10,9 @@ class Command(BaseCommand):
 	def handle(self, *args, **options):
 		artist = Artist()
 		Artist.generate(artist)
-		artist.save()
-		exhibition = Exhibition()
-		exhibition.artist = artist
-		exhibition.generate()
-		exhibition.save()
+		print(artist)
+		# artist.save()
+		# exhibition = Exhibition()
+		# exhibition.artist = artist
+		# exhibition.generate()
+		# exhibition.save()

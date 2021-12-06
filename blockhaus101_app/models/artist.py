@@ -10,6 +10,7 @@ from blockhaus101_app.functions import (
 	correct_sentence,
 )
 from blockhaus101_app.models.language import Language
+from blockhaus101_app.models.data import Data, DataType
 from blockhaus101_app.utils import logger
 
 
@@ -33,28 +34,22 @@ class Artist(models.Model):
 
 	def generate(self) -> None:
 		# first name and genre
-		firstnames_list = json.load(
-			open(os.path.join(settings.JSON_PATH, "FIRSTNAME.json"))
-		)
-		firstname_list = choice(firstnames_list)
-		firstname = firstname_list[0]
-		self.gender = firstname_list[1]
+		data_type = DataType.objects.get(name="FIRSTNAME")
+		firstnames = Data.objects.filter(type=data_type)
+		firstname = choice(firstnames)
+		self.gender = firstname.gender
 		# last name
-		lastname_list = json.load(
-			open(os.path.join(settings.JSON_PATH, "LASTNAME.json"))
-		)
-		lastname = choice(lastname_list)[0]
+		data_type = DataType.objects.get(name="LASTNAME")
+		lastnames = Data.objects.filter(type=data_type)
+		lastname = choice(lastnames)
 		# full name
-		self.name = firstname + " " + lastname
+		self.name = firstname.text + " " + lastname.text
 		# discipline
-		discipline_list = json.load(
-			open(os.path.join(settings.JSON_PATH, "DISCIPLINE.json"))
-		)
-		self.discipline = choice(discipline_list)[0]
+		data_type = DataType.objects.get(name="DISCIPLINE")
+		disciplines = Data.objects.filter(type=data_type)
+		self.discipline = choice(disciplines).text
 		# bio
-		forbidden_words = (
-			dict()
-		)  # dictionnary which stores words that have been already used in the sentence
+		forbidden_words = dict() # stores words that have been already used in the sentence
 		self.bio = self.bio + " " + self.create_bio_sentence(forbidden_words, 4, 7)
 		self.bio = self.bio + " " + self.create_bio_sentence(forbidden_words, 8, 12)
 		self.bio = self.bio + " " + self.create_bio_sentence(forbidden_words, 13, 22)

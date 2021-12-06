@@ -40,6 +40,7 @@ MANIFEST
 poetry.lock
 .pdm.toml
 pdm.lock
+__pypackages__/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
