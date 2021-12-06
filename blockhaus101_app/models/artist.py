@@ -1,143 +1,96 @@
-import json
-import os
-from random import randint, randrange, choice
-from django.db import models
-from django.conf import settings
+import re
+from random import randint, choice
 
-from blockhaus101_app.functions import (
-	choose_random_word,
-	add_string_to_sentence,
-	correct_sentence,
-)
+from django.db import models
+
+from blockhaus101_app.helpers import logger, correct_sentence
+from blockhaus101_app.models.data import Data
 from blockhaus101_app.models.language import Language
-from blockhaus101_app.models.data import Data, DataType
-from blockhaus101_app.utils import logger
 
 
 class Artist(models.Model):
 
-	language = models.ForeignKey(
-		Language, related_name="artists", on_delete=models.PROTECT
-	)
-	name = models.CharField("artist name", max_length=80)
-	GENDER_CHOICES = (("f", "female"), ("m", "male"))
-	gender = models.CharField("artist gender", max_length=6, choices=GENDER_CHOICES)
-	discipline = models.CharField("artiste discipline", max_length=80)
-	bio = models.TextField("artist biography", max_length=2000)
-	created = models.DateTimeField(auto_now=True)
+    language = models.ForeignKey(
+        Language, related_name="artists", on_delete=models.PROTECT
+    )
+    name = models.CharField("artist name", max_length=80)
+    GENDER_CHOICES = (("f", "female"), ("m", "male"))
+    gender = models.CharField("artist gender", max_length=6, choices=GENDER_CHOICES)
+    discipline = models.CharField("artiste discipline", max_length=80)
+    bio = models.TextField("artist biography", max_length=2000)
+    created = models.DateTimeField(auto_now=True)
 
-	class Meta:
-		db_table = "blockhaus101_artists"
+    class Meta:
+        db_table = "blockhaus101_artists"
 
-	def __str__(self) -> str:
-		return self.name
+    def __str__(self) -> str:
+        return self.name
 
-	def generate(self) -> None:
-		# first name and genre
-		data_type = DataType.objects.get(name="FIRSTNAME")
-		firstnames = Data.objects.filter(type=data_type)
-		firstname = choice(firstnames)
-		self.gender = firstname.gender
-		# last name
-		data_type = DataType.objects.get(name="LASTNAME")
-		lastnames = Data.objects.filter(type=data_type)
-		lastname = choice(lastnames)
-		# full name
-		self.name = firstname.text + " " + lastname.text
-		# discipline
-		data_type = DataType.objects.get(name="DISCIPLINE")
-		disciplines = Data.objects.filter(type=data_type)
-		self.discipline = choice(disciplines).text
-		# bio
-		forbidden_words = dict() # stores words that have been already used in the sentence
-		self.bio = self.bio + " " + self.create_bio_sentence(forbidden_words, 4, 7)
-		self.bio = self.bio + " " + self.create_bio_sentence(forbidden_words, 8, 12)
-		self.bio = self.bio + " " + self.create_bio_sentence(forbidden_words, 13, 22)
-		if randint(1, 3) == 2:
-			self.bio = (
-				self.bio + " " + self.create_bio_sentence(forbidden_words, 22, 29)
-			)
-		logger.debug(
-			"Les mots de la biographie déjà utilisés et à ne pas réutiliser sont : {}".format(
-				forbidden_words
-			)
-		)
+    def generate(self) -> None:
+        # first name and genre
+        firstnames = Data.objects.filter(type__name="FIRSTNAME")
+        firstname = choice(firstnames)
+        self.gender = firstname.gender
+        # last name
+        lastnames = Data.objects.filter(type__name="LASTNAME")
+        lastname = choice(lastnames)
+        # full name
+        self.name = firstname.text + " " + lastname.text
+        # discipline
+        disciplines = Data.objects.filter(type__name="DISCIPLINE")
+        self.discipline = choice(disciplines).text
+        # bio
+        self.bio_used_words = dict()
+        self.bio = self.create_bio_sentence(position=1)
+        self.bio = self.bio + " " + self.create_bio_sentence(position=2)
+        self.bio = self.bio + " " + self.create_bio_sentence(position=3)
+        if randint(1, 3) == 2:
+            self.bio = self.bio + " " + self.create_bio_sentence(position=4)
+        if self.gender == "f":
+            self.bio = self.bio.replace(" il ", " elle ")
+            self.bio = self.bio.replace("qu'il ", "qu'elle ")
+            self.bio = self.bio.replace("Il ", " Elle ")
+            self.bio = self.bio.replace(" né ", " née ")
+            self.bio = self.bio.replace("Né ", "Née ")
+            self.bio = self.bio.replace("iplômé ", "iplômée ")
+            self.bio = self.bio.replace("marqué ", "marquée ")
+            self.bio = self.bio.replace("obsédé ", "obsédée ")
+        logger.debug(f"## Biography used words: {self.bio_used_words}")
 
-	def create_bio_sentence(
-		self, forbidden_words: dict, min_line: int = None, max_line: int = None
-	) -> str:
-		biosentence = ""
-		possible_structures_list = json.load(
-			open(os.path.join(settings.JSON_PATH, "bio.json"))
-		)
-		if min_line and max_line:
-			nb = randint(min_line - 4, max_line - 4)
-		else:
-			nb = randrange(0, len(possible_structures_list))
-		bio_structure = possible_structures_list[nb]
-		index_dict = json.load(open(os.path.join(settings.JSON_PATH, "index.json")))
-		pos = 0
-		for w in bio_structure:
-			if w == "SELF":  # si c'est l'artiste
-				biosentence = add_string_to_sentence(biosentence, pos, self.name)
-			elif w == "SELFDISCIPLINE":
-				biosentence = add_string_to_sentence(biosentence, pos, self.discipline)
-			elif w == "EXPO":
-				biosentence = add_string_to_sentence(
-					biosentence, pos, self.create_expo_title()
-				)
-			elif (
-				w in index_dict.keys()
-			):  # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				chosen_word = choose_random_word(
-					word_type=w, forbidden_words=forbidden_words
-				)
-				biosentence = add_string_to_sentence(biosentence, pos, chosen_word)
-			else:  # si l'élément est inconnu, c'est que c'est un mot et pas un code !
-				biosentence = add_string_to_sentence(biosentence, pos, w)
-			pos += 1
-		biosentence = correct_sentence(biosentence)
-		if self.gender == "f":  # si l'artiste est du genre féminin
-			biosentence = biosentence.replace(" il ", " elle ")
-			biosentence = biosentence.replace("qu'il ", "qu'elle ")
-			biosentence = biosentence.replace("Il ", " Elle ")
-			biosentence = biosentence.replace(" né ", " née ")
-			biosentence = biosentence.replace("Né ", "Née ")
-			biosentence = biosentence.replace("iplômé ", "iplômée ")
-			biosentence = biosentence.replace("marqué ", "marquée ")
-			biosentence = biosentence.replace("obsédé ", "obsédée ")
-		return biosentence
+    def create_bio_sentence(self, position: int = None) -> str:
+        bio_structures = Data.objects.filter(type__name="bio", position=position)
+        biosentence = choice(bio_structures).text
+        biosentence = biosentence.replace("[SELF]", self.name)
+        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline)
+        biosentence = biosentence.replace("[EXPO]", self.create_expo_title())
+        keywords: list = re.findall(r"\[[^][]*]", biosentence)
+        for k in keywords:
+            word_type = k.replace("[", "").replace("]", "")
+            chosen_data = Data.choose_random(
+                word_type=word_type, used_words=self.bio_used_words
+            )
+            if chosen_data:
+                chosen_word = chosen_data[0]
+                self.bio_used_words = chosen_data[1]
+                # only replace one occurence, we want the same keyword to be able to be replaced by another word
+                biosentence = biosentence.replace(f"[{word_type}]", chosen_word, 1)
+        biosentence = correct_sentence(biosentence)
+        return biosentence
 
-	def create_expo_title(self) -> str:
-		title = ""
-		possible_structures_list = json.load(
-			open(os.path.join(settings.JSON_PATH, "expos.json"))
-		)
-		expo_structure = choice(possible_structures_list)
-		index_dict = json.load(open(os.path.join(settings.JSON_PATH, "index.json")))
-		pos = 0
-		forbidden_words = (
-			dict()
-		)  # dictionnary which stores words that have been already used in the sentence
-		for w in expo_structure:
-			if w == "SELF":  # si c'est l'artiste
-				title = add_string_to_sentence(title, pos, self.name)
-			elif w == "SELFDISCIPLINE":
-				title = add_string_to_sentence(title, pos, self.discipline)
-			elif (
-				w in index_dict.keys()
-			):  # s'il s'agit d'un code de mot parmi ceux dont le nombre et le genre doivent être déterminés
-				chosen_word = choose_random_word(
-					word_type=w, forbidden_words=forbidden_words
-				)
-				title = add_string_to_sentence(title, pos, chosen_word)
-			else:  # si l'élément est inconnu, c'est que c'est un mot et pas un code !
-				title = add_string_to_sentence(title, pos, w)
-			pos += 1
-		# title = correct_sentence(title)
-		logger.debug(
-			"Les mots du titre de l'expo déjà utilisés et à ne pas réutiliser sont : {}".format(
-				forbidden_words
-			)
-		)
-		return title
+    def create_expo_title(self) -> str:
+        title_structures = Data.objects.filter(type__name="expos")
+        title = choice(title_structures).text
+        title = title.replace("[SELF]", self.name)
+        title = title.replace("[SELFDISCIPLINE]", self.discipline)
+        keywords: list = re.findall(r"\[[^][]*]", title)
+        used_words = dict()
+        for k in keywords:
+            word_type = k.replace("[", "").replace("]", "")
+            chosen_data = Data.choose_random(word_type=word_type, used_words=used_words)
+            if chosen_data:
+                chosen_word = chosen_data[0]
+                used_words = chosen_data[1]
+                # only replace one occurence, we want the same keyword to be able to be replaced by another word
+                title = title.replace(f"[{word_type}]", chosen_word, 1)
+        logger.debug(f"##  Title used words: {used_words}")
+        return title

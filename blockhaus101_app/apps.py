@@ -2,4 +2,6 @@ from django.apps import AppConfig
 
 
 class Blockhaus101AppConfig(AppConfig):
-	name = "blockhaus101_app"
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "blockhaus101_app"
+    verbose_name = "Blockhaus 101"
