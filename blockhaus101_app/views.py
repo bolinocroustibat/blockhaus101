@@ -6,8 +6,7 @@ from django.core.mail import send_mail
 
 from blockhaus101_app.models import *
 from blockhaus101_app.forms import FormContact
-from blockhaus101_app.utils import logger, get_client_ip, build_cache
-from blockhaus101.settings import GOOGLE_SHEET_URL
+from blockhaus101_app.utils import logger, get_client_ip
 
 
 def index(request, lang: str) -> HttpResponse:
@@ -180,8 +179,3 @@ def contact(request, lang: str) -> HttpResponse:
 			"message": message
 		}
 	)
-
-
-def build_json(request) -> HttpResponse:
-	build_cache(GOOGLE_SHEET_URL)
-	return HttpResponse("{}".format("Les fichiers de cache ont été créés !"))

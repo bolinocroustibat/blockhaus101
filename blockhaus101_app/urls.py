@@ -29,9 +29,6 @@ urlpatterns = [
 	),
 	re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
 
-	# Private URL
-	re_path(r"^build_json/$", views.build_json, name="build_json"),
-
 	# robots.txt
 	re_path(r"^robots\.txt$", TemplateView.as_view(template_name="robots.txt")),
 
