@@ -5,14 +5,15 @@ from blockhaus101_app.models import *
 
 class Command(BaseCommand):
 
-	help = 'Generate new artist and save in the BDD'
+    help = "Generate new artist and save in the DB"
 
-	def handle(self, *args, **options):
-		artist = Artist()
-		Artist.generate(artist)
-		print(artist)
-		# artist.save()
-		# exhibition = Exhibition()
-		# exhibition.artist = artist
-		# exhibition.generate()
-		# exhibition.save()
+    def handle(self, *args, **options):
+        language = Language.objects.get(lang="fr")
+        artist = Artist(language=language)
+        artist.generate()
+        artist.save()
+        print(artist)
+        exhibition = Exhibition(language=language, artist=artist)
+        exhibition.generate()
+        exhibition.save()
+        print(exhibition)

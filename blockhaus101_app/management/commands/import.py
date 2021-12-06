@@ -43,18 +43,20 @@ class Command(BaseCommand):
             else:
                 print("Tab has many columns, assuming it's a data structure, joining with spaces")
                 data = " ".join(row)
-                keywords: list = re.findall(r'\b[A-Z-+]{2,}\b', data)
-                for k in keywords:
+                keywords: list = re.findall(r'\b(?<!\[)[A-Z-+]{2,}\b', data) # find all uppercase words that are at least 2 characters long, and that have no bracket before them
+                for k in set(keywords):
                     data = data.replace(k, f"[{k}]")
-                data = normalize_text(text=data)
+                data = self._normalize_text(text=data)
                 Data.objects.create(type=data_type, text=data)
             line_count += 1
         print(f"Processed {line_count} lines.")
 
-
-def normalize_text(text: str) -> str:
-    text = text.replace(" ,", ",")
-    text = text.replace(' .', '.')
-    text = text.replace('“ ', '"')
-    text = text.replace(' ”', '"')
-    return text
+    @staticmethod
+    def _normalize_text(text: str) -> str:
+        text = text.replace(" ,", ",")
+        text = text.replace(' .', '.')
+        text = text.replace('“ ', '"')
+        text = text.replace(' ”', '"')
+        text = text.replace('( ', '(')
+        text = text.replace(' )', ')')
+        return text
