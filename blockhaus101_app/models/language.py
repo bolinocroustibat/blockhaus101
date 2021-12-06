@@ -11,4 +11,4 @@ class Language(models.Model):
 		db_table = "blockhaus101_languages"
 
 	def __str__(self) -> str:
-		return self.get_language_display()
+		return self.lang
