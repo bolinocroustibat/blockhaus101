@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import *
+from blockhaus101_app.models import *
 
 
 class SiteSettingAdmin(admin.ModelAdmin):

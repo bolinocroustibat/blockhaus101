@@ -8,13 +8,12 @@ from blockhaus101_app.functions import (
 	choose_random_word,
 	add_string_to_sentence,
 	correct_sentence,
-	strtr,
 	unique_slugify,
 )
-from .language import Language
-from .exhibition import Exhibition
-from .sitesetting import SiteSetting
-from ..utils import logger
+from blockhaus101_app.models.language import Language
+from blockhaus101_app.models.exhibition import Exhibition
+from blockhaus101_app.models.sitesetting import SiteSetting
+from blockhaus101_app.utils import logger
 
 
 class ExpoText(models.Model):

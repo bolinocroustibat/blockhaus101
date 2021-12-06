@@ -8,10 +8,9 @@ from blockhaus101_app.functions import (
 	choose_random_word,
 	add_string_to_sentence,
 	correct_sentence,
-	strtr,
 )
-from .language import Language
-from ..utils import logger
+from blockhaus101_app.models.language import Language
+from blockhaus101_app.utils import logger
 
 
 class Artist(models.Model):
