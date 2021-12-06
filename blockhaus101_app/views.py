@@ -4,9 +4,9 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 from django.core.mail import send_mail
 
-from .models import *
-from .forms import FormContact
-from .utils import logger, get_client_ip, build_cache
+from blockhaus101_app.models import *
+from blockhaus101_app.forms import FormContact
+from blockhaus101_app.utils import logger, get_client_ip, build_cache
 from blockhaus101.settings import GOOGLE_SHEET_URL
 
 

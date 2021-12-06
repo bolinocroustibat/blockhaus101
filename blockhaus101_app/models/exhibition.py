@@ -1,10 +1,10 @@
 from datetime import datetime, timedelta
 from django.db import models
 
-from .artist import Artist
-from .language import Language
-from .sitesetting import SiteSetting
-from ..utils import logger
+from blockhaus101_app.models.artist import Artist
+from blockhaus101_app.models.language import Language
+from blockhaus101_app.models.sitesetting import SiteSetting
+from blockhaus101_app.utils import logger
 
 
 class Exhibition(models.Model):

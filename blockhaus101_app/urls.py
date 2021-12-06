@@ -1,7 +1,7 @@
 from django.urls import re_path
 from django.views.generic import RedirectView, TemplateView
 
-from . import views
+from blockhaus101_app import views
 
 
 urlpatterns = [

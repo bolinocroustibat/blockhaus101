@@ -7,8 +7,8 @@ import json
 from django.test import TestCase
 
 import blockhaus101_app
-from .models import *
-from .utils import logger
+from blockhaus101_app.models import *
+from blockhaus101_app.utils import logger
 
 
 class TestGetData(TestCase):

@@ -6,7 +6,7 @@ from random import randrange
 from django.template.defaultfilters import slugify
 from django.conf import settings
 
-from .utils import logger
+from blockhaus101_app.utils import logger
 
 
 ######################
