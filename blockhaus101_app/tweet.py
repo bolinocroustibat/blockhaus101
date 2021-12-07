@@ -3,7 +3,14 @@ import re
 
 import tweepy
 
-from blockhaus101_app.helpers import logger, correct_sentence
+from blockhaus101.settings import (
+    logger,
+    TWITTER_CONSUMER_KEY,
+    TWITTER_CONSUMER_SECRET,
+    TWITTER_ACCESS_TOKEN,
+    TWITTER_ACCESS_TOKEN_SECRET,
+)
+from blockhaus101.settings import logger, correct_sentence
 from blockhaus101_app.models import Artist, Exhibition, Data
 from blockhaus101 import settings
 
@@ -47,12 +54,8 @@ def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> s
 
 def send_tweet(tweet: str) -> None:
     try:
-        auth = tweepy.OAuthHandler(
-            settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET
-        )
-        auth.set_access_token(
-            settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_TOKEN_SECRET
-        )
+        auth = tweepy.OAuthHandler(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET)
+        auth.set_access_token(TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET)
         api = tweepy.API(auth)
         # If the authentication was successful, you should see the name of the account print out
         twitter_account_name = api.me().name

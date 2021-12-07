@@ -4,9 +4,11 @@ from django.core.mail import send_mail
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
 
+from blockhaus101.settings import logger
+from base_data_app.models import Language
+from blockhaus101_app.helpers import get_client_ip
 from blockhaus101_app.models import *
 from blockhaus101_app.forms import FormContact
-from blockhaus101_app.helpers import logger, get_client_ip
 
 
 def index(request, lang: str) -> HttpResponse:

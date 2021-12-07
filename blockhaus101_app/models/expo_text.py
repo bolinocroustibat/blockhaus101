@@ -2,12 +2,13 @@ import re
 from random import randint, choice
 
 from django.db import models
+from django.template.defaultfilters import slugify
 
-from blockhaus101_app.helpers.logger import logger
-from blockhaus101_app.helpers.string import correct_sentence, unique_slugify
-from blockhaus101_app.models.data import Data
+from blockhaus101.settings import logger
+from base_data_app.models.language import Language
+from base_data_app.models.data import Data
+from blockhaus101_app.helpers import correct_sentence
 from blockhaus101_app.models.exhibition import Exhibition
-from blockhaus101_app.models.language import Language
 
 
 class ExpoText(models.Model):
@@ -37,10 +38,9 @@ class ExpoText(models.Model):
         verbose_name_plural = "Exhibitions texts"
 
     def save(self, *args, **kwargs) -> None:
-        slug_string = "{}-{}".format(self.exhibition.artist.name, self.exhibition.title)
-        unique_slugify(
-            self, slug_string
-        )  # if this slug exists for others, add a number at the end of the slug attribute of the instance
+        slug_string = f"{self.exhibition.artist.name}-{self.exhibition.title}"
+        # if this slug exists for others, add a number at the end of the slug attribute of the instance:
+        self.unique_slugify(value=slug_string)
         super(ExpoText, self).save(*args, **kwargs)
 
     def generate(self, ip: str = None) -> None:
@@ -83,3 +83,39 @@ class ExpoText(models.Model):
                 sentence = sentence.replace(f"[{word_type}]", chosen_word, 1)
         sentence = correct_sentence(sentence)
         return sentence
+
+    def unique_slugify(self, value: str) -> None:
+        """
+        Modified from SmileyChris' post @ https://djangosnippets.org/snippets/690/
+        Calculates a unique slug of ``value`` for an instance.
+        """
+        slug_len = self._meta.get_field("slug").max_length
+
+        # Sort out the initial slug. Chop its length down if we need to.
+        slug = slugify(value)
+        if slug_len:
+            slug = slug[:slug_len]
+        # Cleans up the slug by removing "-" that occur at the beginning or end.
+        slug = re.sub(r"^-+|-+$", "", slug)
+        original_slug = slug
+
+        # Create a queryset, excluding the current instance.
+        queryset = self.__class__._default_manager.all()
+        if self.pk:
+            queryset = queryset.exclude(pk=self.pk)
+
+        # Find a unique slug. If one matches, add '-2' to the end and try again
+        # (then '-3', etc).
+        next = 2
+        while not slug or queryset.filter(**{"slug": slug}):
+            slug = original_slug
+            end = f"-{next}"
+            if slug_len and len(slug) + len(end) > slug_len:
+                slug = slug[: slug_len - len(end)]
+                # Cleans up the slug by removing "-" that occur at the beginning or end.
+                slug = re.sub(r"^-+|-+$", "", slug)
+            slug = f"{slug}{end}"
+            next += 1
+
+        # Attribute the calculated slug to the instance.
+        self.slug = slug

@@ -3,24 +3,8 @@ from typing import Optional, Tuple, Union
 
 from django.db import models
 
-from blockhaus101_app.helpers import logger
-from blockhaus101_app.models.language import Language
-
-
-class DataType(models.Model):
-
-    language = models.ForeignKey(
-        Language, related_name="data_type", on_delete=models.PROTECT
-    )
-    name = models.CharField("data type", max_length=80, unique=True)
-    created = models.DateTimeField(auto_now=True)
-
-    def __str__(self) -> str:
-        return self.name
-
-    class Meta:
-        db_table = "blockhaus101_datatype"
-        ordering = ["name"]
+from blockhaus101.settings import logger
+from base_data_app.models.data_type import DataType
 
 
 class Data(models.Model):
@@ -45,6 +29,9 @@ class Data(models.Model):
     def choose_random(
         cls, word_type: str, used_words: Optional[dict] = None
     ) -> Union[Tuple[str, dict], None]:
+        """
+        Choose a random word from the database, according to the type, and to the words already being used before.
+        """
         words = cls.objects.filter(type__name=word_type)
         if words:
             chosen_data = choice(words)
@@ -55,18 +42,18 @@ class Data(models.Model):
                     )
                     chosen_data = choice(words)
                     if chosen_data not in used_words[word_type]:
-                        logger.debug("...ok, on a trouvé un autre.")
+                        logger.debug(f"...ok we found another: {chosen_data.text}")
                         break
             else:
-                # logger.debug("Ce type de mot '{word_type}' n'a pas été déjà rencontré")
                 # create the forbidden words type array for this type of word if it doesn't exist
                 used_words[word_type] = list()
             word = chosen_data.text  # store the chosen word
             # add the word to the array of the word type in the forbidden words array
             used_words[word_type].append(word)
-            try: # if there is a gender attribute to the data
-                gender = chosen_data.gender
-            except:
-                gender = ""
+            # # TODO
+            # try:  # if there is a gender attribute to the data
+            #     gender = chosen_data.gender
+            # except:
+            #     gender = ""
             return (word, used_words)
         return None
