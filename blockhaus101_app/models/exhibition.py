@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
 from django.db import models
 
-from blockhaus101_app.helpers.string import logger
+from blockhaus101.settings import logger
+from base_data_app.models.language import Language
 from blockhaus101_app.models.artist import Artist
-from blockhaus101_app.models.language import Language
 from blockhaus101_app.models.sitesetting import SiteSetting
 
 

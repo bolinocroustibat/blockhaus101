@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from blockhaus101_app.helpers import logger
+from blockhaus101.settings import logger
 from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101_app.tweet import generate_tweet
 

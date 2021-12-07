@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from blockhaus101_app.helpers import logger
+from blockhaus101.settings import logger
 from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101_app.tweet import generate_tweet, send_tweet
 

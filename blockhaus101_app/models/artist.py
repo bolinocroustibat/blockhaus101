@@ -3,9 +3,9 @@ from random import randint, choice
 
 from django.db import models
 
-from blockhaus101_app.helpers import logger, correct_sentence
-from blockhaus101_app.models.data import Data
-from blockhaus101_app.models.language import Language
+from blockhaus101.settings import logger
+from base_data_app.models import Data, Language
+from blockhaus101_app.helpers import correct_sentence
 
 
 class Artist(models.Model):
@@ -92,5 +92,5 @@ class Artist(models.Model):
                 used_words = chosen_data[1]
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 title = title.replace(f"[{word_type}]", chosen_word, 1)
-        logger.debug(f"##  Title used words: {used_words}")
+        logger.debug(f"## Title used words: {used_words}")
         return title

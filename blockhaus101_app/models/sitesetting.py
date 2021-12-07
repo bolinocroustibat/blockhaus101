@@ -1,6 +1,6 @@
 from django.db import models
 
-from blockhaus101_app.models.language import Language
+from base_data_app.models.language import Language
 
 
 class SiteSetting(models.Model):

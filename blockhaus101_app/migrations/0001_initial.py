@@ -41,22 +41,12 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Language',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('lang', models.CharField(choices=[('en', 'English'), ('fr', 'French')], default='fr', max_length=2, verbose_name='language')),
-            ],
-            options={
-                'db_table': 'blockhaus101_languages',
-            },
-        ),
-        migrations.CreateModel(
             name='SiteSetting',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('description', models.TextField(default='', max_length=1000, verbose_name='site header text')),
                 ('period', models.IntegerField(default=7, verbose_name='period between two exhibitions, in days')),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='languages', to='blockhaus101_app.language')),
+                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='languages', to='base_data_app.language')),
             ],
             options={
                 'verbose_name': 'General setting',
@@ -71,8 +61,8 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(blank=True, default=None, max_length=150, null=True, verbose_name='URL')),
                 ('ip', models.GenericIPAddressField(blank=True, null=True, verbose_name='creator IP address')),
                 ('created', models.DateTimeField(auto_now=True)),
-                ('exhibition', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='expotexts', to='blockhaus101_app.exhibition', verbose_name='exhibition')),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='expotexts', to='blockhaus101_app.language')),
+                ('exhibition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='expotexts', to='blockhaus101_app.exhibition', verbose_name='exhibition')),
+                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='expotexts', to='base_data_app.language')),
             ],
             options={
                 'verbose_name': 'Exhibition text',
@@ -83,11 +73,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='exhibition',
             name='language',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='exhibitions', to='blockhaus101_app.language'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='exhibitions', to='base_data_app.language'),
         ),
         migrations.AddField(
             model_name='artist',
             name='language',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='artists', to='blockhaus101_app.language'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='artists', to='base_data_app.language'),
         ),
     ]
