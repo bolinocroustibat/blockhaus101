@@ -2,7 +2,7 @@ from blockhaus101.settings import logger
 
 
 def correct_sentence(sentence: str) -> str:
-    correction_dict = {  # we could also use "replace(old, new)": https://www.tutorialspoint.com/python/string_replace.htm
+    correction_dict = {  # we could also use "replace(old, new)"
         "( ": "(",
         " )": ")",
         " à le ": " au ",
