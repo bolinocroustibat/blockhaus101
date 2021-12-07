@@ -98,7 +98,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
-LANGUAGE_CODE = "fr-FR"
+LANGUAGE_CODE = "en-EN"
 TIME_ZONE = "Europe/Paris"
 USE_I18N = True
 USE_L10N = True
@@ -111,7 +111,7 @@ except Exception as e:
     print(e)
     print("Note: local_settings.py not present or non valid. Using default settings.")
     LOGGING_LEVEL = "DEBUG"
-
+    
 # # Logging
 # LOGGING = {
 #     "version": 1,
@@ -144,3 +144,5 @@ except Exception as e:
 #         },
 #     },
 # }
+import logging
+logger = logging.getLogger("blockhaus101")

@@ -1,5 +1,51 @@
 # Blockhaus 101
 
+## Local settings
+
+Needed:
+- `DATABASES`
+- `LOGGING`
+- `ALLOWED_HOSTS`
+...among other stuff
+
+```
+# For a sqlite database
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.sqlite3',
+		'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+	}
+}
+LOGGING = {
+	"version": 1,
+	"disable_existing_loggers": False,
+	"formatters": {
+		"colored": {
+			"()": "coloredlogs.ColoredFormatter",
+			"format": "%(name)s %(levelname)s %(message)s",
+		},
+	},
+	"handlers": {
+		"console": {"class": "logging.StreamHandler", "formatter": "colored",},
+	},
+	"loggers": {
+		"django": {"handlers": ["console"], "level": "INFO", "propogate": False,},
+		"admin-auth-logger": {
+			"handlers": ["console"],
+			"level": "DEBUG",
+			"propogate": False,
+		},
+		"{}-auth".format(__name__): {
+			"handlers": ["console"],
+			"level": "DEBUG",
+			"propogate": False,
+		},
+		"blockhaus101": {"handlers": ["console"], "level": "DEBUG", "propogate": False},
+	},
+}
+import logging
+logger = logging.getLogger("blockhaus101")
+```
 
 ## Deploy on production as ASGI with Uvicorn
 
