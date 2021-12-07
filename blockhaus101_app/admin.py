@@ -4,7 +4,7 @@ from django.contrib.auth.models import Group
 from blockhaus101_app.models import *
 
 
-# admin.site.unregister(Group)
+admin.site.unregister(Group)
 
 
 @admin.register(SiteSetting)
