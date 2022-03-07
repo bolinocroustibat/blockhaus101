@@ -4,7 +4,7 @@ from random import choice
 import tweepy
 
 from base_data_app.models import Data
-from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.helpers import correct_sentence_fr
 from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101.settings import (
     TWITTER_ACCESS_TOKEN,
@@ -49,7 +49,7 @@ def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> s
             used_words = chosen_data[1]
             # only replace one occurence, we want the same keyword to be able to be replaced by another word
             tweet = tweet.replace(f"[{word_type}]", chosen_word, 1)
-    return correct_sentence(tweet)
+    return correct_sentence_fr(tweet)
 
 
 def send_tweet(tweet: str) -> None:
