@@ -5,7 +5,7 @@ from django.db import models
 
 from blockhaus101.settings import logger
 from base_data_app.models import Data, Language
-from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.helpers import correct_sentence_fr
 
 
 class Artist(models.Model):
@@ -74,7 +74,7 @@ class Artist(models.Model):
                 self.bio_used_words = chosen_data[1]
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 biosentence = biosentence.replace(f"[{word_type}]", chosen_word, 1)
-        biosentence = correct_sentence(biosentence)
+        biosentence = correct_sentence_fr(biosentence)
         return biosentence
 
     def create_expo_title(self) -> str:

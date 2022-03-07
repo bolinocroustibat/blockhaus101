@@ -1,7 +1,7 @@
 from blockhaus101.settings import logger
 
 
-def correct_sentence(sentence: str) -> str:
+def correct_sentence_fr(sentence: str) -> str:
     correction_dict = {  # we could also use "replace(old, new)"
         "( ": "(",
         " )": ")",
