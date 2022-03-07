@@ -31,6 +31,3 @@ class ExpoTextAdmin(admin.ModelAdmin):
     list_display = ("text", "exhibition", "slug", "ip", "created", "language", "id")
     list_filter = ("language", "ip")
     search_fields = ["text"]
-
-
-

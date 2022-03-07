@@ -1,18 +1,18 @@
-from random import choice
 import re
+from random import choice
 
 import tweepy
 
+from base_data_app.models import Data
+from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101.settings import (
-    logger,
-    TWITTER_CONSUMER_KEY,
-    TWITTER_CONSUMER_SECRET,
     TWITTER_ACCESS_TOKEN,
     TWITTER_ACCESS_TOKEN_SECRET,
+    TWITTER_CONSUMER_KEY,
+    TWITTER_CONSUMER_SECRET,
+    logger,
 )
-from blockhaus101.settings import logger, correct_sentence
-from blockhaus101_app.models import Artist, Exhibition, Data
-from blockhaus101 import settings
 
 
 def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> str:
@@ -21,7 +21,7 @@ def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> s
         tweet_structures = Data.objects.filter(type__name="tweets1")
     elif tweet_type == "tweet2":
         logger.info("Generate tweet of type 2")
-        tweet_structures = Data.objects.filter(type__name="tweets1")
+        tweet_structures = Data.objects.filter(type__name="tweets2")
     else:
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
