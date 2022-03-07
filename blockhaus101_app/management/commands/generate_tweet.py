@@ -7,7 +7,7 @@ from blockhaus101_app.tweet import generate_tweet, send_tweet
 
 class Command(BaseCommand):
 
-    help = "Generate new tweet"
+    help = "Generate and send new tweet to Twitter"
 
     def add_arguments(self, parser):
         parser.add_argument("--lang", dest="lang", default="fr", help="Language code")
@@ -19,7 +19,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        # try to get an exhibition for current period
+        # try to get the exhibition for current period
         exhibition = Exhibition.get_current(lang=options["lang"])
         artist = Artist.objects.filter(exhibitions=exhibition)[0]
         logger.info(f'Current exhibition: {artist.name} "{exhibition.title}"')

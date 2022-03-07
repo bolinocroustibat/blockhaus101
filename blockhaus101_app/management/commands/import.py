@@ -21,7 +21,12 @@ class Command(BaseCommand):
         )
         input_type = input("Enter name of the type for that tab: ")
         lang = input("Enter the language code for that tab ('fr' or 'en'): ") or "fr"
-        skipped_rows = int(input ("Enter the number of rows to skip at the beginning of the CSV (default: 3): ") or 3)
+        skipped_rows = int(
+            input(
+                "Enter the number of rows to skip at the beginning of the CSV (default: 3): "
+            )
+            or 3
+        )
         language = Language.objects.get(lang=lang)
         response = requests.get(csv_url)
         csv_bytestream = response.content.decode("utf-8")
@@ -29,7 +34,9 @@ class Command(BaseCommand):
         for r in range(skipped_rows):
             next(csv_reader)
         line_count = 0
-        data_type = DataType.objects.get_or_create(name=input_type, language=language)[0]
+        data_type = DataType.objects.get_or_create(name=input_type, language=language)[
+            0
+        ]
         data_to_be_deleted = Data.objects.filter(type=data_type)
         data_to_be_deleted.delete()
         for row in csv_reader:
@@ -38,12 +45,18 @@ class Command(BaseCommand):
                 print("Tab has one column")
                 Data.objects.create(type=data_type, text=row[0])
             elif len(row) == 2:
-                print("Tab has two columns, assuming the first is data, second one is gender")
+                print(
+                    "Tab has two columns, assuming the first is data, second one is gender"
+                )
                 Data.objects.create(type=data_type, text=row[0], gender=row[1])
             else:
-                print("Tab has many columns, assuming it's a data structure, joining with spaces")
+                print(
+                    "Tab has many columns, assuming it's a data structure, joining with spaces"
+                )
                 data = " ".join(row)
-                keywords: list = re.findall(r'\b(?<!\[)[A-Z-+]{2,}\b', data) # find all uppercase words that are at least 2 characters long, and that have no bracket before them
+                keywords: list = re.findall(
+                    r"\b(?<!\[)[A-Z-+]{2,}\b", data
+                )  # find all uppercase words that are at least 2 characters long, and that have no bracket before them
                 for k in set(keywords):
                     data = data.replace(k, f"[{k}]")
                 data = self._normalize_text(text=data)
@@ -54,9 +67,9 @@ class Command(BaseCommand):
     @staticmethod
     def _normalize_text(text: str) -> str:
         text = text.replace(" ,", ",")
-        text = text.replace(' .', '.')
-        text = text.replace('“ ', '"')
-        text = text.replace(' ”', '"')
-        text = text.replace('( ', '(')
-        text = text.replace(' )', ')')
+        text = text.replace(" .", ".")
+        text = text.replace("“ ", '"')
+        text = text.replace(" ”", '"')
+        text = text.replace("( ", "(")
+        text = text.replace(" )", ")")
         return text

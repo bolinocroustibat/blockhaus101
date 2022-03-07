@@ -14,7 +14,7 @@ JSON_PATH = os.path.join(
 )
 
 # where the static files will go when doing a collectstatic if debug=false
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = "/static/"
 
 # TWEEPY
@@ -111,7 +111,7 @@ except Exception as e:
     print(e)
     print("Note: local_settings.py not present or non valid. Using default settings.")
     LOGGING_LEVEL = "DEBUG"
-    
+
 # # Logging
 # LOGGING = {
 #     "version": 1,
@@ -145,4 +145,5 @@ except Exception as e:
 #     },
 # }
 import logging
+
 logger = logging.getLogger("blockhaus101")
