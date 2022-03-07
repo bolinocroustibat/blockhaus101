@@ -77,7 +77,7 @@ After=network.target
 User=www-data
 Group=www-data
 WorkingDirectory=/home/www/blockhaus101-django
-ExecStart=/home/virtualenvs/blockhaus101/bin/gunicorn blockhaus101.asgi:application -w 20 -k uvicorn.workers.UvicornWorker --log-file -
+ExecStart=/home/blockhaus101/venv/bin/gunicorn blockhaus101.asgi:application -w 20 -k uvicorn.workers.UvicornWorker --log-file -
 
 [Install]
 WantedBy=multi-user.target
