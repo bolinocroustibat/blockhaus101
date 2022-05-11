@@ -1,5 +1,5 @@
 from random import choice
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 from django.db import models
 
@@ -28,7 +28,7 @@ class Data(models.Model):
     @classmethod
     def choose_random(
         cls, word_type: str, used_words: Optional[dict] = None
-    ) -> Union[Tuple[str, dict], None]:
+    ) -> Union[tuple[str, dict], None]:
         """
         Choose a random word from the database, according to the type, and to the words already being used before.
         """
