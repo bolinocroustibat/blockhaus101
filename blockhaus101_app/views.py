@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta
 
-from base_data_app.models import Language
-from blockhaus101.settings import logger
+from babel.dates import format_date
 from django.core.mail import send_mail
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
+from base_data_app.models import Language
+from blockhaus101.settings import logger
 from blockhaus101_app.forms import FormContact
-from blockhaus101_app.helpers import get_client_ip, format_date
+from blockhaus101_app.helpers import get_client_ip
 from blockhaus101_app.models import *
 
 
@@ -40,8 +41,12 @@ def index(request, lang: str) -> HttpResponse:
         {
             "lang": lang,
             "description": description,
-            "expo_startdate": format_date(date=exhibition.startdate.date(), lang=lang),
-            "expo_enddate": format_date(date=exhibition.enddate.date(), lang=lang),
+            "expo_startdate": format_date(
+                exhibition.startdate.date(), format="long", locale=lang
+            ),
+            "expo_enddate": format_date(
+                exhibition.enddate.date(), format="long", locale=lang
+            ),
             "artist_name": artist.name,
             "artist_bio": artist.bio,
             "expo_title": exhibition.title,
@@ -67,9 +72,11 @@ def exhibition(request, slug: str) -> HttpResponse:
                 "lang": lang,
                 "description": description,
                 "expo_startdate": format_date(
-                    date=exhibition.startdate.date(), lang=lang
+                    exhibition.startdate.date(), format="long", locale=lang
                 ),
-                "expo_enddate": format_date(date=exhibition.enddate.date(), lang=lang),
+                "expo_enddate": format_date(
+                    exhibition.enddate.date(), format="long", locale=lang
+                ),
                 "artist_name": artist.name,
                 "artist_bio": artist.bio,
                 "expo_title": exhibition.title,
@@ -91,9 +98,10 @@ def exhibition(request, slug: str) -> HttpResponse:
 
 
 def past_exhibitions(request, lang: str) -> HttpResponse:
+    language = Language.objects.get(lang=lang)
     full_exhibs = list()
     exhibitions = Exhibition.objects.filter(
-        language__lang=lang, enddate__lte=datetime.now()
+        language=language, enddate__lte=datetime.now()
     ).order_by("-enddate")
     # # Get all artist with enddate before today
     # artists = Artist.objects.filter(enddate__lte=datetime.now())
@@ -111,13 +119,12 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
                 enddate = e.enddate.date()
         except:
             enddate = e.enddate.date()
-        exhibition["startdate"] = format_date(date=e.startdate.date(), lang=lang)
-        exhibition["enddate"] = format_date(date=enddate, lang=lang)
+        exhibition["startdate"] = format_date(e.startdate.date(), format="long", locale=lang)
+        exhibition["enddate"] = format_date(enddate, format="long", locale=lang)
         exhibition["title"] = e.title
         exhibition["name"] = e.artist.name
         exhibition["bio"] = e.artist.bio
-        expo_text = ExpoText()
-        expo_text.exhibition = e
+        expo_text = ExpoText(language=language, exhibition=e)
         expo_text.generate()
         exhibition["text"] = expo_text.text
         full_exhibs.append(exhibition)
