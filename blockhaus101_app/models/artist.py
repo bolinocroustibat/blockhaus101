@@ -5,7 +5,7 @@ from django.db import models
 
 from blockhaus101.settings import logger
 from base_data_app.models import Data, Language
-from blockhaus101_app.helpers import correct_sentence_fr
+from blockhaus101_app.helpers import correct_sentence
 
 
 class Artist(models.Model):
@@ -58,7 +58,9 @@ class Artist(models.Model):
         logger.debug(f"## Biography used words: {self.bio_used_words}")
 
     def create_bio_sentence(self, position: int = None) -> str:
-        bio_structures = Data.objects.filter(type__name="bio", position=position)
+        bio_structures = Data.objects.filter(
+            type__language=self.language, type__name="bio", position=position
+        )
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.name)
         biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline)
@@ -77,11 +79,13 @@ class Artist(models.Model):
                     self.bio_used_words = chosen_data[1]
                     # only replace one occurence, we want the same keyword to be able to be replaced by other words
                     biosentence = biosentence.replace(k, chosen_word, 1)
-        biosentence = correct_sentence_fr(biosentence)
+        biosentence = correct_sentence(lang=self.language.lang, sentence=biosentence)
         return biosentence
 
     def create_expo_title(self) -> str:
-        title_structures = Data.objects.filter(type__name="expos")
+        title_structures = Data.objects.filter(
+            type__language=self.language, type__name="expos"
+        )
         title = choice(title_structures).text
         title = title.replace("[SELF]", self.name)
         title = title.replace("[SELFDISCIPLINE]", self.discipline)

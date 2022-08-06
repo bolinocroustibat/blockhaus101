@@ -1,8 +1,9 @@
 from blockhaus101.settings import logger
 
 
-def correct_sentence_fr(sentence: str) -> str:
-    correction_dict = {  # we could also use "replace(old, new)"
+def correct_sentence(lang: str, sentence: str) -> str:
+    corrections_en: dict = {}
+    corrections_fr: dict = {  # we could also use "replace(old, new)"
         "( ": "(",
         " )": ")",
         " à le ": " au ",
@@ -61,12 +62,20 @@ def correct_sentence_fr(sentence: str) -> str:
         " que U": " qu’U",
         " ,": ",",
     }
-    sentence = _strtr(sentence, correction_dict)
-    if sentence[0] == '"':  # if the first char is a double quote
-        sentence = '"' + sentence[1].upper() + sentence[2:]  # capitalize second letter
+    if lang == "en":
+        sentence = _strtr(sentence, corrections_en)
+    elif lang == "fr":
+        sentence = _strtr(sentence, corrections_fr)
     else:
-        sentence = sentence[0].upper() + sentence[1:]  # capitalize first letter
-    return sentence
+        logger.error(f"Language not supported: {lang}")
+    return capitalize_sentence(sentence)
+
+
+def capitalize_sentence(sentence: str) -> str:
+    if sentence[0] == '"':  # if the first char is a double quote
+        return '"' + sentence[1].upper() + sentence[2:]  # capitalize second letter
+    else:
+        return sentence[0].upper() + sentence[1:]  # capitalize first letter
 
 
 def _strtr(string: str, correction_dict: dict) -> str:
