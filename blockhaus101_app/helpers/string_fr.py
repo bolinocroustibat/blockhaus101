@@ -63,7 +63,7 @@ def correct_sentence_fr(sentence: str) -> str:
     }
     sentence = _strtr(sentence, correction_dict)
     if sentence[0] == '"':  # if the first char is a double quote
-        sentence = sentence[1].upper() + sentence[1:]  # capitalize second letter
+        sentence = '"' + sentence[1].upper() + sentence[2:]  # capitalize second letter
     else:
         sentence = sentence[0].upper() + sentence[1:]  # capitalize first letter
     return sentence
