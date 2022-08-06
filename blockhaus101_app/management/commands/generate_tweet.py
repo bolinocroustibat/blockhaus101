@@ -24,7 +24,10 @@ class Command(BaseCommand):
         artist = Artist.objects.filter(exhibitions=exhibition)[0]
         logger.info(f'Current exhibition: {artist.name} "{exhibition.title}"')
         tweet = generate_tweet(
-            artist=artist, exhibition=exhibition, tweet_type=options["tweet_type"]
+            lang=options["lang"],
+            artist=artist,
+            exhibition=exhibition,
+            tweet_type=options["tweet_type"],
         )
         logger.info(f'Tweet "{tweet}" generated. Now sending it to Twitter...')
         send_tweet(tweet)

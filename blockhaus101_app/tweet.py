@@ -1,10 +1,11 @@
 import re
 from random import choice
 
+from babel.dates import format_date
 import tweepy
 
 from base_data_app.models import Data
-from blockhaus101_app.helpers import correct_sentence_fr
+from blockhaus101_app.helpers import correct_sentence
 from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101.settings import (
     TWITTER_ACCESS_TOKEN,
@@ -15,13 +16,19 @@ from blockhaus101.settings import (
 )
 
 
-def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> str:
+def generate_tweet(
+    lang: str, artist: Artist, exhibition: Exhibition, tweet_type: str
+) -> str:
     if tweet_type == "tweet1":
         logger.info("Generate tweet of type 1")
-        tweet_structures = Data.objects.filter(type__name="tweets1")
+        tweet_structures = Data.objects.filter(
+            type__language__lang=lang, type__name="tweets1"
+        )
     elif tweet_type == "tweet2":
         logger.info("Generate tweet of type 2")
-        tweet_structures = Data.objects.filter(type__name="tweets2")
+        tweet_structures = Data.objects.filter(
+            type__language__lang=lang, type__name="tweets2"
+        )
     else:
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
@@ -30,14 +37,14 @@ def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> s
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline)
     tweet = tweet.replace("[EXPO]", exhibition.title)
     if "[EXPOSTARTDATE]" in tweet:
-        expo_startdate: str = "{:%d %B}".format(exhibition.startdate)
-        if expo_startdate[0] == "0":
-            expo_startdate = expo_startdate[1:]
+        expo_startdate: str = format_date(
+            exhibition.startdate, format="medium", locale=lang
+        )
         tweet = tweet.replace("[EXPOSTARTDATE]", expo_startdate)
     if "[EXPOENDDATE]" in tweet:
-        expo_enddate = "{:%d %B}".format(exhibition.enddate)
-        if expo_enddate[0] == "0":
-            expo_enddate = expo_enddate[1:]
+        expo_enddate: str = format_date(
+            exhibition.enddate, format="medium", locale=lang
+        )
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
     keywords: list = re.findall(r"\[[^][]*]", tweet)
     used_words = dict()
@@ -49,7 +56,7 @@ def generate_tweet(artist: Artist, exhibition: Exhibition, tweet_type: str) -> s
             used_words = chosen_data[1]
             # only replace one occurence, we want the same keyword to be able to be replaced by another word
             tweet = tweet.replace(f"[{word_type}]", chosen_word, 1)
-    return correct_sentence_fr(tweet)
+    return correct_sentence(lang=lang, sentence=tweet)
 
 
 def send_tweet(tweet: str) -> None:

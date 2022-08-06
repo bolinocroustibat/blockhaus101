@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify
 from blockhaus101.settings import logger
 from base_data_app.models.language import Language
 from base_data_app.models.data import Data
-from blockhaus101_app.helpers import correct_sentence_fr
+from blockhaus101_app.helpers import correct_sentence
 from blockhaus101_app.models.exhibition import Exhibition
 
 
@@ -81,7 +81,7 @@ class ExpoText(models.Model):
                 self.used_words = chosen_data[1]
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 sentence = sentence.replace(f"[{word_type}]", chosen_word, 1)
-        sentence = correct_sentence_fr(sentence)
+        sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
         return sentence
 
     def unique_slugify(self, value: str) -> None:
