@@ -1,6 +1,16 @@
 # Blockhaus 101
 
-## Local settings
+## How to run locally
+
+### Set up the Python environment
+
+```bash
+poetry install && poetry shell
+```
+
+### Set a local settings file
+
+In `blockhaus101/local_settings.py`:
 
 Needed:
 - `DATABASES`
@@ -47,12 +57,20 @@ import logging
 logger = logging.getLogger("blockhaus101")
 ```
 
-## Deploy on production as ASGI with Uvicorn
+### Run
+
+```bash
+python manage.py runserver
+```
+
+## How to run on a server
+
+### Deploy on production as ASGI with Uvicorn
 
 See `https://www.valentinog.com/blog/uvicorn-django/` for more info.
 
 
-### To run as async with ASGI with Uvicorn
+#### To run as async with ASGI with Uvicorn
 
 ```sh
 gunicorn blockhaus101.asgi:application -k uvicorn.workers.UvicornWorker
@@ -65,7 +83,7 @@ gunicorn blockhaus101.asgi:application -w 40 -k uvicorn.workers.UvicornWorker --
 ```
 
 
-### Systemd service to make Uvicorn peristent on production environment
+#### Systemd service to make Uvicorn peristent on production environment
 
 File `/etc/systemd/system/blockhaus101.service`:
 ```
@@ -90,7 +108,7 @@ To restart the service after any change in the service and/or project:
 `systemctl reload nginx`
 
 
-### Nginx vhost content with proxy pass to Uvicorn
+#### Nginx vhost content with proxy pass to Uvicorn
 
 File `/etc/nginx/sites-available/blockhaus101.com`:
 
