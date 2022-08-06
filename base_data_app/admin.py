@@ -18,6 +18,6 @@ class DataTypeAdmin(admin.ModelAdmin):
 @admin.register(Data)
 class DataAdmin(admin.ModelAdmin):
     model = Data
-    list_display = ("text", "type", "gender", "weight", "position", "id")
+    list_display = ("text", "type", "gender", "plural", "weight", "position", "id")
     list_filter = ("type",)
     search_fields = ["text", "type__name"]

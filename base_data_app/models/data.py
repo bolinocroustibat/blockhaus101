@@ -11,7 +11,20 @@ class Data(models.Model):
 
     type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
     text = models.TextField("data", max_length=3000)
-    gender = models.CharField("gender / plural", max_length=8, null=True, blank=True)
+    GENDER_CHOICES = (
+        ("m", "male"),
+        ("f", "female"),
+    )
+    gender = models.CharField(
+        max_length=1, choices=GENDER_CHOICES, null=True, blank=True
+    )
+    PLURAL_CHOICES = (
+        ("s", "singular"),
+        ("p", "plural"),
+    )
+    plural = models.CharField(
+        max_length=1, choices=PLURAL_CHOICES, null=True, blank=True
+    )
     weight = models.IntegerField("weight", null=True, blank=True)
     position = models.IntegerField(
         "position of the sentence in the paragraph", null=True, blank=True
