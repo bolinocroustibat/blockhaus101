@@ -58,8 +58,8 @@ def exhibition(request, slug: str) -> HttpResponse:
         language = expo_text.language
         description = SiteSetting.objects.get(language=language).description
         lang = language.lang
-        exhibition = Exhibition.objects.get(exhibition_expotext=expo_text)
-        artist = Artist.objects.get(artist_exhibition=exhibition)
+        exhibition = expo_text.exhibition
+        artist = exhibition.artist
         return render(
             request,
             f"{lang}/index.html",
