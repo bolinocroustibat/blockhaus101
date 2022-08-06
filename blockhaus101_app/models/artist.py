@@ -62,18 +62,21 @@ class Artist(models.Model):
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.name)
         biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline)
-        biosentence = biosentence.replace("[EXPO]", self.create_expo_title())
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
-            word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random(
-                word_type=word_type, used_words=self.bio_used_words
-            )
-            if chosen_data:
-                chosen_word = chosen_data[0]
-                self.bio_used_words = chosen_data[1]
-                # only replace one occurence, we want the same keyword to be able to be replaced by another word
-                biosentence = biosentence.replace(f"[{word_type}]", chosen_word, 1)
+            if k == "[EXPO]":
+                # only replace one occurence, we want the same keyword to be able to be replaced by other words
+                biosentence = biosentence.replace("[EXPO]", self.create_expo_title(), 1)
+            else:
+                word_type = k.replace("[", "").replace("]", "")
+                chosen_data = Data.choose_random(
+                    word_type=word_type, used_words=self.bio_used_words
+                )
+                if chosen_data:
+                    chosen_word = chosen_data[0]
+                    self.bio_used_words = chosen_data[1]
+                    # only replace one occurence, we want the same keyword to be able to be replaced by other words
+                    biosentence = biosentence.replace(k, chosen_word, 1)
         biosentence = correct_sentence_fr(biosentence)
         return biosentence
 
