@@ -34,7 +34,7 @@ authors = ["Adrien Carpentier <moi@adriencarpentier.com>"]
 [tool.poetry.dependencies]
 python = "3.9.*"
 coloredlogs = "^15.0"
-Django = "^3.2"
+Django = "^4.1"
 django-debug-toolbar = "^3.2.1"
 PyMySQL = "^1.0.2"
 requests = "^2.25.1"
