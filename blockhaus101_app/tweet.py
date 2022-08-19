@@ -1,5 +1,4 @@
 import re
-from random import choice
 
 from babel.dates import format_date
 import tweepy
@@ -19,20 +18,15 @@ from blockhaus101.settings import (
 def generate_tweet(
     lang: str, artist: Artist, exhibition: Exhibition, tweet_type: str
 ) -> str:
-    if tweet_type == "tweet1":
+    if tweet_type == "tweets1":
         logger.info("Generate tweet of type 1")
-        tweet_structures = Data.objects.filter(
-            type__language__lang=lang, type__name="tweets1"
-        )
-    elif tweet_type == "tweet2":
+    elif tweet_type == "tweets2":
         logger.info("Generate tweet of type 2")
-        tweet_structures = Data.objects.filter(
-            type__language__lang=lang, type__name="tweets2"
-        )
     else:
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
-    tweet = choice(tweet_structures).text
+    tweet_structure = Data.choose_random(type=tweet_type, lang=lang)
+    tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline)
     tweet = tweet.replace("[EXPO]", exhibition.title)
@@ -50,7 +44,7 @@ def generate_tweet(
     used_words = dict()
     for k in keywords:
         word_type = k.replace("[", "").replace("]", "")
-        chosen_data = Data.choose_random(word_type=word_type, used_words=used_words)
+        chosen_data = Data.choose_random_excluding(type=word_type, lang=lang, excluding=used_words)
         if chosen_data:
             chosen_word = chosen_data[0]
             used_words = chosen_data[1]
