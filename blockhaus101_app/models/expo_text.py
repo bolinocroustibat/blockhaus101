@@ -73,8 +73,8 @@ class ExpoText(models.Model):
         keywords: list = re.findall(r"\[[^][]*]", sentence)
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random(
-                word_type=word_type, used_words=self.used_words
+            chosen_data = Data.choose_random_excluding(
+                type=word_type, lang=self.language.lang, excluding=self.used_words
             )
             if chosen_data:
                 chosen_word = chosen_data[0]

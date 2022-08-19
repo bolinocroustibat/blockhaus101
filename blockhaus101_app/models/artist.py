@@ -1,10 +1,10 @@
 import re
-from random import randint, choice
+from random import choice, randint
 
 from django.db import models
 
-from blockhaus101.settings import logger
 from base_data_app.models import Data, Language
+from blockhaus101.settings import logger
 from blockhaus101_app.helpers import correct_sentence
 
 
@@ -28,17 +28,15 @@ class Artist(models.Model):
 
     def generate(self) -> None:
         # first name and genre
-        firstnames = Data.objects.filter(type__name="FIRSTNAME")
-        firstname = choice(firstnames)
+        firstname = Data.choose_random(type="FIRSTNAME")
         self.gender = firstname.gender
         # last name
-        lastnames = Data.objects.filter(type__name="LASTNAME")
-        lastname = choice(lastnames)
+        lastname = Data.choose_random(type="LASTNAME")
         # full name
         self.name = firstname.text + " " + lastname.text
         # discipline
-        disciplines = Data.objects.filter(type__name="DISCIPLINE")
-        self.discipline = choice(disciplines).text
+        discipline = Data.choose_random(type="DISCIPLINE")
+        self.discipline = discipline.text
         # bio
         self.bio_used_words = dict()
         self.bio = self.create_bio_sentence(position=1)
@@ -71,8 +69,8 @@ class Artist(models.Model):
                 biosentence = biosentence.replace("[EXPO]", self.create_expo_title(), 1)
             else:
                 word_type = k.replace("[", "").replace("]", "")
-                chosen_data = Data.choose_random(
-                    word_type=word_type, used_words=self.bio_used_words
+                chosen_data = Data.choose_random_excluding(
+                    type=word_type, excluding=self.bio_used_words
                 )
                 if chosen_data:
                     chosen_word = chosen_data[0]
@@ -83,17 +81,15 @@ class Artist(models.Model):
         return biosentence
 
     def create_expo_title(self) -> str:
-        title_structures = Data.objects.filter(
-            type__language=self.language, type__name="expos"
-        )
-        title = choice(title_structures).text
+        title_structures = Data.choose_random(type="expos", lang=self.language.lang)
+        title = title_structures.text
         title = title.replace("[SELF]", self.name)
         title = title.replace("[SELFDISCIPLINE]", self.discipline)
         keywords: list = re.findall(r"\[[^][]*]", title)
         used_words = dict()
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random(word_type=word_type, used_words=used_words)
+            chosen_data = Data.choose_random_excluding(type=word_type, lang=self.language.lang, excluding=used_words)
             if chosen_data:
                 chosen_word = chosen_data[0]
                 used_words = chosen_data[1]

@@ -28,14 +28,14 @@ class TestGenerateContent(TestCase):
 
     def test_generate_tweet(self):
         tweet1 = generate_tweet(
-            artist=self.artist, exhibition=self.exhibition, tweet_type="tweet1"
+            lang="fr", artist=self.artist, exhibition=self.exhibition, tweet_type="tweets1"
         )
         logger.info(f'Tweet generated: "{tweet1}"')
         assert type(tweet1) == str
         assert len(tweet1) > 10
         assert len(tweet1) <= 280
         tweet2 = generate_tweet(
-            artist=self.artist, exhibition=self.exhibition, tweet_type="tweet2"
+            lang="fr", artist=self.artist, exhibition=self.exhibition, tweet_type="tweets2"
         )
         logger.info(f'Tweet generated: "{tweet2}"')
         assert type(tweet2) == str

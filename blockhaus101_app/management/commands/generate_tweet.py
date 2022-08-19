@@ -14,8 +14,8 @@ class Command(BaseCommand):
         parser.add_argument(
             "--type",
             dest="tweet_type",
-            default="tweet1",
-            help="Tweet type (tweet1, tweet2)",
+            default="tweets1",
+            help="Tweet type (tweets1, tweets2)",
         )
 
     def handle(self, *args, **options):
