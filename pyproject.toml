@@ -49,6 +49,9 @@ black = "^21.4b2"
 isort = "^5.10.1"
 
 
+[tool.poetry.group.dev.dependencies]
+ipython = "^8.4.0"
+
 [tool.pdm]
 includes = []
 
