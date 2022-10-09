@@ -70,7 +70,7 @@ class Artist(models.Model):
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
-                    type=word_type, excluding=self.bio_used_words
+                    type=word_type, lang=self.language.lang, excluding=self.bio_used_words
                 )
                 if chosen_data:
                     chosen_word = chosen_data[0]
