@@ -1,6 +1,7 @@
 import os
 
 import sentry_sdk
+import toml
 from sentry_sdk.integrations.django import DjangoIntegration
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -151,12 +152,15 @@ import logging
 
 logger = logging.getLogger("blockhaus101")
 
+pyproject: dict = toml.load("pyproject.toml")
+APP_NAME: str = pyproject["tool"]["poetry"]["name"]
+VERSION: str = pyproject["tool"]["poetry"]["version"]
 sentry_sdk.init(
     dsn="https://38a42a04381f4e0dbb2c1f4f2229bb69@o352691.ingest.sentry.io/4503999464865792",
     integrations=[
         DjangoIntegration(),
     ],
-
+    release=f"{APP_NAME}@{VERSION}",
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for performance monitoring.
     # We recommend adjusting this value in production.

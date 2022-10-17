@@ -1,7 +1,7 @@
 [project]
 name = "blockhaus101"
-version = "1.1.1"
-description = ""
+version = "1.2.0"
+description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale de l’art contemporain. Uniquement sur rendez-vous."
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
     "coloredlogs<16.0,>=15.0",
@@ -12,6 +12,7 @@ dependencies = [
     "PyMySQL<2.0.0,>=1.0.2",
     "requests<3.0.0,>=2.25.1",
     "sentry-sdk<2.0.0,>=1.9.10",
+    "toml<1.0.0,>=0.10.2",
     "tweepy<4.0.0,>=3.8.0",
     "uvicorn<1.0.0,>=0.14.0",
     "xmltodict<1.0.0,>=0.12.0",
@@ -43,6 +44,7 @@ gunicorn = "^20.1.0"
 PyMySQL = "^1.0.2"
 requests = "^2.25.1"
 sentry-sdk = "^1.9.10"
+toml = "^0.10.2"
 tweepy = "^3.8.0"
 uvicorn = "^0.14.0"
 xmltodict = "^0.12.0"
