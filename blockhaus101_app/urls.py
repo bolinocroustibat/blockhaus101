@@ -26,9 +26,9 @@ urlpatterns = [
         name="past_exhibitions",
     ),
     re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
-    # robots.txt
-    re_path(r"^robots\.txt$", TemplateView.as_view(template_name="robots.txt")),
-    # sitemap.xml
-    re_path(r"^sitemap\.xml$", TemplateView.as_view(template_name="sitemap.xml")),
+    # # robots.txt
+    # re_path(r"^robots\.txt$", TemplateView.as_view(template_name="robots.txt")),
+    # # sitemap.xml
+    # re_path(r"^sitemap\.xml$", TemplateView.as_view(template_name="sitemap.xml")),
     re_path(r"^(?P<slug>[-\w]+)/$", views.exhibition, name="exhibition"),
 ]
