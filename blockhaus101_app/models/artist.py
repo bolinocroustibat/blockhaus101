@@ -53,7 +53,7 @@ class Artist(models.Model):
             self.bio = self.bio.replace("iplômé ", "iplômée ")
             self.bio = self.bio.replace("marqué ", "marquée ")
             self.bio = self.bio.replace("obsédé ", "obsédée ")
-        logger.debug(f"## Biography used words: {self.bio_used_words}")
+        logger.debug(f"Biography used words: {self.bio_used_words}")
 
     def create_bio_sentence(self, position: int = None) -> str:
         bio_structures = Data.objects.filter(
@@ -95,5 +95,5 @@ class Artist(models.Model):
                 used_words = chosen_data[1]
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 title = title.replace(f"[{word_type}]", chosen_word, 1)
-        logger.debug(f"## Title used words: {used_words}")
+        logger.debug(f"Title used words: {used_words}")
         return title
