@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import json
 
 from babel.dates import format_date
 from django.core.mail import send_mail
@@ -6,7 +7,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from base_data_app.models import Language
-from blockhaus101.settings import logger, MAIL_ERROR_MESSAGE, MAIL_INVALID_MESSAGE, MAIL_SUCCESS_MESSAGE
+from blockhaus101.settings import logger, MAIL_ERROR_MESSAGE, MAIL_INVALID_MESSAGE, MAIL_SUCCESS_MESSAGE, ENVIRONMENT, VERSION
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
 from blockhaus101_app.models import *
@@ -183,4 +184,10 @@ def contact(request, lang: str) -> HttpResponse:
         request,
         f"{lang}/contact.html",
         {"lang": lang, "form_contact": form, "message": message},
+    )
+
+def health_check(request) -> dict:
+    return HttpResponse(
+        json.dumps({"environment": ENVIRONMENT, "version": VERSION}),
+        content_type='application/json'
     )
