@@ -18,7 +18,7 @@ def index(request, lang: str) -> HttpResponse:
     try:
         # try to get an exhibition for current period
         exhibition = Exhibition.get_current(lang=lang)
-        artist = Artist.objects.filter(exhibitions=exhibition)[0]
+        artist = Artist.objects.filter(exhibitions=exhibition).first()
         logger.info(f'Current exhibition: {artist.name} "{exhibition.title}"')
     except Exception as e:
         logger.debug("There is no current exhibition.")
