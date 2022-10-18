@@ -124,8 +124,13 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         exhibition["title"] = e.title
         exhibition["name"] = e.artist.name
         exhibition["bio"] = e.artist.bio
-        expo_text = ExpoText(language=language, exhibition=e)
-        expo_text.generate()
+        # Get an existing text for each exhibition
+        expo_text = ExpoText.objects.filter(language=language, exhibition=e).first()
+        if not expo_text:
+            # Generate and save a text for the exhibition
+            expo_text = ExpoText(language=language, exhibition=e)
+            expo_text.generate()
+            expo_text.save()
         exhibition["text"] = expo_text.text
         full_exhibs.append(exhibition)
         previous_expo_startdate = e.startdate  # record startdate for next iteration
