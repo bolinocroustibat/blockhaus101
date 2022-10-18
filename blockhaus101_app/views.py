@@ -6,7 +6,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from base_data_app.models import Language
-from blockhaus101.settings import logger
+from blockhaus101.settings import logger, MAIL_ERROR_MESSAGE, MAIL_INVALID_MESSAGE, MAIL_SUCCESS_MESSAGE
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
 from blockhaus101_app.models import *
@@ -142,34 +142,39 @@ def contact(request, lang: str) -> HttpResponse:
     message = None
     if request.method == "POST":  # Checks to see if we get a POST back...
         if form.is_valid():  # Checks to see form is valid
-            send_mail(
-                subject="Mail from Blockhaus101 website",
-                message="Sender: "
-                + form.cleaned_data["name"]
-                + " / Sender email: "
-                + form.cleaned_data["email"]
-                + " / Sender phone: "
-                + form.cleaned_data["phone"]
-                + " / Message text: "
-                + form.cleaned_data["text"],
-                from_email=form.cleaned_data["email"],
-                recipient_list=["moi@adriencarpentier.com"],
-                fail_silently=False,
-                html_message="Expéditeur : "
-                + form.cleaned_data["name"]
-                + " <br/> Sender email: "
-                + form.cleaned_data["email"]
-                + " <br/> Sender phone: "
-                + form.cleaned_data["phone"]
-                + " <br/> Message text: "
-                + form.cleaned_data["text"],
-            )
-            form = FormContact()
-            logger.info("Contact email sent!")
-            message = "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais."
+            try:
+                send_mail(
+                    subject="Mail from Blockhaus101 website",
+                    message="Sender: "
+                    + form.cleaned_data["name"]
+                    + " / Sender email: "
+                    + form.cleaned_data["email"]
+                    + " / Sender phone: "
+                    + form.cleaned_data["phone"]
+                    + " / Message text: "
+                    + form.cleaned_data["text"],
+                    from_email=form.cleaned_data["email"],
+                    recipient_list=["me@adriencarpentier.com"],
+                    fail_silently=False,
+                    html_message="Sender : "
+                    + form.cleaned_data["name"]
+                    + " <br/> Sender email: "
+                    + form.cleaned_data["email"]
+                    + " <br/> Sender phone: "
+                    + form.cleaned_data["phone"]
+                    + " <br/> Message text: "
+                    + form.cleaned_data["text"],
+                )
+                form = FormContact()
+            except Exception as e:
+                logger.error(f"Error while sending email: {str(e)}")
+                message = MAIL_ERROR_MESSAGE[lang]
+            else:
+                logger.info("Contact email sent!")
+                message = MAIL_SUCCESS_MESSAGE[lang]
         else:
             logger.warning("Form is not valid")
-            message = "Votre demande n'a pas été envoyé, vérifiez que tous les champs ont été remplis."
+            message = MAIL_INVALID_MESSAGE[lang]
     return render(
         request,
         f"{lang}/contact.html",

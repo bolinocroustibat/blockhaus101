@@ -108,6 +108,19 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = False
 
+MAIL_ERROR_MESSAGE = {
+    "en": "An error occured while sending your message. Please try again later.",
+    "fr": "Erreur lors de l'envoi du message. Veuillez nous contacter ultérieurement."
+}
+MAIL_INVALID_MESSAGE = {
+    "en": "Your message is invalid. Please check that all the fields are correctly filled.",
+    "fr": "Votre demande n'a pas été envoyée, vérifiez que tous les champs ont été correctement remplis."
+}
+MAIL_SUCCESS_MESSAGE = {
+    "en": "Your message has been sent. Thank you!",
+    "fr": "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais."
+}
+
 # Local settings
 try:
     from .local_settings import *
