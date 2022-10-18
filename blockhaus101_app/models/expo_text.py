@@ -1,5 +1,6 @@
 import re
 from random import randint, choice
+from typing import Optional
 
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -40,8 +41,10 @@ class ExpoText(models.Model):
     def save(self, *args, **kwargs) -> None:
         slug_string = f"{self.exhibition.artist.name}-{self.exhibition.title}"
         # if this slug exists for others, add a number at the end of the slug attribute of the instance:
-        self.unique_slugify(value=slug_string)
-        super(ExpoText, self).save(*args, **kwargs)
+        slug: Optional[str] = self.unique_slugify(value=slug_string, max_elements=10)
+        if slug:
+            self.slug = slug
+            super(ExpoText, self).save(*args, **kwargs)
 
     def generate(self, ip: str = None) -> None:
         self.ip = ip
@@ -57,7 +60,7 @@ class ExpoText(models.Model):
         self.text = self.text + " " + self.create_expo_sentence(position=6)
         if self.exhibition.artist.gender == "f":
             self.text = self.text.replace("Il ", "Elle ")
-        logger.debug(f"## Exhibition text used words: {self.used_words}")
+        logger.debug(f"Exhibition text used words: {self.used_words}")
 
     def create_expo_sentence(self, position: int = None) -> str:
         structures = Data.objects.filter(type__name="phrases", position=position)
@@ -84,10 +87,11 @@ class ExpoText(models.Model):
         sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
         return sentence
 
-    def unique_slugify(self, value: str) -> None:
+    def unique_slugify(self, value: str, max_elements: Optional[int]=None) -> Optional[str]:
         """
         Modified from SmileyChris' post @ https://djangosnippets.org/snippets/690/
         Calculates a unique slug of ``value`` for an instance.
+        WARNING: This create A LOT of queries to the database if some text have been created before, and thus should maybe be limited.
         """
         slug_len = self._meta.get_field("slug").max_length
 
@@ -100,22 +104,23 @@ class ExpoText(models.Model):
         original_slug = slug
 
         # Create a queryset, excluding the current instance.
-        queryset = self.__class__._default_manager.all()
+        queryset = self.__class__._default_manager.filter(slug__startswith=original_slug)
         if self.pk:
             queryset = queryset.exclude(pk=self.pk)
 
-        # Find a unique slug. If one matches, add '-2' to the end and try again
-        # (then '-3', etc).
-        next = 2
-        while not slug or queryset.filter(**{"slug": slug}):
-            slug = original_slug
-            end = f"-{next}"
-            if slug_len and len(slug) + len(end) > slug_len:
-                slug = slug[: slug_len - len(end)]
-                # Cleans up the slug by removing "-" that occur at the beginning or end.
-                slug = re.sub(r"^-+|-+$", "", slug)
-            slug = f"{slug}{end}"
-            next += 1
+        if (not max_elements) or (len(queryset) < max_elements):
+            # Find a unique slug. If one matches, add '-2' to the end and try again
+            # (then '-3', etc).
+            next = 2
+            while not slug or queryset.filter(**{"slug": slug}):
+                slug = original_slug
+                end = f"-{next}"
+                if slug_len and len(slug) + len(end) > slug_len:
+                    slug = slug[: slug_len - len(end)]
+                    # Cleans up the slug by removing "-" that occur at the beginning or end.
+                    slug = re.sub(r"^-+|-+$", "", slug)
+                slug = f"{slug}{end}"
+                next += 1
+            return slug
 
-        # Attribute the calculated slug to the instance.
-        self.slug = slug
+        return None
