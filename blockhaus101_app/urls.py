@@ -17,6 +17,9 @@ urlpatterns = [
         r"^infos-pratiques/$",
         RedirectView.as_view(url="/fr/contact", permanent=True),
     ),
+
+    # Language-independent URLs
+    re_path(r"^health-check/$", views.health_check, name="health_check"),
     path('captcha/', include('captcha.urls')),
 
     # # New URLS with language param
