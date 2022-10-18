@@ -137,7 +137,6 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
 
 
 def contact(request, lang: str) -> HttpResponse:
-    language = Language.objects.get(lang=lang)
     form = FormContact(request.POST or None)
     message = None
     if request.method == "POST":  # Checks to see if we get a POST back...

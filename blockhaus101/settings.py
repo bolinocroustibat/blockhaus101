@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     "base_data_app",
     "blockhaus101_app",
+    "captcha",
 ]
 
 MIDDLEWARE = [
