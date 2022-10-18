@@ -1,3 +1,4 @@
+from captcha.fields import CaptchaField
 from django import forms
 from django.core import validators
 
@@ -24,8 +25,4 @@ class FormContact(forms.Form):
         label="Pourquoi souhaitez-vous voir cet artiste *",
         widget=forms.Textarea(attrs={"class": "input-text form-control"}),
     )
-    botcatcher = forms.CharField(
-        required=False,
-        widget=forms.HiddenInput,
-        validators=[validators.MaxLengthValidator(0)],
-    )
+    captcha = CaptchaField()

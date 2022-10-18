@@ -1,8 +1,7 @@
-from django.urls import re_path
+from django.urls import path, re_path, include
 from django.views.generic import RedirectView, TemplateView
 
 from blockhaus101_app import views
-
 
 urlpatterns = [
     # Old redirects
@@ -26,6 +25,7 @@ urlpatterns = [
         name="past_exhibitions",
     ),
     re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
+    path('captcha/', include('captcha.urls')),
     # # robots.txt
     # re_path(r"^robots\.txt$", TemplateView.as_view(template_name="robots.txt")),
     # # sitemap.xml
