@@ -100,8 +100,8 @@ celerybeat-schedule
 *.sage.py
 
 # Python
-__pycache__/
-__pypackages__/
+__pycache__
+__pypackages__
 
 # Environments
 .env

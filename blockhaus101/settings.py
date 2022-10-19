@@ -122,6 +122,10 @@ MAIL_SUCCESS_MESSAGE = {
     "fr": "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais."
 }
 
+
+# Captchas
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+
 # Local settings
 try:
     from .local_settings import *
