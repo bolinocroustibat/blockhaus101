@@ -25,4 +25,7 @@ class FormContact(forms.Form):
         label="Pourquoi souhaitez-vous voir cet artiste *",
         widget=forms.Textarea(attrs={"class": "input-text form-control"}),
     )
-    captcha = CaptchaField()
+    captcha = CaptchaField(
+        label="Code the vérification",
+        error_messages={"invalid": "Verification code error"}
+    )
