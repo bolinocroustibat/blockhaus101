@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from django.db import models
 
 from blockhaus101.settings import logger
-from base_data_app.models.language import Language
+from base_data_app.models import Language
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.sitesetting import SiteSetting
 
