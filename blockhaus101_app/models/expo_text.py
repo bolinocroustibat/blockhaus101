@@ -6,10 +6,9 @@ from django.db import models
 from django.template.defaultfilters import slugify
 
 from blockhaus101.settings import logger
-from base_data_app.models.language import Language
-from base_data_app.models.data import Data
+from base_data_app.models import Data, Language
 from blockhaus101_app.helpers import correct_sentence
-from blockhaus101_app.models.exhibition import Exhibition
+from blockhaus101_app.models import Exhibition
 
 
 class ExpoText(models.Model):

@@ -2,10 +2,15 @@ from blockhaus101.settings import logger
 
 
 def correct_sentence(lang: str, sentence: str) -> str:
-    corrections_en: dict = {}
+    corrections_en: dict = {
+        "( ": "(",
+        " )": ")",
+        " ,": ",",
+    }
     corrections_fr: dict = {  # we could also use "replace(old, new)"
         "( ": "(",
         " )": ")",
+        " ,": ",",
         " à le ": " au ",
         " à les ": " aux ",
         " de a": " d’a",
@@ -60,7 +65,6 @@ def correct_sentence(lang: str, sentence: str) -> str:
         " que E": " qu’E",
         " que I": " qu’I",
         " que U": " qu’U",
-        " ,": ",",
     }
     if lang == "en":
         sentence = _strtr(sentence, corrections_en)
