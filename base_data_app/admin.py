@@ -10,14 +10,25 @@ admin.site.unregister(Group)
 @admin.register(DataType)
 class DataTypeAdmin(admin.ModelAdmin):
     model = DataType
-    list_display = ("name", "created", "language", "id")
-    list_filter = ("language",)
+    list_display = ("name", "created", "id")
     search_fields = ["name"]
 
 
 @admin.register(Data)
 class DataAdmin(admin.ModelAdmin):
     model = Data
-    list_display = ("text", "type", "gender", "plural", "weight", "position", "id")
-    list_filter = ("type",)
+    list_display = (
+        "text",
+        "type",
+        "language",
+        "gender",
+        "plural",
+        "weight",
+        "position",
+        "id",
+    )
+    list_filter = (
+        "language",
+        "type",
+    )
     search_fields = ["text", "type__name"]

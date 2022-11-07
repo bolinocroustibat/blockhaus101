@@ -5,10 +5,18 @@ from django.db import models
 
 from blockhaus101.settings import logger
 from base_data_app.models.data_type import DataType
+from base_data_app.models.language import Language
 
 
 class Data(models.Model):
 
+    language = models.ForeignKey(
+        Language,
+        related_name="data",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
     text = models.TextField("data", max_length=3000)
     GENDER_CHOICES = (
@@ -39,14 +47,17 @@ class Data(models.Model):
         ordering = ["position"]
 
     @classmethod
-    def choose_random(cls, type: str, lang: Optional[str] = None) -> Optional[str]:
+    def choose_random(
+        cls, type: str, language: Optional[Language] = None
+    ) -> Optional["Data"]:
         """
         https://stackoverflow.com/questions/63425139/how-do-i-quickly-get-a-weighted-random-instance-of-a-django-model-instance-based
         """
-        if lang:
-            entries = cls.objects.filter(type__name=type, type__language__lang=lang)
-        else:
-            entries = cls.objects.filter(type__name=type)
+        entries = cls.objects.filter(type__name=type)
+        if language:
+            entries = entries.filter(
+                models.Q(language=language) | models.Q(language=None)
+            ) # we choose entries with the right language or no language
         if entries:
             if not [e for e in entries if e.weight]:
                 # if there are some no weighted entries, return a random entry
@@ -58,13 +69,16 @@ class Data(models.Model):
 
     @classmethod
     def choose_random_excluding(
-        cls, type: str, lang: Optional[str], excluding: Optional[dict] = None
+        cls,
+        type: str,
+        language: Optional[Language] = None,
+        excluding: Optional[dict] = None,
     ) -> Optional[tuple[str, dict]]:
         """
         Choose a random entry from the database, according to the type, and to the entries already being used before.
         """
-        chosen_entry = cls.choose_random(type=type, lang=lang)
-        if chosen_entry:
+        chosen_entry = cls.choose_random(type=type, language=language)
+        if chosen_entry and excluding:
             if excluding.get(type):
                 while chosen_entry.text in excluding[type]:
                     logger.debug(
