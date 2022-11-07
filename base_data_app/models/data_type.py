@@ -6,7 +6,11 @@ from base_data_app.models.language import Language
 class DataType(models.Model):
 
     language = models.ForeignKey(
-        Language, related_name="data_type", on_delete=models.PROTECT
+        Language,
+        related_name="datatype",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
     )
     name = models.CharField("data type", max_length=80, unique=True)
     created = models.DateTimeField(auto_now=True)

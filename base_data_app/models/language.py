@@ -4,7 +4,7 @@ from django.db import models
 class Language(models.Model):
     LANGUAGE_CHOICES = (("en", "English"), ("fr", "French"))
     lang = models.CharField(
-        "language", max_length=2, choices=LANGUAGE_CHOICES, default="fr"
+        "language code", max_length=2, choices=LANGUAGE_CHOICES, default="fr"
     )
 
     class Meta:
