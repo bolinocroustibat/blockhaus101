@@ -66,7 +66,7 @@ class ExpoText(models.Model):
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace(
-            "[SELFDISCIPLINE]", self.exhibition.artist.discipline
+            "[SELFDISCIPLINE]", self.exhibition.artist.discipline.text
         )
         sentence = sentence.replace("[SELFEXPO]", self.exhibition.title)
         sentence = sentence.replace(

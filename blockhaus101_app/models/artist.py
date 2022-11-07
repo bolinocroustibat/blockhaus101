@@ -16,7 +16,9 @@ class Artist(models.Model):
     name = models.CharField("artist name", max_length=80)
     GENDER_CHOICES = (("f", "female"), ("m", "male"))
     gender = models.CharField("artist gender", max_length=6, choices=GENDER_CHOICES)
-    discipline = models.CharField("artiste discipline", max_length=80)
+    discipline = models.ForeignKey(
+        Data, related_name="artists", on_delete=models.PROTECT
+    )
     bio = models.TextField("artist biography", max_length=2000)
     created = models.DateTimeField(auto_now=True)
 
@@ -35,8 +37,7 @@ class Artist(models.Model):
         # full name
         self.name = firstname.text + " " + lastname.text
         # discipline
-        discipline = Data.choose_random(type="DISCIPLINE")
-        self.discipline = discipline.text
+        self.discipline = Data.choose_random(type="DISCIPLINE", lang=self.language.lang)
         # bio
         self.bio_used_words = dict()
         self.bio = self.create_bio_sentence(position=1)
@@ -55,13 +56,13 @@ class Artist(models.Model):
             self.bio = self.bio.replace("obsédé ", "obsédée ")
         logger.debug(f"Biography used words: {self.bio_used_words}")
 
-    def create_bio_sentence(self, position: int = None) -> str:
+    def create_bio_sentence(self, position: int) -> str:
         bio_structures = Data.objects.filter(
             type__language=self.language, type__name="bio", position=position
         )
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.name)
-        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline)
+        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline.text)
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
             if k == "[EXPO]":
@@ -70,7 +71,9 @@ class Artist(models.Model):
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
-                    type=word_type, lang=self.language.lang, excluding=self.bio_used_words
+                    type=word_type,
+                    lang=self.language.lang,
+                    excluding=self.bio_used_words,
                 )
                 if chosen_data:
                     chosen_word = chosen_data[0]
@@ -84,12 +87,14 @@ class Artist(models.Model):
         title_structures = Data.choose_random(type="expos", lang=self.language.lang)
         title = title_structures.text
         title = title.replace("[SELF]", self.name)
-        title = title.replace("[SELFDISCIPLINE]", self.discipline)
+        title = title.replace("[SELFDISCIPLINE]", self.discipline.text)
         keywords: list = re.findall(r"\[[^][]*]", title)
         used_words = dict()
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random_excluding(type=word_type, lang=self.language.lang, excluding=used_words)
+            chosen_data = Data.choose_random_excluding(
+                type=word_type, lang=self.language.lang, excluding=used_words
+            )
             if chosen_data:
                 chosen_word = chosen_data[0]
                 used_words = chosen_data[1]
