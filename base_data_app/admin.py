@@ -21,6 +21,7 @@ class DataAdmin(admin.ModelAdmin):
         "text",
         "type",
         "language",
+        "translation",
         "gender",
         "plural",
         "weight",

@@ -28,6 +28,15 @@ class Artist(models.Model):
     def __str__(self) -> str:
         return self.name
 
+    @property
+    def discipline_text(self) -> str:
+        if self.language == self.discipline.language:
+            return self.discipline.text
+        if not self.discipline.translations:
+            logger.error("No translation for discipline")
+            return self.discipline.text
+        return self.discipline.translation.text
+
     def generate(self) -> None:
         # first name and genre
         firstname = Data.choose_random(type="FIRSTNAME", language=self.language)
@@ -58,11 +67,11 @@ class Artist(models.Model):
 
     def create_bio_sentence(self, position: int) -> str:
         bio_structures = Data.objects.filter(
-            type__language=self.language, type__name="bio", position=position
+            language=self.language, type__name="bio", position=position
         )
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.name)
-        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline.text)
+        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline_text)
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
             if k == "[EXPO]":
@@ -87,7 +96,7 @@ class Artist(models.Model):
         title_structures = Data.choose_random(type="expos", language=self.language)
         title = title_structures.text
         title = title.replace("[SELF]", self.name)
-        title = title.replace("[SELFDISCIPLINE]", self.discipline.text)
+        title = title.replace("[SELFDISCIPLINE]", self.discipline_text)
         keywords: list = re.findall(r"\[[^][]*]", title)
         used_words = dict()
         for k in keywords:
