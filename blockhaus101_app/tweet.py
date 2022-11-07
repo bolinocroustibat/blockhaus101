@@ -3,7 +3,8 @@ import re
 from babel.dates import format_date
 import tweepy
 
-from base_data_app.models import Data
+from base_data_app.models.data import Data
+from base_data_app.models.language import Language
 from blockhaus101_app.helpers import correct_sentence
 from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101.settings import (
@@ -25,7 +26,8 @@ def generate_tweet(
     else:
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
-    tweet_structure = Data.choose_random(type=tweet_type, lang=lang)
+    language = Language.objects.get(lang=lang)
+    tweet_structure = Data.choose_random(type=tweet_type, language=language)
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline.text)
@@ -44,7 +46,9 @@ def generate_tweet(
     used_words = dict()
     for k in keywords:
         word_type = k.replace("[", "").replace("]", "")
-        chosen_data = Data.choose_random_excluding(type=word_type, lang=lang, excluding=used_words)
+        chosen_data = Data.choose_random_excluding(
+            type=word_type, language=language, excluding=used_words
+        )
         if chosen_data:
             chosen_word = chosen_data[0]
             used_words = chosen_data[1]
