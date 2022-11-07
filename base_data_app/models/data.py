@@ -10,6 +10,8 @@ from base_data_app.models.language import Language
 
 class Data(models.Model):
 
+    type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
+    text = models.TextField("data", max_length=3000)
     language = models.ForeignKey(
         Language,
         related_name="data",
@@ -17,8 +19,13 @@ class Data(models.Model):
         blank=True,
         null=True,
     )
-    type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
-    text = models.TextField("data", max_length=3000)
+    translation = models.ForeignKey(
+        "self",
+        related_name="translations",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
     GENDER_CHOICES = (
         ("m", "male"),
         ("f", "female"),
@@ -77,14 +84,16 @@ class Data(models.Model):
         """
         Choose a random entry from the database, according to the type, and to the entries already being used before.
         """
-        chosen_entry = cls.choose_random(type=type, language=language)
-        if chosen_entry and excluding:
+        chosen_entry: Optional[Data] = cls.choose_random(type=type, language=language)
+        if chosen_entry:
+            if not excluding:
+                excluding = {}
             if excluding.get(type):
                 while chosen_entry.text in excluding[type]:
                     logger.debug(
                         f"entry '{chosen_entry.text}' of type '{type}' has been used already, let's choose another"
                     )
-                    chosen_entry = cls.choose_random(type=type)
+                    chosen_entry = cls.choose_random(type=type, language=language)
                     if chosen_entry not in excluding[type]:
                         logger.debug(f"...ok we found another: {chosen_entry.text}")
                         break
