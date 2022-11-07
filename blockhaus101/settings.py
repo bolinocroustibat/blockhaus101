@@ -1,7 +1,7 @@
 import os
+import tomllib
 
 import sentry_sdk
-import toml
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from blockhaus101.captcha import custom_captcha_challenge
@@ -176,7 +176,8 @@ import logging
 
 logger = logging.getLogger("blockhaus101")
 
-pyproject: dict = toml.load("pyproject.toml")
+with open("pyproject.toml", "rb") as f:
+	pyproject: dict = tomllib.load(f)
 APP_NAME: str = pyproject["tool"]["poetry"]["name"]
 VERSION: str = pyproject["tool"]["poetry"]["version"]
 if ENVIRONMENT in ["staging", "production"]:
