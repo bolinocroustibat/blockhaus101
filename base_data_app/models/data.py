@@ -66,8 +66,8 @@ class Data(models.Model):
                 models.Q(language=language) | models.Q(language=None)
             ) # we choose entries with the right language or no language
         if entries:
-            if not [e for e in entries if e.weight]:
-                # if there are some no weighted entries, return a random entry
+            if [e for e in entries if not e.weight]:
+                # if there are some non weighted entries, return a random entry
                 return choice(entries)
             else:
                 # entries are all weighted, so we can use random.choices
