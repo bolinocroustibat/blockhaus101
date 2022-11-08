@@ -7,7 +7,14 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from base_data_app.models import Language
-from blockhaus101.settings import logger, MAIL_ERROR_MESSAGE, MAIL_INVALID_MESSAGE, MAIL_SUCCESS_MESSAGE, ENVIRONMENT, VERSION
+from blockhaus101.settings import (
+    logger,
+    MAIL_ERROR_MESSAGE,
+    MAIL_INVALID_MESSAGE,
+    MAIL_SUCCESS_MESSAGE,
+    ENVIRONMENT,
+    VERSION,
+)
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
 from blockhaus101_app.models import *
@@ -120,7 +127,9 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
                 enddate = e.enddate.date()
         except:
             enddate = e.enddate.date()
-        exhibition["startdate"] = format_date(e.startdate.date(), format="long", locale=lang)
+        exhibition["startdate"] = format_date(
+            e.startdate.date(), format="long", locale=lang
+        )
         exhibition["enddate"] = format_date(enddate, format="long", locale=lang)
         exhibition["title"] = e.title
         exhibition["name"] = e.artist.name
@@ -186,8 +195,9 @@ def contact(request, lang: str) -> HttpResponse:
         {"lang": lang, "form_contact": form, "message": message},
     )
 
+
 def health_check(request) -> dict:
     return HttpResponse(
         json.dumps({"environment": ENVIRONMENT, "version": VERSION}),
-        content_type='application/json'
+        content_type="application/json",
     )
