@@ -196,7 +196,7 @@ def contact(request, lang: str) -> HttpResponse:
     )
 
 
-def health_check(request) -> dict:
+def health_check(request) -> HttpResponse:
     return HttpResponse(
         json.dumps({"environment": ENVIRONMENT, "version": VERSION}),
         content_type="application/json",

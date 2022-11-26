@@ -7,13 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base_data_app', '0004_data_language'),
+        ("base_data_app", "0004_data_language"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='data',
-            name='translation',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='translations', to='base_data_app.data'),
+            model_name="data",
+            name="translation",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="translations",
+                to="base_data_app.data",
+            ),
         ),
     ]

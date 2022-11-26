@@ -8,76 +8,198 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Artist',
+            name="Artist",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=80, verbose_name='artist name')),
-                ('gender', models.CharField(choices=[('f', 'female'), ('m', 'male')], max_length=6, verbose_name='artist gender')),
-                ('discipline', models.CharField(max_length=80, verbose_name='artiste discipline')),
-                ('bio', models.TextField(max_length=2000, verbose_name='artist biography')),
-                ('created', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=80, verbose_name="artist name")),
+                (
+                    "gender",
+                    models.CharField(
+                        choices=[("f", "female"), ("m", "male")],
+                        max_length=6,
+                        verbose_name="artist gender",
+                    ),
+                ),
+                (
+                    "discipline",
+                    models.CharField(max_length=80, verbose_name="artiste discipline"),
+                ),
+                (
+                    "bio",
+                    models.TextField(max_length=2000, verbose_name="artist biography"),
+                ),
+                ("created", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'db_table': 'blockhaus101_artists',
+                "db_table": "blockhaus101_artists",
             },
         ),
         migrations.CreateModel(
-            name='Exhibition',
+            name="Exhibition",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=80, verbose_name='exhibition title')),
-                ('startdate', models.DateTimeField(blank=True, null=True, verbose_name='exhibition start date')),
-                ('enddate', models.DateTimeField(blank=True, null=True, verbose_name='exhibition end date')),
-                ('created', models.DateTimeField(auto_now=True)),
-                ('artist', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='exhibitions', to='blockhaus101_app.artist')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(max_length=80, verbose_name="exhibition title"),
+                ),
+                (
+                    "startdate",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="exhibition start date"
+                    ),
+                ),
+                (
+                    "enddate",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="exhibition end date"
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now=True)),
+                (
+                    "artist",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="exhibitions",
+                        to="blockhaus101_app.artist",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blockhaus101_exhibitions',
+                "db_table": "blockhaus101_exhibitions",
             },
         ),
         migrations.CreateModel(
-            name='SiteSetting',
+            name="SiteSetting",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.TextField(default='', max_length=1000, verbose_name='site header text')),
-                ('period', models.IntegerField(default=7, verbose_name='period between two exhibitions, in days')),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='languages', to='base_data_app.language')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "description",
+                    models.TextField(
+                        default="", max_length=1000, verbose_name="site header text"
+                    ),
+                ),
+                (
+                    "period",
+                    models.IntegerField(
+                        default=7,
+                        verbose_name="period between two exhibitions, in days",
+                    ),
+                ),
+                (
+                    "language",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="languages",
+                        to="base_data_app.language",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'General setting',
-                'db_table': 'blockhaus101_settings',
+                "verbose_name": "General setting",
+                "db_table": "blockhaus101_settings",
             },
         ),
         migrations.CreateModel(
-            name='ExpoText',
+            name="ExpoText",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(max_length=3000, verbose_name='exhibition text')),
-                ('slug', models.SlugField(blank=True, default=None, max_length=150, null=True, verbose_name='URL')),
-                ('ip', models.GenericIPAddressField(blank=True, null=True, verbose_name='creator IP address')),
-                ('created', models.DateTimeField(auto_now=True)),
-                ('exhibition', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='expotexts', to='blockhaus101_app.exhibition', verbose_name='exhibition')),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='expotexts', to='base_data_app.language')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "text",
+                    models.TextField(max_length=3000, verbose_name="exhibition text"),
+                ),
+                (
+                    "slug",
+                    models.SlugField(
+                        blank=True,
+                        default=None,
+                        max_length=150,
+                        null=True,
+                        verbose_name="URL",
+                    ),
+                ),
+                (
+                    "ip",
+                    models.GenericIPAddressField(
+                        blank=True, null=True, verbose_name="creator IP address"
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now=True)),
+                (
+                    "exhibition",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="expotexts",
+                        to="blockhaus101_app.exhibition",
+                        verbose_name="exhibition",
+                    ),
+                ),
+                (
+                    "language",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="expotexts",
+                        to="base_data_app.language",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Exhibition text',
-                'verbose_name_plural': 'Exhibitions texts',
-                'db_table': 'blockhaus101_expotexts',
+                "verbose_name": "Exhibition text",
+                "verbose_name_plural": "Exhibitions texts",
+                "db_table": "blockhaus101_expotexts",
             },
         ),
         migrations.AddField(
-            model_name='exhibition',
-            name='language',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='exhibitions', to='base_data_app.language'),
+            model_name="exhibition",
+            name="language",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="exhibitions",
+                to="base_data_app.language",
+            ),
         ),
         migrations.AddField(
-            model_name='artist',
-            name='language',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='artists', to='base_data_app.language'),
+            model_name="artist",
+            name="language",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="artists",
+                to="base_data_app.language",
+            ),
         ),
     ]

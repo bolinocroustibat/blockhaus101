@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RunPython(migrate_to_data_language),
         migrations.RemoveField(
-            model_name='datatype',
-            name='language',
+            model_name="datatype",
+            name="language",
         ),
     ]

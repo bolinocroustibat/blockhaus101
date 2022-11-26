@@ -86,7 +86,9 @@ class ExpoText(models.Model):
         sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
         return sentence
 
-    def unique_slugify(self, value: str, max_elements: Optional[int]=None) -> Optional[str]:
+    def unique_slugify(
+        self, value: str, max_elements: Optional[int] = None
+    ) -> Optional[str]:
         """
         Modified from SmileyChris' post @ https://djangosnippets.org/snippets/690/
         Calculates a unique slug of ``value`` for an instance.
@@ -103,7 +105,9 @@ class ExpoText(models.Model):
         original_slug = slug
 
         # Create a queryset, excluding the current instance.
-        queryset = self.__class__._default_manager.filter(slug__startswith=original_slug)
+        queryset = self.__class__._default_manager.filter(
+            slug__startswith=original_slug
+        )
         if self.pk:
             queryset = queryset.exclude(pk=self.pk)
 

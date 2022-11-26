@@ -17,11 +17,9 @@ urlpatterns = [
         r"^infos-pratiques/$",
         RedirectView.as_view(url="/fr/contact", permanent=True),
     ),
-
     # Language-independent URLs
     re_path(r"^health-check/$", views.health_check, name="health_check"),
-    path('captcha/', include('captcha.urls')),
-
+    path("captcha/", include("captcha.urls")),
     # # New URLS with language param
     # re_path(r"^(?P<lang>fr|en)/$", views.index, name="index"),
     # re_path(
@@ -30,7 +28,6 @@ urlpatterns = [
     #     name="past_exhibitions",
     # ),
     # re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
-
     # Only French for now
     re_path(r"^(?P<lang>fr)/$", views.index, name="index"),
     re_path(
@@ -39,6 +36,5 @@ urlpatterns = [
         name="past_exhibitions",
     ),
     re_path(r"^(?P<lang>fr)/contact/$", views.contact, name="contact"),
-
     re_path(r"^(?P<slug>[-\w]+)/$", views.exhibition, name="exhibition"),
 ]
