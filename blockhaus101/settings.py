@@ -124,7 +124,7 @@ MAIL_SUCCESS_MESSAGE = {
 
 
 # Captchas
-CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.math_challenge"
+CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.random_char_challenge"
 
 # Local settings
 try:
