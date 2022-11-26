@@ -1,0 +1,40 @@
+name: Deploy to prod on push to main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-prod:
+    name: Deploy to prod from "${{ github.ref_name }}/${{ github.sha }}"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_HOST }}
+
+      - name: Adding known hosts
+        run: ssh-keyscan -p ${{ secrets.SSH_PORT}} -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
+
+      - name: Copy repository to server with rsync
+        run: rsync -avz -e "ssh -p ${{ secrets.SSH_PORT }}" ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/www/blockhaus101/
+
+      - name: Execute server commands for deploy
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd /root/www/blockhaus101
+            source /root/www/blockhaus101/venv/bin/activate
+            python3 /root/www/blockhaus101/manage.py migrate
+            python3 /root/www/blockhaus101/manage.py collectstatic
+            systemctl restart blockhaus101.service
