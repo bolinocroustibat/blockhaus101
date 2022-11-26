@@ -111,20 +111,20 @@ USE_TZ = False
 
 MAIL_ERROR_MESSAGE = {
     "en": "An error occured while sending your message. Please try again later.",
-    "fr": "Erreur lors de l'envoi du message. Veuillez nous contacter ultérieurement."
+    "fr": "Erreur lors de l'envoi du message. Veuillez nous contacter ultérieurement.",
 }
 MAIL_INVALID_MESSAGE = {
     "en": "Your message is invalid. Please check that all the fields are correctly filled.",
-    "fr": "Votre demande n'a pas été envoyée, vérifiez que tous les champs ont été correctement remplis."
+    "fr": "Votre demande n'a pas été envoyée, vérifiez que tous les champs ont été correctement remplis.",
 }
 MAIL_SUCCESS_MESSAGE = {
     "en": "Your message has been sent. Thank you!",
-    "fr": "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais."
+    "fr": "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais.",
 }
 
 
-# Captchas
-CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+# Captchas
+CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.math_challenge"
 
 # Local settings
 try:
@@ -182,13 +182,11 @@ if ENVIRONMENT in ["staging", "production"]:
         ],
         release=f"{APP_NAME}@{VERSION}",
         environment=ENVIRONMENT,
-
         # Set traces_sample_rate to 1.0 to capture 100%
         # of transactions for performance monitoring.
         # We recommend adjusting this value in production.
         traces_sample_rate=1.0,
-
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=True
+        send_default_pii=True,
     )

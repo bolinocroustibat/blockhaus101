@@ -8,47 +8,115 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Language',
+            name="Language",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('lang', models.CharField(choices=[('en', 'English'), ('fr', 'French')], default='fr', max_length=2, verbose_name='language')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "lang",
+                    models.CharField(
+                        choices=[("en", "English"), ("fr", "French")],
+                        default="fr",
+                        max_length=2,
+                        verbose_name="language",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blockhaus101_languages',
+                "db_table": "blockhaus101_languages",
             },
         ),
         migrations.CreateModel(
-            name='DataType',
+            name="DataType",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=80, unique=True, verbose_name='data type')),
-                ('created', models.DateTimeField(auto_now=True)),
-                ('language', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='data_type', to='base_data_app.language')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(
+                        max_length=80, unique=True, verbose_name="data type"
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now=True)),
+                (
+                    "language",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="data_type",
+                        to="base_data_app.language",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blockhaus101_datatype',
-                'ordering': ['name'],
+                "db_table": "blockhaus101_datatype",
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='Data',
+            name="Data",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(max_length=3000, verbose_name='data')),
-                ('gender', models.CharField(blank=True, max_length=8, null=True, verbose_name='gender / plural')),
-                ('weight', models.IntegerField(blank=True, null=True, verbose_name='weight')),
-                ('position', models.IntegerField(blank=True, null=True, verbose_name='position of the sentence in the paragraph')),
-                ('created', models.DateTimeField(auto_now=True)),
-                ('type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='data', to='base_data_app.datatype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField(max_length=3000, verbose_name="data")),
+                (
+                    "gender",
+                    models.CharField(
+                        blank=True,
+                        max_length=8,
+                        null=True,
+                        verbose_name="gender / plural",
+                    ),
+                ),
+                (
+                    "weight",
+                    models.IntegerField(blank=True, null=True, verbose_name="weight"),
+                ),
+                (
+                    "position",
+                    models.IntegerField(
+                        blank=True,
+                        null=True,
+                        verbose_name="position of the sentence in the paragraph",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now=True)),
+                (
+                    "type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="data",
+                        to="base_data_app.datatype",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blockhaus101_data',
-                'ordering': ['position'],
+                "db_table": "blockhaus101_data",
+                "ordering": ["position"],
             },
         ),
     ]

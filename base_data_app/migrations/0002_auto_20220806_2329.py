@@ -6,18 +6,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base_data_app', '0001_initial'),
+        ("base_data_app", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='data',
-            name='plural',
-            field=models.CharField(blank=True, choices=[('s', 'singular'), ('p', 'plural')], max_length=1, null=True),
+            model_name="data",
+            name="plural",
+            field=models.CharField(
+                blank=True,
+                choices=[("s", "singular"), ("p", "plural")],
+                max_length=1,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='data',
-            name='gender',
-            field=models.CharField(blank=True, choices=[('m', 'male'), ('f', 'female')], max_length=1, null=True),
+            model_name="data",
+            name="gender",
+            field=models.CharField(
+                blank=True,
+                choices=[("m", "male"), ("f", "female")],
+                max_length=1,
+                null=True,
+            ),
         ),
     ]

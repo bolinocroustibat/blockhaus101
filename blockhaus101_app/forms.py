@@ -27,5 +27,5 @@ class FormContact(forms.Form):
     )
     captcha = CaptchaField(
         label="Code the vérification",
-        error_messages={"invalid": "Verification code error"}
+        error_messages={"invalid": "Verification code error"},
     )
