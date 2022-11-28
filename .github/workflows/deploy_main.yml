@@ -23,7 +23,7 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
 
       - name: Copy repository to server with rsync
-        run: rsync -avz -e ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/root/www/blockhaus101/
+        run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/www/blockhaus101/
 
       - name: Execute server commands for deploy
         uses: appleboy/ssh-action@master
@@ -32,9 +32,9 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /root/www/blockhaus101
-            source /root/www/blockhaus101/venv/bin/activate
-            pip install -r /root/www/blockhaus101/requirements.txt
-            python3 /root/www/blockhaus101/manage.py migrate
-            python3 /root/www/blockhaus101/manage.py collectstatic --no-input
+            cd /home/www/blockhaus101
+            source /home/www/blockhaus101/venv/bin/activate
+            pip install -r /home/www/blockhaus101/requirements.txt
+            python3 /home/www/blockhaus101/manage.py migrate
+            python3 /home/www/blockhaus101/manage.py collectstatic --no-input
             systemctl restart blockhaus101.service
