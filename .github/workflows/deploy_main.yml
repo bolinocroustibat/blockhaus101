@@ -23,7 +23,7 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }}  >> ~/.ssh/known_hosts
 
       - name: Copy repository to server with rsync
-        run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/www/blockhaus101/
+        run: rsync -avz ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/home/www/blockhaus101/ --usermap=github:www-data
 
       - name: Execute server commands for deploy
         uses: appleboy/ssh-action@master
