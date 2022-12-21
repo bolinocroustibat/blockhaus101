@@ -26,6 +26,6 @@ class FormContact(forms.Form):
         widget=forms.Textarea(attrs={"class": "input-text form-control"}),
     )
     captcha = CaptchaField(
-        label="Code the vérification",
+        label="Merci de vérifiez que vous n'êtes pas un robot.\nAjoutez 1 à chaque chiffre du ci-après. Par exemple, pour 1234, vous devez entrer 2345.",
         error_messages={"invalid": "Verification code error"},
     )
