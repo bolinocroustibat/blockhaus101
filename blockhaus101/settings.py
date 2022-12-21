@@ -4,6 +4,9 @@ import sentry_sdk
 import toml
 from sentry_sdk.integrations.django import DjangoIntegration
 
+from blockhaus101.captcha import custom_captcha_challenge
+
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
@@ -122,9 +125,11 @@ MAIL_SUCCESS_MESSAGE = {
     "fr": "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais.",
 }
 
-
-# Captchas
-CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.random_char_challenge"
+# Captcha
+CAPTCHA_LETTER_ROTATION = 0
+CAPTCHA_NOISE_FUNCTIONS = []
+# CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.random_char_challenge"
+CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 
 # Local settings
 try:
