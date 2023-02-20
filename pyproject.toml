@@ -31,7 +31,7 @@ build-backend = "pdm.pep517.api"
 includes = []
 
 [tool.pdm.dev-dependencies]
-dev = ["black<23.0,>=22"]
+dev = ["black>=23.1.0", "ruff>=0.0.247"]
 
 [tool.pdm.build]
 includes = []
