@@ -5,7 +5,7 @@
 ### Set up the Python environment
 
 ```bash
-poetry install && poetry shell
+pdm install
 ```
 
 ### Set a local settings file

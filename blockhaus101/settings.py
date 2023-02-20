@@ -178,8 +178,8 @@ logger = logging.getLogger("blockhaus101")
 
 with open("pyproject.toml", "rb") as f:
 	pyproject: dict = tomllib.load(f)
-APP_NAME: str = pyproject["tool"]["poetry"]["name"]
-VERSION: str = pyproject["tool"]["poetry"]["version"]
+APP_NAME: str = pyproject["project"]["name"]
+VERSION: str = pyproject["project"]["version"]
 if ENVIRONMENT in ["staging", "production"]:
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN", ""),
