@@ -6,9 +6,9 @@ authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
     "Babel<3.0.0,>=2.10.3",
     "coloredlogs<16.0,>=15.0",
-    "Django<4.2,>=4.1",
+    "Django<5.0,>=4.1",
     "django-debug-toolbar<4.0.0,>=3.2.1",
-    "django-simple-captcha<0.6.0,>=0.5.17",
+    "django-simple-captcha<1.0.0,>=0.5.17",
     "gunicorn<21.0.0,>=20.1.0",
     "PyMySQL<2.0.0,>=1.0.2",
     "requests<3.0.0,>=2.25.1",
@@ -17,16 +17,15 @@ dependencies = [
     "uvicorn<1.0.0,>=0.14.0",
     "xmltodict<1.0.0,>=0.12.0",
 ]
-requires-python = ">=3.11,<3.12"
-dynamic = ["classifiers", "classifiers"]
+requires-python = ">=3.11,<4.0"
 license = { text = "MIT" }
 
 [project.urls]
 homepage = "https://www.blockhaus101.com"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["pdm-pep517>=1.0.0"]
+build-backend = "pdm.pep517.api"
 
 [tool.poetry]
 name = "blockhaus101"
@@ -59,3 +58,6 @@ includes = []
 
 [tool.pdm.dev-dependencies]
 dev = ["black<23.0,>=22"]
+
+[tool.pdm.build]
+includes = []
