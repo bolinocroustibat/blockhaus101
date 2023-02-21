@@ -93,7 +93,7 @@ def exhibition(request, slug: str) -> HttpResponse:
             },
         )
     except ExpoText.DoesNotExist:
-        logger.error("Exhibition not found.")
+        logger.warning("Exhibition not found")
         raise Http404("Exhibition not found")
 
 
