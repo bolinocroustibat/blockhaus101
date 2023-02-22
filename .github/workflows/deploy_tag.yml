@@ -1,9 +1,9 @@
-name: Deploy to prod on push to main
+name: Deploy to prod when tag
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - '*'
 
 jobs:
   deploy-prod:
@@ -48,3 +48,13 @@ jobs:
             python3 /home/www/blockhaus101/manage.py migrate
             python3 /home/www/blockhaus101/manage.py collectstatic --no-input
             sudo systemctl restart blockhaus101.service
+
+      - name: Create Sentry release
+        uses: getsentry/action-release@v1.2.1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: "adrien-carpentier"
+          SENTRY_PROJECT: "blockhaus101"
+        with:
+          environment: production
+          version: ${{ github.ref_name }}
