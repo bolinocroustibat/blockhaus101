@@ -11,14 +11,15 @@ class TestGenerateContent(TestCase):
     exhibition = Exhibition()
 
     def test_generate_exhibition(self):
-        try:
-            # try to get exhibition for current period
-            self.exhibition = Exhibition.get_current(lang="fr")
+        # try to get exhibition for current period
+        current_exhibition = Exhibition.get_current(lang="fr")
+        if current_exhibition:
+            self.exhibition = current_exhibition
             self.artist = Artist.objects.filter(artist_exhibition=self.exhibition)[0]
             logger.info(
                 f'Current exhibition: {self.artist.name} "{self.exhibition.title}"'
             )
-        except Exception as e:
+        else:
             logger.info("There is no current exhibition.")
         self.artist.generate()
         logger.info(f'New artist "{self.artist.name}" generated')
