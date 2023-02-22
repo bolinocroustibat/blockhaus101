@@ -1,3 +1,5 @@
+from typing import Optional, Self
+
 from datetime import datetime, timedelta
 from django.db import models
 
@@ -51,15 +53,16 @@ class Exhibition(models.Model):
         self.title = self.artist.create_expo_title()
 
     @classmethod
-    def get_current(cls, lang: str = "fr"):
+    def get_current(cls, lang: str = "fr") -> Optional[Self]:
         """
         Get the exhibition for the current period
         """
-        try:
-            return cls.objects.filter(
-                language__lang=lang,
-                startdate__lte=datetime.now(),
-                enddate__gte=datetime.now(),
-            )[0]
-        except Exception as e:
-            logger.error(f"There is no current exhibition: {str(e)}")
+        exhibitions = cls.objects.filter(
+            language__lang=lang,
+            startdate__lte=datetime.now(),
+            enddate__gte=datetime.now(),
+        )
+        if len(exhibitions) == 0:
+            return None
+        else:
+            return exhibitions[0]

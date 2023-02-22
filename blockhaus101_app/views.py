@@ -23,22 +23,27 @@ from blockhaus101_app.models import *
 def index(request, lang: str) -> HttpResponse:
     language = Language.objects.get(lang=lang)
     description = SiteSetting.objects.get(language=language).description
-    try:
-        # try to get an exhibition for current period
-        exhibition = Exhibition.get_current(lang=lang)
+
+    # try to get an exhibition for current period
+    exhibition = Exhibition.get_current(lang=lang)
+
+    if exhibition:
         artist = Artist.objects.filter(exhibitions=exhibition).first()
         logger.info(f'Current exhibition: {artist.name} "{exhibition.title}"')
-    except Exception as e:
+    else:
         logger.debug("There is no current exhibition.")
+
         artist = Artist(language=language)
         artist.generate()
         artist.save()
         logger.debug(f'New artist "{artist.name}" has been created in DB')
+
         exhibition = Exhibition(language=language)
         exhibition.artist = artist
         exhibition.generate()
         exhibition.save()
         logger.debug(f'New exhibition "{exhibition.title}" has been created in DB')
+
     expo_text = ExpoText(language=language, exhibition=exhibition)
     ip = get_client_ip(request)
     expo_text.generate(ip=ip)
