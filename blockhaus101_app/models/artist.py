@@ -32,7 +32,7 @@ class Artist(models.Model):
     def discipline_text(self) -> str:
         if self.language == self.discipline.language:
             return self.discipline.text
-        if not self.discipline.translations:
+        if not self.discipline.translation:
             logger.error("No translation for discipline")
             return self.discipline.text
         return self.discipline.translation.text
