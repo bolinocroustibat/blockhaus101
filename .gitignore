@@ -38,7 +38,7 @@ wheels/
 *.egg
 MANIFEST
 poetry.lock
-.pdm.toml
+.pdm-python
 pdm.lock
 __pypackages__/
 

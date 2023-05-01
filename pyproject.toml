@@ -6,7 +6,7 @@ authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
     "Babel<3.0.0,>=2.10.3",
     "coloredlogs<16.0,>=15.0",
-    "Django<5.0,>=4.1",
+    "Django<4.3,>=4.2",
     "django-debug-toolbar<4.0.0,>=3.2.1",
     "django-simple-captcha<1.0.0,>=0.5.17",
     "gunicorn<21.0.0,>=20.1.0",
