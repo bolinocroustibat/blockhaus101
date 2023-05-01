@@ -9,7 +9,6 @@ from blockhaus101_app.models import Data, DataType
 
 
 class Command(BaseCommand):
-
     help = "Import data from Google Sheet"
 
     def handle(self, *args, **options):

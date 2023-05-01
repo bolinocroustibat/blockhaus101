@@ -16,7 +16,6 @@ def migrate_to_data_language(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("base_data_app", "0003_alter_datatype_language_alter_language_lang"),
     ]

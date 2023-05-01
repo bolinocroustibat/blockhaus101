@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
-from base_data_app.models import *
+from base_data_app.models import Data, DataType
 
 
 admin.site.unregister(Group)

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("base_data_app", "0002_auto_20220806_2329"),
     ]

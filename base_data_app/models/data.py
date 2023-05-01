@@ -9,7 +9,6 @@ from base_data_app.models.language import Language
 
 
 class Data(models.Model):
-
     type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
     text = models.TextField("data", max_length=3000)
     language = models.ForeignKey(

@@ -6,7 +6,6 @@ from blockhaus101_app.tweet import generate_tweet
 
 
 class TestGenerateContent(TestCase):
-
     artist = Artist()
     exhibition = Exhibition()
 

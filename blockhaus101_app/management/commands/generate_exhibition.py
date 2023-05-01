@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 
-from blockhaus101_app.models import *
+from base_data_app.models import Language
+from blockhaus101_app.models import Artist, Exhibition
 
 
 class Command(BaseCommand):
-
     help = "Generate new artist and save in the DB"
 
     def handle(self, *args, **options):

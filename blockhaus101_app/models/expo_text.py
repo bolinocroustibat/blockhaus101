@@ -12,7 +12,6 @@ from blockhaus101_app.models import Exhibition
 
 
 class ExpoText(models.Model):
-
     language = models.ForeignKey(
         Language, related_name="expotexts", on_delete=models.PROTECT
     )

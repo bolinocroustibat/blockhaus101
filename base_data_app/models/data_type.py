@@ -1,10 +1,7 @@
 from django.db import models
 
-from base_data_app.models.language import Language
-
 
 class DataType(models.Model):
-
     name = models.CharField("data type", max_length=80, unique=True)
     created = models.DateTimeField(auto_now=True)
 

@@ -16,7 +16,6 @@ def migrate_to_discipline_foreign_key(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("blockhaus101_app", "0002_auto_20211207_0648"),
     ]

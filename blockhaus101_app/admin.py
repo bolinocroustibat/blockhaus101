@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from blockhaus101_app.models import *
+from blockhaus101_app.models import Artist, Exhibition, ExpoText, SiteSetting
 
 
 @admin.register(SiteSetting)

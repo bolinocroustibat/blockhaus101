@@ -16,7 +16,6 @@ def correct_sentence(lang: str, sentence: str) -> str:
         " de a": " d’a",
         " de e": " d’e",
         " de ê": " d’ê",
-        " de ê": " d’ê",
         " de é": " d’é",
         " de è": " d’è",
         " de h": " d’h",
