@@ -4,7 +4,6 @@ from base_data_app.models.language import Language
 
 
 class SiteSetting(models.Model):
-
     language = models.ForeignKey(
         Language, related_name="languages", on_delete=models.PROTECT
     )

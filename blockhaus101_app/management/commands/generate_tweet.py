@@ -6,7 +6,6 @@ from blockhaus101_app.tweet import generate_tweet, send_tweet
 
 
 class Command(BaseCommand):
-
     help = "Generate and send new tweet to Twitter"
 
     def add_arguments(self, parser):

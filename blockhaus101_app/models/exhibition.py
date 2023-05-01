@@ -10,7 +10,6 @@ from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
-
     language = models.ForeignKey(
         Language, related_name="exhibitions", on_delete=models.PROTECT
     )
@@ -32,7 +31,7 @@ class Exhibition(models.Model):
         if not self.startdate or not self.enddate:
             try:
                 period = SiteSetting.objects.get().period
-            except:
+            except Exception:
                 period = 7
             logger.debug("NOW TRYING TO SAVE NEW EXHIBITION...")
             try:
@@ -41,7 +40,7 @@ class Exhibition(models.Model):
                 logger.debug(
                     "AT LEAST ONE EXHIBITION ALREADY PRESENT, EXHIBITION SAVED ACCORDING TO PREVIOUS!"
                 )
-            except:
+            except Exception:
                 self.startdate = datetime.now()
                 self.enddate = datetime.now() + timedelta(days=period)
                 logger.debug(

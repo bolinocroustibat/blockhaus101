@@ -177,7 +177,7 @@ import logging
 logger = logging.getLogger("blockhaus101")
 
 with open("pyproject.toml", "rb") as f:
-	pyproject: dict = tomllib.load(f)
+    pyproject: dict = tomllib.load(f)
 APP_NAME: str = pyproject["project"]["name"]
 VERSION: str = pyproject["project"]["version"]
 if ENVIRONMENT in ["staging", "production"]:
@@ -198,5 +198,5 @@ if ENVIRONMENT in ["staging", "production"]:
         # Experimental profiling
         _experiments={
             "profiles_sample_rate": 1.0,
-        }
+        },
     )

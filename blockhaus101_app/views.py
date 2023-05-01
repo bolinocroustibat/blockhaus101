@@ -17,7 +17,7 @@ from blockhaus101.settings import (
 )
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
-from blockhaus101_app.models import *
+from blockhaus101_app.models import Artist, Exhibition, ExpoText, SiteSetting
 
 
 def index(request, lang: str) -> HttpResponse:
@@ -130,7 +130,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
                 )  # remove one day to the enddate
             else:
                 enddate = e.enddate.date()
-        except:
+        except Exception:
             enddate = e.enddate.date()
         exhibition["startdate"] = format_date(
             e.startdate.date(), format="long", locale=lang
@@ -148,7 +148,6 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             expo_text.save()
         exhibition["text"] = expo_text.text
         full_exhibs.append(exhibition)
-        previous_expo_startdate = e.startdate  # record startdate for next iteration
     return render(
         request,
         f"{lang}/past-exhibitions.html",

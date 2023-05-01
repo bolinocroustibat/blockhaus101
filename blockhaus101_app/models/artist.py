@@ -9,7 +9,6 @@ from blockhaus101_app.helpers import correct_sentence
 
 
 class Artist(models.Model):
-
     language = models.ForeignKey(
         Language, related_name="artists", on_delete=models.PROTECT
     )
