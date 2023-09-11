@@ -1,5 +1,4 @@
 from random import choice, choices
-from typing import Optional
 
 from django.db import models
 
@@ -54,8 +53,8 @@ class Data(models.Model):
 
     @classmethod
     def choose_random(
-        cls, type: str, language: Optional[Language] = None
-    ) -> Optional["Data"]:
+        cls, type: str, language: Language | None = None
+    ) -> "Data" | None:
         """
         https://stackoverflow.com/questions/63425139/how-do-i-quickly-get-a-weighted-random-instance-of-a-django-model-instance-based
         """
@@ -77,13 +76,13 @@ class Data(models.Model):
     def choose_random_excluding(
         cls,
         type: str,
-        language: Optional[Language] = None,
-        excluding: Optional[dict] = None,
-    ) -> Optional[tuple[str, dict]]:
+        language: Language | None = None,
+        excluding: dict| None = None,
+    ) -> tuple[str, dict] | None:
         """
         Choose a random entry from the database, according to the type, and to the entries already being used before.
         """
-        chosen_entry: Optional[Data] = cls.choose_random(type=type, language=language)
+        chosen_entry: Data| None = cls.choose_random(type=type, language=language)
         if chosen_entry:
             if not excluding:
                 excluding = {}

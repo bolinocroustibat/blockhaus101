@@ -1,4 +1,4 @@
-from typing import Optional, Self
+from typing import Self
 
 from datetime import datetime, timedelta
 from django.db import models
@@ -52,7 +52,7 @@ class Exhibition(models.Model):
         self.title = self.artist.create_expo_title()
 
     @classmethod
-    def get_current(cls, lang: str = "fr") -> Optional[Self]:
+    def get_current(cls, lang: str = "fr") -> Self | None:
         """
         Get the exhibition for the current period
         """
