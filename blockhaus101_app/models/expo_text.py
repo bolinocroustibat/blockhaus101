@@ -1,6 +1,5 @@
 import re
 from random import randint, choice
-from typing import Optional
 
 from django.db import models
 from django.template.defaultfilters import slugify
@@ -39,7 +38,7 @@ class ExpoText(models.Model):
     def save(self, *args, **kwargs) -> None:
         slug_string = f"{self.exhibition.artist.name}-{self.exhibition.title}"
         # if this slug exists for others, add a number at the end of the slug attribute of the instance:
-        slug: Optional[str] = self.unique_slugify(value=slug_string, max_elements=10)
+        slug: str | None = self.unique_slugify(value=slug_string, max_elements=10)
         if slug:
             self.slug = slug
             super(ExpoText, self).save(*args, **kwargs)
@@ -86,8 +85,8 @@ class ExpoText(models.Model):
         return sentence
 
     def unique_slugify(
-        self, value: str, max_elements: Optional[int] = None
-    ) -> Optional[str]:
+        self, value: str, max_elements: int | None = None
+    ) -> str | None:
         """
         Modified from SmileyChris' post @ https://djangosnippets.org/snippets/690/
         Calculates a unique slug of ``value`` for an instance.
