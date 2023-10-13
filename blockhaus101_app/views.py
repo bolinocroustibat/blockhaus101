@@ -116,7 +116,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
     exhibitions = Exhibition.objects.filter(
         language=language, enddate__lte=datetime.now()
     ).order_by("-enddate")
-    # # Get all artist with enddate before today
+    # # Get all artists with enddate before today
     # artists = Artist.objects.filter(enddate__lte=datetime.now())
     for e in exhibitions:
         exhibition = dict()

@@ -84,9 +84,7 @@ class ExpoText(models.Model):
         sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
         return sentence
 
-    def unique_slugify(
-        self, value: str, max_elements: int | None = None
-    ) -> str | None:
+    def unique_slugify(self, value: str, max_elements: int | None = None) -> str | None:
         """
         Modified from SmileyChris' post @ https://djangosnippets.org/snippets/690/
         Calculates a unique slug of ``value`` for an instance.
