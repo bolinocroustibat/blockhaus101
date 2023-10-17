@@ -32,10 +32,12 @@ includes = []
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "black>=23.1.0",
     "ruff>=0.0.247",
     "mypy>=1.6.0",
 ]
 
 [tool.pdm.build]
 includes = []
+
+[tool.ruff]
+ignore = ["E501"]

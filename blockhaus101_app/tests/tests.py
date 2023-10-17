@@ -34,7 +34,7 @@ class TestGenerateContent(TestCase):
             tweet_type="tweets1",
         )
         logger.info(f'Tweet generated: "{tweet1}"')
-        assert type(tweet1) == str
+        assert isinstance(tweet1, str)
         assert len(tweet1) > 10
         assert len(tweet1) <= 280
         tweet2 = generate_tweet(
@@ -44,6 +44,6 @@ class TestGenerateContent(TestCase):
             tweet_type="tweets2",
         )
         logger.info(f'Tweet generated: "{tweet2}"')
-        assert type(tweet2) == str
+        assert isinstance(tweet2, str)
         assert len(tweet2) > 10
         assert len(tweet2) <= 280
