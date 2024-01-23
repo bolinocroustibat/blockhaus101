@@ -10,7 +10,7 @@ jobs:
     name: Deploy to prod from ${{ github.ref_name }}/${{ github.sha }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
@@ -19,7 +19,7 @@ jobs:
           name: id_rsa
           known_hosts: ${{ secrets.SSH_HOST }}
 
-      - name: Adding known hosts
+      - name: Add server to known hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Copy repository to server with rsync
@@ -50,7 +50,7 @@ jobs:
             sudo systemctl restart blockhaus101.service
 
       - name: Create Sentry release
-        uses: getsentry/action-release@v1.2.1
+        uses: getsentry/action-release@v1.7.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: "adrien-carpentier"
