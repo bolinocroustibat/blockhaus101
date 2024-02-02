@@ -27,6 +27,13 @@ homepage = "https://www.blockhaus101.com"
 requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
+[tool]
+rye = { dev-dependencies = [
+    "ruff>=0.2.0",
+    "pre-commit>=3.6.0",
+    "mypy>=1.8.0",
+] }
+
 [tool.pdm]
 includes = []
 
