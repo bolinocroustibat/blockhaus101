@@ -43,7 +43,7 @@ includes = []
 
 [tool.ruff]
 line-length = 100
-lint = { ignore-init-module-imports = true, select = ["I"] }
+lint = { select = ["I"] }
 
 [tool.setuptools]
 py-modules = []
