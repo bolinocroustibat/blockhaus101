@@ -1,22 +1,18 @@
+from datetime import datetime, timedelta
 from typing import Self
 
-from datetime import datetime, timedelta
 from django.db import models
 
-from blockhaus101.settings import logger
 from base_data_app.models import Language
+from blockhaus101.settings import logger
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
-    language = models.ForeignKey(
-        Language, related_name="exhibitions", on_delete=models.PROTECT
-    )
+    language = models.ForeignKey(Language, related_name="exhibitions", on_delete=models.PROTECT)
     title = models.CharField("exhibition title", max_length=80)
-    artist = models.ForeignKey(
-        Artist, related_name="exhibitions", on_delete=models.PROTECT
-    )
+    artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.PROTECT)
     startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
     enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
     created = models.DateTimeField(auto_now=True)
@@ -43,9 +39,7 @@ class Exhibition(models.Model):
             except Exception:
                 self.startdate = datetime.now()
                 self.enddate = datetime.now() + timedelta(days=period)
-                logger.debug(
-                    "NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!"
-                )
+                logger.debug("NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate(self) -> None:

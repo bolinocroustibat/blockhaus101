@@ -1,19 +1,17 @@
 import re
-from random import randint, choice
+from random import choice, randint
 
 from django.db import models
 from django.template.defaultfilters import slugify
 
-from blockhaus101.settings import logger
 from base_data_app.models import Data, Language
+from blockhaus101.settings import logger
 from blockhaus101_app.helpers import correct_sentence
 from blockhaus101_app.models import Exhibition
 
 
 class ExpoText(models.Model):
-    language = models.ForeignKey(
-        Language, related_name="expotexts", on_delete=models.PROTECT
-    )
+    language = models.ForeignKey(Language, related_name="expotexts", on_delete=models.PROTECT)
     text = models.TextField("exhibition text", max_length=3000)
     exhibition = models.ForeignKey(
         Exhibition,
@@ -21,9 +19,7 @@ class ExpoText(models.Model):
         on_delete=models.CASCADE,
         verbose_name="exhibition",
     )
-    slug = models.SlugField(
-        default=None, null=True, blank=True, max_length=150, verbose_name="URL"
-    )
+    slug = models.SlugField(default=None, null=True, blank=True, max_length=150, verbose_name="URL")
     ip = models.GenericIPAddressField("creator IP address", blank=True, null=True)
     created = models.DateTimeField(auto_now=True)
 
@@ -63,13 +59,9 @@ class ExpoText(models.Model):
         structures = Data.objects.filter(type__name="phrases", position=position)
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
-        sentence = sentence.replace(
-            "[SELFDISCIPLINE]", self.exhibition.artist.discipline_text
-        )
+        sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text)
         sentence = sentence.replace("[SELFEXPO]", self.exhibition.title)
-        sentence = sentence.replace(
-            "[EXPO]", self.exhibition.artist.create_expo_title()
-        )
+        sentence = sentence.replace("[EXPO]", self.exhibition.artist.create_expo_title())
         keywords: list = re.findall(r"\[[^][]*]", sentence)
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
@@ -101,9 +93,7 @@ class ExpoText(models.Model):
         original_slug = slug
 
         # Create a queryset, excluding the current instance.
-        queryset = self.__class__._default_manager.filter(
-            slug__startswith=original_slug
-        )
+        queryset = self.__class__._default_manager.filter(slug__startswith=original_slug)
         if self.pk:
             queryset = queryset.exclude(pk=self.pk)
 

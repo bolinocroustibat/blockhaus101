@@ -1,6 +1,11 @@
 from django.contrib import admin
 
+from blockhaus101.settings import ENVIRONMENT, VERSION
 from blockhaus101_app.models import Artist, Exhibition, ExpoText, SiteSetting
+
+admin.AdminSite.site_header = f"Blockhaus101 {VERSION} ({ENVIRONMENT})"
+admin.AdminSite.site_title = "Blockhaus101"
+admin.AdminSite.index_title = "Admin main menu"
 
 
 @admin.register(SiteSetting)
