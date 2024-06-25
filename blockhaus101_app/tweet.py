@@ -1,12 +1,10 @@
 import re
 
-from babel.dates import format_date
 import tweepy
+from babel.dates import format_date
 
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
-from blockhaus101_app.helpers import correct_sentence
-from blockhaus101_app.models import Artist, Exhibition
 from blockhaus101.settings import (
     TWITTER_ACCESS_TOKEN,
     TWITTER_ACCESS_TOKEN_SECRET,
@@ -14,11 +12,11 @@ from blockhaus101.settings import (
     TWITTER_CONSUMER_SECRET,
     logger,
 )
+from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.models import Artist, Exhibition
 
 
-def generate_tweet(
-    lang: str, artist: Artist, exhibition: Exhibition, tweet_type: str
-) -> str:
+def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type: str) -> str:
     if tweet_type == "tweets1":
         logger.info("Generate tweet of type 1")
     elif tweet_type == "tweets2":
@@ -33,14 +31,10 @@ def generate_tweet(
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text)
     tweet = tweet.replace("[EXPO]", exhibition.title)
     if "[EXPOSTARTDATE]" in tweet:
-        expo_startdate: str = format_date(
-            exhibition.startdate, format="medium", locale=lang
-        )
+        expo_startdate: str = format_date(exhibition.startdate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOSTARTDATE]", expo_startdate)
     if "[EXPOENDDATE]" in tweet:
-        expo_enddate: str = format_date(
-            exhibition.enddate, format="medium", locale=lang
-        )
+        expo_enddate: str = format_date(exhibition.enddate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
     keywords: list = re.findall(r"\[[^][]*]", tweet)
     used_words = dict()

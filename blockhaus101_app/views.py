@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import json
 
 from babel.dates import format_date
 from django.core.mail import send_mail
@@ -8,12 +7,10 @@ from django.shortcuts import render
 
 from base_data_app.models import Language
 from blockhaus101.settings import (
-    logger,
     MAIL_ERROR_MESSAGE,
     MAIL_INVALID_MESSAGE,
     MAIL_SUCCESS_MESSAGE,
-    ENVIRONMENT,
-    VERSION,
+    logger,
 )
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
@@ -54,12 +51,8 @@ def index(request, lang: str) -> HttpResponse:
         {
             "lang": lang,
             "description": description,
-            "expo_startdate": format_date(
-                exhibition.startdate.date(), format="long", locale=lang
-            ),
-            "expo_enddate": format_date(
-                exhibition.enddate.date(), format="long", locale=lang
-            ),
+            "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang),
+            "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
             "artist_name": artist.name,
             "artist_bio": artist.bio,
             "expo_title": exhibition.title,
@@ -87,9 +80,7 @@ def exhibition(request, slug: str) -> HttpResponse:
                 "expo_startdate": format_date(
                     exhibition.startdate.date(), format="long", locale=lang
                 ),
-                "expo_enddate": format_date(
-                    exhibition.enddate.date(), format="long", locale=lang
-                ),
+                "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
                 "artist_name": artist.name,
                 "artist_bio": artist.bio,
                 "expo_title": exhibition.title,
@@ -125,16 +116,12 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             if (
                 e.enddate.date() == previous_expo_startdate
             ):  # if the startdate of the most recent exhition is the same day as the enddate of this one
-                enddate = e.enddate.date() - timedelta(
-                    days=1
-                )  # remove one day to the enddate
+                enddate = e.enddate.date() - timedelta(days=1)  # remove one day to the enddate
             else:
                 enddate = e.enddate.date()
         except Exception:
             enddate = e.enddate.date()
-        exhibition["startdate"] = format_date(
-            e.startdate.date(), format="long", locale=lang
-        )
+        exhibition["startdate"] = format_date(e.startdate.date(), format="long", locale=lang)
         exhibition["enddate"] = format_date(enddate, format="long", locale=lang)
         exhibition["title"] = e.title
         exhibition["name"] = e.artist.name
@@ -197,11 +184,4 @@ def contact(request, lang: str) -> HttpResponse:
         request,
         f"{lang}/contact.html",
         {"lang": lang, "form_contact": form, "message": message},
-    )
-
-
-def health_check(request) -> HttpResponse:
-    return HttpResponse(
-        json.dumps({"environment": ENVIRONMENT, "version": VERSION}),
-        content_type="application/json",
     )

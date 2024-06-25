@@ -1,4 +1,4 @@
-from django.urls import path, re_path, include
+from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 
 from blockhaus101_app import views
@@ -18,7 +18,6 @@ urlpatterns = [
         RedirectView.as_view(url="/fr/contact", permanent=True),
     ),
     # Language-independent URLs
-    re_path(r"^health-check/$", views.health_check, name="health_check"),
     path("captcha/", include("captcha.urls")),
     # # New URLS with language param
     # re_path(r"^(?P<lang>fr|en)/$", views.index, name="index"),

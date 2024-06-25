@@ -1,6 +1,6 @@
-from django.urls import include, re_path
-from django.contrib import admin
 from django.conf import settings
+from django.contrib import admin
+from django.urls import include, re_path
 
 urlpatterns = [
     re_path(r"^admin101/", admin.site.urls),

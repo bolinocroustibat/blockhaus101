@@ -3,9 +3,9 @@ from typing import Self
 
 from django.db import models
 
-from blockhaus101.settings import logger
 from base_data_app.models.data_type import DataType
 from base_data_app.models.language import Language
+from blockhaus101.settings import logger
 
 
 class Data(models.Model):
@@ -29,16 +29,12 @@ class Data(models.Model):
         ("m", "male"),
         ("f", "female"),
     )
-    gender = models.CharField(
-        max_length=1, choices=GENDER_CHOICES, null=True, blank=True
-    )
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     PLURAL_CHOICES = (
         ("s", "singular"),
         ("p", "plural"),
     )
-    plural = models.CharField(
-        max_length=1, choices=PLURAL_CHOICES, null=True, blank=True
-    )
+    plural = models.CharField(max_length=1, choices=PLURAL_CHOICES, null=True, blank=True)
     weight = models.IntegerField("weight", null=True, blank=True)
     position = models.IntegerField(
         "position of the sentence in the paragraph", null=True, blank=True
