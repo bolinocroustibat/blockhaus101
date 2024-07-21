@@ -7,6 +7,7 @@
 #   all-features: false
 #   with-sources: false
 #   generate-hashes: false
+#   universal: false
 
 -e file:.
 annotated-types==0.7.0
@@ -18,7 +19,7 @@ asgiref==3.8.1
     # via django
 babel==2.15.0
     # via blockhaus101
-certifi==2024.6.2
+certifi==2024.7.4
     # via httpcore
     # via httpx
     # via requests
@@ -31,12 +32,12 @@ coloredlogs==15.0.1
     # via blockhaus101
 distro==1.9.0
     # via openai
-django==5.0.6
+django==5.0.7
     # via blockhaus101
     # via django-debug-toolbar
     # via django-ranged-response
     # via django-simple-captcha
-django-debug-toolbar==4.4.2
+django-debug-toolbar==4.4.6
     # via blockhaus101
 django-ranged-response==0.2.0
     # via django-simple-captcha
@@ -59,17 +60,17 @@ idna==3.7
     # via requests
 oauthlib==3.2.2
     # via requests-oauthlib
-openai==1.35.3
+openai==1.36.1
     # via blockhaus101
-pillow==10.3.0
+pillow==10.4.0
     # via django-simple-captcha
-psycopg==3.1.19
+psycopg==3.2.1
     # via blockhaus101
-psycopg-binary==3.1.19
+psycopg-binary==3.2.1
     # via psycopg
-pydantic==2.7.4
+pydantic==2.8.2
     # via openai
-pydantic-core==2.18.4
+pydantic-core==2.20.1
     # via pydantic
 pysocks==1.7.1
     # via requests
@@ -81,7 +82,7 @@ requests-oauthlib==2.0.0
     # via tweepy
 sentry-sdk==1.45.0
     # via blockhaus101
-setuptools==70.1.1
+setuptools==71.1.0
     # via gunicorn
 six==1.16.0
     # via tweepy
@@ -89,7 +90,7 @@ sniffio==1.3.1
     # via anyio
     # via httpx
     # via openai
-sqlparse==0.5.0
+sqlparse==0.5.1
     # via django
     # via django-debug-toolbar
 tqdm==4.66.4
@@ -104,7 +105,7 @@ typing-extensions==4.12.2
 urllib3==2.2.2
     # via requests
     # via sentry-sdk
-uvicorn==0.30.1
+uvicorn==0.30.3
     # via blockhaus101
 xmltodict==0.13.0
     # via blockhaus101

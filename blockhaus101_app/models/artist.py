@@ -9,15 +9,11 @@ from blockhaus101_app.helpers import correct_sentence
 
 
 class Artist(models.Model):
-    language = models.ForeignKey(
-        Language, related_name="artists", on_delete=models.PROTECT
-    )
+    language = models.ForeignKey(Language, related_name="artists", on_delete=models.PROTECT)
     name = models.CharField("artist name", max_length=80)
     GENDER_CHOICES = (("f", "female"), ("m", "male"))
     gender = models.CharField("artist gender", max_length=6, choices=GENDER_CHOICES)
-    discipline = models.ForeignKey(
-        Data, related_name="artists", on_delete=models.PROTECT
-    )
+    discipline = models.ForeignKey(Data, related_name="artists", on_delete=models.PROTECT)
     bio = models.TextField("artist biography", max_length=2000)
     created = models.DateTimeField(auto_now=True)
 
