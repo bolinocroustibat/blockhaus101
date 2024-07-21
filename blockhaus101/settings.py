@@ -261,6 +261,6 @@ OPENAI_MODELS = [
         "price_output_per_1M": 2,
     },
 ]
-OPENAI_MODEL = "gpt-3.5-turbo-instruct"
-OPENAI_SYSTEM_PROMPT = "Bonjour, vous parlez français et vous pouvez reformuler un texte français HTML en changeant sa grammaire et son vocabulaire, mais en gardant sa structure, son sens, son code HTML et ses informations principales."
-OPENAI_USER_PROMPT = "Je souhaite que vous reformuliez un texte en français avec ses balises HTML, en gardant son sens, ses informations exactes principales, ainsi que ses balises HTML, ses liens HTML, le nombre exact de ses paragraphes et de ses sous-titres, mais en maximisant sa diversité lexicale. Ne pas inclure dans la réponse autre chose que le texte HTML en lui-même. Voici le texte HTML à reformuler: « {html_text} »"
+OPENAI_MODEL = "gpt-3.5-turbo-0125"
+OPENAI_SYSTEM_PROMPT = "Bonjour, vous parlez français et vous pouvez reformuler un texte français en gradant son style et son sens, mais en l'étoffant légèrement."
+OPENAI_USER_PROMPT = "Je souhaite que vous reformuliez ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allonge, si possible autour de 50% plus long. Ne pas inclure dans votre réponse autre chose que le texte en lui-même. Voici le texte HTML à reformuler: « {html_text} »"
