@@ -1,6 +1,6 @@
 [project]
 name = "blockhaus101"
-version = "1.6.3"
+version = "1.6.4"
 description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale de l’art contemporain. Uniquement sur rendez-vous."
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
@@ -29,7 +29,7 @@ requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
 [tool.rye]
-dev-dependencies = ["ruff>=0.4.10", "mypy>=1.8.0", "pre-commit>=3.7.1"]
+dev-dependencies = ["ruff>=0.4.10", "mypy>=1.8.0", "pre-commit>=5.0.1"]
 
 [tool.pdm]
 distribution = false

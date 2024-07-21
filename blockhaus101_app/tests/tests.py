@@ -15,9 +15,7 @@ class TestGenerateContent(TestCase):
         if current_exhibition:
             self.exhibition = current_exhibition
             self.artist = Artist.objects.filter(artist_exhibition=self.exhibition)[0]
-            logger.info(
-                f'Current exhibition: {self.artist.name} "{self.exhibition.title}"'
-            )
+            logger.info(f'Current exhibition: {self.artist.name} "{self.exhibition.title}"')
         else:
             logger.info("There is no current exhibition.")
         self.artist.generate()
