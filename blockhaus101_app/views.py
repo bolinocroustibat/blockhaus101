@@ -110,11 +110,11 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
     # # Get all artists with enddate before today
     # artists = Artist.objects.filter(enddate__lte=datetime.now())
     for e in exhibitions:
-        exhibition = dict()
+        exhibition: dict = {}
         try:
             # try to get the startdate of most recent exhibition (previous on the loop)
             if (
-                e.enddate.date() == previous_expo_startdate
+                e.enddate.date() == previous_expo_startdate  # BUG: to fix
             ):  # if the startdate of the most recent exhition is the same day as the enddate of this one
                 enddate = e.enddate.date() - timedelta(days=1)  # remove one day to the enddate
             else:

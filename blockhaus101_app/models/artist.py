@@ -43,7 +43,7 @@ class Artist(models.Model):
         # discipline
         self.discipline = Data.choose_random(type="DISCIPLINE")
         # bio
-        self.bio_used_words = dict()
+        self.bio_used_words: dict = {}
         self.bio = self.create_bio_sentence(position=1)
         self.bio = self.bio + " " + self.create_bio_sentence(position=2)
         self.bio = self.bio + " " + self.create_bio_sentence(position=3)
@@ -93,7 +93,7 @@ class Artist(models.Model):
         title = title.replace("[SELF]", self.name)
         title = title.replace("[SELFDISCIPLINE]", self.discipline_text)
         keywords: list = re.findall(r"\[[^][]*]", title)
-        used_words = dict()
+        used_words: dict = {}
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
             chosen_data = Data.choose_random_excluding(

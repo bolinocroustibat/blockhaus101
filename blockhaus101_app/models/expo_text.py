@@ -39,10 +39,10 @@ class ExpoText(models.Model):
             self.slug = slug
             super(ExpoText, self).save(*args, **kwargs)
 
-    def generate(self, ip: str = None) -> None:
+    def generate(self, ip: str | None = None) -> None:
         self.ip = ip
         self.text = ""
-        self.used_words = dict()
+        self.used_words: dict = {}
         if randint(1, 3) == 1:
             self.text = self.create_expo_sentence(position=1)
         self.text = self.text + " " + self.create_expo_sentence(position=2)

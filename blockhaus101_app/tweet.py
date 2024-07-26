@@ -37,7 +37,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
         expo_enddate: str = format_date(exhibition.enddate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
     keywords: list = re.findall(r"\[[^][]*]", tweet)
-    used_words = dict()
+    used_words: dict = {}
     for k in keywords:
         word_type = k.replace("[", "").replace("]", "")
         chosen_data = Data.choose_random_excluding(

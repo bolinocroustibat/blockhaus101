@@ -17,5 +17,5 @@ def get_client_ip(request) -> str:
     if x_forwarded_for:
         ip: str = x_forwarded_for.split(",")[-1].strip()
     else:
-        ip: str = request.META.get("REMOTE_ADDR")
+        ip = request.META.get("REMOTE_ADDR")
     return ip
