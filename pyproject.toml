@@ -9,12 +9,12 @@ dependencies = [
     "Django<5.1,>=5.0",
     "django-debug-toolbar<5.0.0,>=4.0.0",
     "django-simple-captcha<1.0.0,>=0.5.17",
-    "gunicorn<21.0.0,>=20.1.0",
+    "gunicorn<23.0.0,>=22.0.0",
     "psycopg[binary]<4.0.0,>=3.1.8",
     "requests<3.0.0,>=2.25.1",
-    "sentry-sdk<2.0.0,>=1.15.0",
+    "sentry-sdk<3.0.0,>=2.0.0",
     "tweepy<4.0.0,>=3.8.0",
-    "uvicorn<1.0.0,>=0.14.0",
+    "uvicorn<=0.31.0",
     "xmltodict<1.0.0,>=0.12.0",
     "openai>=1.35.3",
 ]
@@ -28,16 +28,23 @@ homepage = "https://www.blockhaus101.com"
 requires = ["pdm-pep517>=1.0.0"]
 build-backend = "pdm.pep517.api"
 
+[tool.mypy]
+[[tool.mypy.overrides]]
+module = [
+    "captcha.fields",
+    "debug_toolbar.*",
+    "django.*",
+    "requests.*",
+    "tweepy.*",
+]
+ignore_missing_imports = true
+
 [tool.rye]
-dev-dependencies = ["ruff>=0.4.10", "mypy>=1.8.0", "pre-commit>=5.0.1"]
+dev-dependencies = ["ruff>=0.5.5", "mypy>=1.8.0"]
 
 [tool.pdm]
 distribution = false
-dev-dependencies = { dev = [
-    "ruff>=0.4.10",
-    "mypy>=1.8.0",
-    "pre-commit>=3.7.1",
-] }
+dev-dependencies = { dev = ["ruff>=0.5.5", "mypy>=1.8.0"] }
 
 [tool.pdm.build]
 includes = []
