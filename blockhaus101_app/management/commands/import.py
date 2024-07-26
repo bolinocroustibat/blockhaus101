@@ -4,7 +4,7 @@ import re
 import requests
 from django.core.management.base import BaseCommand
 
-from blockhaus101_app.models import Data, DataType, Language
+from base_data_app.models import Data, DataType, Language
 
 
 class Command(BaseCommand):
