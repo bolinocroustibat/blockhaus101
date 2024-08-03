@@ -40,7 +40,11 @@ module = [
 ignore_missing_imports = true
 
 [tool.rye]
-dev-dependencies = ["ruff>=0.5.5", "mypy>=1.8.0"]
+dev-dependencies = [
+    "ruff>=0.5.5",
+    "mypy>=1.8.0",
+    "googletrans-py>=4.0.0",
+]
 
 [tool.pdm]
 distribution = false
