@@ -61,7 +61,7 @@ class ExpoText(models.Model):
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text)
         sentence = sentence.replace("[SELFEXPO]", self.exhibition.title)
-        sentence = sentence.replace("[EXPO]", self.exhibition.artist.create_expo_title())
+        sentence = sentence.replace("[EXPO]", self.exhibition.artist.generate_expo_title())
         keywords: list = re.findall(r"\[[^][]*]", sentence)
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")

@@ -32,7 +32,7 @@ class Artist(models.Model):
             return self.discipline.text
         return self.discipline.translation.text
 
-    def generate(self) -> None:
+    def _generate_name(self) -> None:
         # first name and genre
         firstname = Data.choose_random(type="FIRSTNAME", language=self.language)
         self.gender = firstname.gender
@@ -40,15 +40,19 @@ class Artist(models.Model):
         lastname = Data.choose_random(type="LASTNAME", language=self.language)
         # full name
         self.name = firstname.text + " " + lastname.text
+
+    def generate(self) -> None:
+        self._generate_name()
         # discipline
         self.discipline = Data.choose_random(type="DISCIPLINE")
-        # bio
+
+    def _generate_biography(self) -> None:
         self.bio_used_words: dict = {}
-        self.bio = self.create_bio_sentence(position=1)
-        self.bio = self.bio + " " + self.create_bio_sentence(position=2)
-        self.bio = self.bio + " " + self.create_bio_sentence(position=3)
+        self.bio = self._generate_bio_sentence(position=1)
+        self.bio = self.bio + " " + self._generate_bio_sentence(position=2)
+        self.bio = self.bio + " " + self._generate_bio_sentence(position=3)
         if randint(1, 3) == 2:
-            self.bio = self.bio + " " + self.create_bio_sentence(position=4)
+            self.bio = self.bio + " " + self._generate_bio_sentence(position=4)
         if self.gender == "f":
             self.bio = self.bio.replace(" il ", " elle ")
             self.bio = self.bio.replace("qu'il ", "qu'elle ")
@@ -60,7 +64,7 @@ class Artist(models.Model):
             self.bio = self.bio.replace("obsédé ", "obsédée ")
         logger.debug(f"Biography used words: {self.bio_used_words}")
 
-    def create_bio_sentence(self, position: int) -> str:
+    def _generate_bio_sentence(self, position: int) -> str:
         bio_structures = Data.objects.filter(
             language=self.language, type__name="bio", position=position
         )
@@ -71,7 +75,7 @@ class Artist(models.Model):
         for k in keywords:
             if k == "[EXPO]":
                 # only replace one occurence, we want the same keyword to be able to be replaced by other words
-                biosentence = biosentence.replace("[EXPO]", self.create_expo_title(), 1)
+                biosentence = biosentence.replace("[EXPO]", self.generate_expo_title(), 1)
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
@@ -86,23 +90,3 @@ class Artist(models.Model):
                     biosentence = biosentence.replace(k, chosen_word, 1)
         biosentence = correct_sentence(lang=self.language.lang, sentence=biosentence)
         return biosentence
-
-    def create_expo_title(self) -> str:
-        title_structures = Data.choose_random(type="expos", language=self.language)
-        title = title_structures.text
-        title = title.replace("[SELF]", self.name)
-        title = title.replace("[SELFDISCIPLINE]", self.discipline_text)
-        keywords: list = re.findall(r"\[[^][]*]", title)
-        used_words: dict = {}
-        for k in keywords:
-            word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random_excluding(
-                type=word_type, language=self.language, excluding=used_words
-            )
-            if chosen_data:
-                chosen_word = chosen_data[0]
-                used_words = chosen_data[1]
-                # only replace one occurence, we want the same keyword to be able to be replaced by another word
-                title = title.replace(f"[{word_type}]", chosen_word, 1)
-        logger.debug(f"Title used words: {used_words}")
-        return title
