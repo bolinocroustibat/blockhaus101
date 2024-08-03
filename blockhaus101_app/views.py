@@ -114,7 +114,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         try:
             # try to get the startdate of most recent exhibition (previous on the loop)
             if (
-                e.enddate.date() == previous_expo_startdate  # BUG: to fix
+                e.enddate.date() == previous_expo_startdate  # BUG: to fix # noqa
             ):  # if the startdate of the most recent exhition is the same day as the enddate of this one
                 enddate = e.enddate.date() - timedelta(days=1)  # remove one day to the enddate
             else:

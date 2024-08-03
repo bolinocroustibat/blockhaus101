@@ -51,7 +51,7 @@ includes = []
 
 [tool.ruff]
 line-length = 100
-lint = { select = ["I"] }
+lint = { extend-select = ["I"], ignore = ["F401"] }
 
 [tool.setuptools]
 py-modules = []
