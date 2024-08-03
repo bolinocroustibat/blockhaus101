@@ -8,11 +8,18 @@ repos:
       - id: trailing-whitespace
       - id: check-added-large-files
 
+  # # MyPy type checker
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.11.0  # Use the sha / tag you want to point at
+  #   hooks:
+  #     - id: mypy
+  #       args: ["--check-untyped-def", "--ignore-missing-imports"]
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.1 # Ruff version
+    rev: v0.5.5 # Ruff version
     hooks:
       # Run the linter
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix, --select, I]
+        args: [--fix, --exit-non-zero-on-fix, --extend-select, I]
       # Run the formatter
       - id: ruff-format
