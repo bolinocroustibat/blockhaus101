@@ -1,3 +1,4 @@
+import logging
 import os
 import tomllib
 
@@ -130,71 +131,6 @@ CAPTCHA_NOISE_FUNCTIONS: list = []
 # CAPTCHA_CHALLENGE_FUNCT = "captcha.helpers.random_char_challenge"
 CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 
-# Local settings
-try:
-    from .local_settings import *
-except Exception as e:
-    print(e)
-    print("Note: local_settings.py not present or non valid. Using default settings.")
-    ENVIRONMENT = "unknown"
-    LOGGING_LEVEL = "DEBUG"
-
-# # Logging
-# LOGGING = {
-#     "version": 1,
-#     "disable_existing_loggers": False,
-#     "formatters": {
-#         "colored": {
-#             "()": "coloredlogs.ColoredFormatter",
-#             "format": "%(name)s %(levelname)s %(message)s",
-#         },
-#     },
-#     "handlers": {
-#         "console": {"class": "logging.StreamHandler", "formatter": "colored",},
-#     },
-#     "loggers": {
-#         "django": {"handlers": ["console"], "level": "INFO", "propogate": False,},
-#         "admin-auth-logger": {
-#             "handlers": ["console"],
-#             "level": "DEBUG",
-#             "propogate": False,
-#         },
-#         "{}-auth".format(__name__): {
-#             "handlers": ["console"],
-#             "level": "DEBUG",
-#             "propogate": False,
-#         },
-#         "blockhaus101": {
-#             "handlers": ["console"],
-#             "level": LOGGING_LEVEL,
-#             "propogate": False,
-#         },
-#     },
-# }
-import logging
-
-logger = logging.getLogger("blockhaus101")
-
-with open("pyproject.toml", "rb") as f:
-    pyproject: dict = tomllib.load(f)
-APP_NAME: str = pyproject["project"]["name"]
-VERSION: str = pyproject["project"]["version"]
-if ENVIRONMENT in ["staging", "production"]:
-    sentry_sdk.init(
-        dsn="https://38a42a04381f4e0dbb2c1f4f2229bb69@o352691.ingest.sentry.io/4503999464865792",
-        integrations=[DjangoIntegration()],
-        release=f"{APP_NAME}@{VERSION}",
-        environment=ENVIRONMENT,
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        # We recommend adjusting this value in production.
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-        # If you wish to associate users to errors (assuming you are using
-        # django.contrib.auth) you may enable sending PII data.
-        send_default_pii=True,
-    )
-
 # A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.  # noqa 501
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).
 # https://openai.com/pricing/
@@ -259,3 +195,68 @@ OPENAI_MODELS = [
 OPENAI_MODEL = "gpt-3.5-turbo-0125"
 OPENAI_SYSTEM_PROMPT = "Bonjour, vous parlez français et vous pouvez reformuler un texte français en gradant son style et son sens, mais en l'étoffant légèrement."
 OPENAI_USER_PROMPT = "Je souhaite que vous reformuliez ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allonge, si possible autour de 50% plus long. Ne pas inclure dans votre réponse autre chose que le texte en lui-même. Voici le texte HTML à reformuler: « {html_text} »"
+
+
+# Local settings
+try:
+    from .local_settings import *  # noqa
+except Exception as e:
+    print(e)
+    print("Note: local_settings.py not present or non valid. Using default settings.")
+    ENVIRONMENT = "unknown"
+    LOGGING_LEVEL = "DEBUG"
+
+# # Logging
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "colored": {
+#             "()": "coloredlogs.ColoredFormatter",
+#             "format": "%(name)s %(levelname)s %(message)s",
+#         },
+#     },
+#     "handlers": {
+#         "console": {"class": "logging.StreamHandler", "formatter": "colored",},
+#     },
+#     "loggers": {
+#         "django": {"handlers": ["console"], "level": "INFO", "propogate": False,},
+#         "admin-auth-logger": {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#             "propogate": False,
+#         },
+#         "{}-auth".format(__name__): {
+#             "handlers": ["console"],
+#             "level": "DEBUG",
+#             "propogate": False,
+#         },
+#         "blockhaus101": {
+#             "handlers": ["console"],
+#             "level": LOGGING_LEVEL,
+#             "propogate": False,
+#         },
+#     },
+# }
+
+logger = logging.getLogger("blockhaus101")
+
+with open("pyproject.toml", "rb") as f:
+    pyproject: dict = tomllib.load(f)
+APP_NAME: str = pyproject["project"]["name"]
+VERSION: str = pyproject["project"]["version"]
+if ENVIRONMENT in ["staging", "production"]:
+    sentry_sdk.init(
+        dsn="https://38a42a04381f4e0dbb2c1f4f2229bb69@o352691.ingest.sentry.io/4503999464865792",
+        integrations=[DjangoIntegration()],
+        release=f"{APP_NAME}@{VERSION}",
+        environment=ENVIRONMENT,
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+        # If you wish to associate users to errors (assuming you are using
+        # django.contrib.auth) you may enable sending PII data.
+        send_default_pii=True,
+    )

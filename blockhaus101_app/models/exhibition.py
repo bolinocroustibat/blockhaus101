@@ -30,7 +30,7 @@ class Exhibition(models.Model):
                 period = SiteSetting.objects.get().period
             except Exception:
                 period = 7
-            logger.debug("NOW TRYING TO SAVE NEW EXHIBITION...")
+            logger.debug("Trying to save new exhitiion...")
             try:
                 self.startdate = Exhibition.objects.latest("enddate").enddate
                 self.enddate = self.startdate + timedelta(days=period)
@@ -60,7 +60,7 @@ class Exhibition(models.Model):
                 used_words = chosen_data[1]
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 title = title.replace(f"[{word_type}]", chosen_word, 1)
-        logger.debug(f"Title used words: {used_words}")
+        logger.debug(f"Used words {used_words} for title")
         self.title = title
 
     @classmethod
