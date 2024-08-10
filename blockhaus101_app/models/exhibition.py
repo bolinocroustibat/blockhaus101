@@ -60,7 +60,7 @@ class Exhibition(models.Model):
                 used_words = chosen_data[1]
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 title = title.replace(f"[{word_type}]", chosen_word, 1)
-        logger.debug(f"Used words {used_words} for title")
+        logger.debug(f"Used words for exhibition title: {used_words}")
         self.title = title
 
     @classmethod

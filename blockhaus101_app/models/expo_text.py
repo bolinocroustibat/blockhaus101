@@ -53,7 +53,7 @@ class ExpoText(models.Model):
         self.text = self.text + " " + self.create_expo_sentence(position=6)
         if self.exhibition.artist.gender == "f":
             self.text = self.text.replace("Il ", "Elle ")
-        logger.debug(f"Exhibition text used words: {self.used_words}")
+        logger.debug(f"Used words for exhibition text: {self.used_words}")
 
     def create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(type__name="phrases", position=position)
