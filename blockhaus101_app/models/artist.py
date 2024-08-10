@@ -21,7 +21,7 @@ class Artist(models.Model):
         db_table = "blockhaus101_artists"
 
     def __str__(self) -> str:
-        return self.name
+        return f"{self.name}, {self.gender}, {self.discipline}.\n{self.bio}"
 
     @property
     def discipline_text(self) -> str:
@@ -45,14 +45,17 @@ class Artist(models.Model):
         self._generate_name()
         # discipline
         self.discipline = Data.choose_random(type="DISCIPLINE")
+        # biography
 
-    def _generate_biography(self) -> None:
+    def generate_biography(self, expo_title: str) -> None:
         self.bio_used_words: dict = {}
-        self.bio = self._generate_bio_sentence(position=1)
-        self.bio = self.bio + " " + self._generate_bio_sentence(position=2)
-        self.bio = self.bio + " " + self._generate_bio_sentence(position=3)
+        self.bio = self._generate_bio_sentence(position=1, expo_title=expo_title)
+        self.bio = self.bio + " " + self._generate_bio_sentence(position=2, expo_title=expo_title)
+        self.bio = self.bio + " " + self._generate_bio_sentence(position=3, expo_title=expo_title)
         if randint(1, 3) == 2:
-            self.bio = self.bio + " " + self._generate_bio_sentence(position=4)
+            self.bio = (
+                self.bio + " " + self._generate_bio_sentence(position=4, expo_title=expo_title)
+            )
         if self.gender == "f":
             self.bio = self.bio.replace(" il ", " elle ")
             self.bio = self.bio.replace("qu'il ", "qu'elle ")
@@ -62,9 +65,9 @@ class Artist(models.Model):
             self.bio = self.bio.replace("iplômé ", "iplômée ")
             self.bio = self.bio.replace("marqué ", "marquée ")
             self.bio = self.bio.replace("obsédé ", "obsédée ")
-        logger.debug(f"Biography used words: {self.bio_used_words}")
+        logger.debug(f"Used words for artist biography: {self.bio_used_words}")
 
-    def _generate_bio_sentence(self, position: int) -> str:
+    def _generate_bio_sentence(self, position: int, expo_title: str) -> str:
         bio_structures = Data.objects.filter(
             language=self.language, type__name="bio", position=position
         )
@@ -75,7 +78,7 @@ class Artist(models.Model):
         for k in keywords:
             if k == "[EXPO]":
                 # only replace one occurence, we want the same keyword to be able to be replaced by other words
-                biosentence = biosentence.replace("[EXPO]", self.generate_expo_title(), 1)
+                biosentence = biosentence.replace("[EXPO]", expo_title, 1)
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
