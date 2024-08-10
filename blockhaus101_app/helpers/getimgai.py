@@ -1,8 +1,17 @@
+import base64
 import json
+from pathlib import Path
 
 import requests
 
 from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL
+
+
+def save_image(img_data: bytes, filename: str, format: str = "png") -> None:
+    """Save an image to the filesystem."""
+    filepath: Path = Path(f"blockhaus101_app/static/images/{filename}.{format}")
+    with open(filepath, "wb") as file:
+        file.write(base64.decodebytes(img_data))
 
 
 class GetImgAiAPI:
@@ -33,7 +42,9 @@ class GetImgAiAPI:
             return json.loads(response.text)
         return None
 
-    def get_models(self, family: str | None = None, pipeline: str | None = None) -> list | None:
+    def get_models(
+        self, family: str | None = "text-to-image", pipeline: str | None = None
+    ) -> list | None:
         """https://docs.getimg.ai/reference/getmodels
         e.g. family="text-to-image", pipeline="stable-diffusion-xl"
         e.g. family="text-to-image", pipeline="essential-v2"
