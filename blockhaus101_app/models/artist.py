@@ -24,13 +24,23 @@ class Artist(models.Model):
         return f"{self.name}, {self.gender}, {self.discipline}.\n{self.bio}"
 
     @property
-    def discipline_text(self) -> str:
-        if self.language == self.discipline.language:
-            return self.discipline.text
-        if not self.discipline.translation:
-            logger.error("No translation for discipline")
-            return self.discipline.text
-        return self.discipline.translation.text
+    def discipline_text(self, lang: str | None = None) -> str:
+        if lang:
+            try:
+                language = Language.objects.get(lang=lang)
+            except Language.DoesNotExist:
+                logger.error(f"Language {lang} doesn't exist")
+            else:
+                try:
+                    translated_discipline = Data.objects.filter(
+                        type="DISCIPLINE", language=language, translation=self.discipline
+                    ).first()
+                    return translated_discipline.text
+                except Data.DoesNotExist:
+                    logger.error(
+                        f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
+                    )
+        return self.discipline.text
 
     def _generate_name(self) -> None:
         # first name and genre
@@ -43,9 +53,7 @@ class Artist(models.Model):
 
     def generate(self) -> None:
         self._generate_name()
-        # discipline
-        self.discipline = Data.choose_random(type="DISCIPLINE")
-        # biography
+        self.discipline = Data.choose_random(type="DISCIPLINE", language=self.language)
 
     def generate_biography(self, expo_title: str) -> None:
         self.bio_used_words: dict = {}
