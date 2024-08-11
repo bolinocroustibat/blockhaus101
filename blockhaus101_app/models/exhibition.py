@@ -30,17 +30,17 @@ class Exhibition(models.Model):
                 period = SiteSetting.objects.get().period
             except Exception:
                 period = 7
-            logger.debug("Trying to save new exhitiion...")
+            logger.debug("Trying to save new exhibition...")
             try:
                 self.startdate = Exhibition.objects.latest("enddate").enddate
                 self.enddate = self.startdate + timedelta(days=period)
                 logger.debug(
-                    "AT LEAST ONE EXHIBITION ALREADY PRESENT, EXHIBITION SAVED ACCORDING TO PREVIOUS!"
+                    "At least one exhibition already present, exhibition saved according to previous"
                 )
             except Exception:
                 self.startdate = datetime.now()
                 self.enddate = datetime.now() + timedelta(days=period)
-                logger.debug("NO EXHIBITIONS ALREADY PRESENT, FIRST EXHIBITION TO SAVE!")
+                logger.debug("No exhibition found, saving this new one as the first one...")
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate(self) -> None:
