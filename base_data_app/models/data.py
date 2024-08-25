@@ -35,7 +35,7 @@ class Data(models.Model):
         ("p", "plural"),
     )
     plural = models.CharField(max_length=1, choices=PLURAL_CHOICES, null=True, blank=True)
-    weight = models.IntegerField("weight", null=True, blank=True)
+    weight = models.IntegerField("weight", default=10)
     position = models.IntegerField(
         "position of the sentence in the paragraph", null=True, blank=True
     )
@@ -59,14 +59,7 @@ class Data(models.Model):
                 models.Q(language=language) | models.Q(language=None)
             )  # we choose entries with the right language or no language
         if entries:
-            weights: list[int] = []
-            for entry in entries:
-                if entry.weight:
-                    weights.append(entry.weight)
-                else:
-                    # if no weight, we consider the entry as having a weight of 1
-                    weights.append(1)
-            return choices(population=entries, weights=weights)[0]
+            return choices(entries, weights=[e.weight for e in entries])[0]
         return None
 
     @classmethod
