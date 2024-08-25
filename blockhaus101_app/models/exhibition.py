@@ -44,6 +44,9 @@ class Exhibition(models.Model):
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate(self) -> None:
+        self.title = self.generate_title()
+
+    def generate_title(self) -> str:
         title_structures = Data.choose_random(data_type="expos", language=self.language)
         title = title_structures.text
         title = title.replace("[SELF]", self.artist.name)
@@ -61,7 +64,7 @@ class Exhibition(models.Model):
                 # only replace one occurence, we want the same keyword to be able to be replaced by another word
                 title = title.replace(f"[{word_type}]", chosen_word, 1)
         logger.debug(f"Used words for exhibition title: {used_words}")
-        self.title = title
+        return title
 
     @classmethod
     def get_current(cls, lang: str = "fr") -> Self | None:
