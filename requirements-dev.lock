@@ -74,7 +74,7 @@ mypy-extensions==1.0.0
     # via mypy
 oauthlib==3.2.2
     # via requests-oauthlib
-openai==1.40.6
+openai==1.42.0
     # via blockhaus101
 packaging==24.1
     # via gunicorn
