@@ -28,7 +28,7 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via uvicorn
-coloredlogs==15.0.1
+colorlog==6.8.2
     # via blockhaus101
 distro==1.9.0
     # via openai
@@ -59,8 +59,6 @@ httpx==0.27.0
     # via blockhaus101
     # via googletrans-py
     # via openai
-humanfriendly==10.0
-    # via coloredlogs
 hyperframe==6.0.1
     # via h2
 idna==3.7
