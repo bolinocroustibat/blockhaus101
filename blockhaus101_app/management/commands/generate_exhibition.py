@@ -68,4 +68,4 @@ class Command(BaseCommand):
         get_imgai_api = GetImgAiAPI()
         img_prompt = "Generate a photorealistic image of an artwork"
         res: dict | None = asyncio.run(get_imgai_api.essential_v2(prompt=img_prompt))
-        print(res)
+        logger.debug(res)

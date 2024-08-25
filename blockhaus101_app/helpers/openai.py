@@ -6,6 +6,7 @@ from blockhaus101.settings import (
     OPENAI_MODELS,
     OPENAI_SYSTEM_PROMPT,
     OPENAI_USER_PROMPT,
+    logger,
 )
 
 
@@ -20,7 +21,7 @@ class OpenAiAPI:
             self.user_prompt = OPENAI_USER_PROMPT
         except Exception:
             error_msg = "La configuration OpenAI n'est pas valide. OpenAI API key, OpenAI system prompt et OpenAI user prompt ont-ils bien été configurés dans les réglages ?"  # noqa: E501
-            print(error_msg)
+            logger.error(error_msg)
             return error_msg
 
     @property
@@ -51,7 +52,7 @@ class OpenAiAPI:
         self.client.api_key = self.api_key
 
         # Request OpenAI
-        print("Requesting OpenAI to reformulate text...")
+        logger.info("Requesting OpenAI to reformulate text...")
         messages: list[dict] = [
             {
                 "role": "system",
@@ -70,14 +71,14 @@ class OpenAiAPI:
             )
         except Exception as e:
             error_msg = f"Erreur lors de la requête OpenAI : {str(e)}"
-            print(error_msg)
+            logger.error(error_msg)
         else:
-            # print(response)  # debug
+            # logger.debug(response)
 
             if response.choices[0].finish_reason == "length":
                 # https://platform.openai.com/docs/guides/gpt/chat-completions-response-format
                 error_msg = "Le texte est trop long pour ce modèle, veuillez utiliser un autre modèle dans les réglages."  # noqa: E501
-                print(error_msg)
+                logger.error(error_msg)
 
             else:
                 # Calculate the price of the request
@@ -87,9 +88,9 @@ class OpenAiAPI:
                         response.usage.prompt_tokens,
                         response.usage.completion_tokens,
                     )
-                    print(f"\nTokens used: {tokens_usage}. OpenAI request price: {price}$")
+                    logger.info(f"\nTokens used: {tokens_usage}. OpenAI request price: {price}$")
                 except Exception as e:
-                    print(f"\nUnable to calculate the price of the request: {str(e)}")
+                    logger.error(f"\nUnable to calculate the price of the request: {str(e)}")
 
                 reformulated_text = response.choices[0].message.content
 

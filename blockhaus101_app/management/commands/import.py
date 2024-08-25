@@ -5,6 +5,7 @@ import httpx
 from django.core.management.base import BaseCommand
 
 from base_data_app.models import Data, DataType, Language
+from blockhaus101.settings import logger
 
 
 class Command(BaseCommand):
@@ -34,15 +35,17 @@ class Command(BaseCommand):
         data_to_be_deleted = Data.objects.filter(data_type=data_type)
         data_to_be_deleted.delete()
         for row in csv_reader:
-            print(row)
+            logger.debug(row)
             if len(row) == 1:
-                print("Tab has one column")
+                logger.info("Tab has one column")
                 Data.objects.create(data_type=data_type, text=row[0])
             elif len(row) == 2:
-                print("Tab has two columns, assuming the first is data, second one is gender")
+                logger.info("Tab has two columns, assuming the first is data, second one is gender")
                 Data.objects.create(data_type=data_type, text=row[0], gender=row[1])
             else:
-                print("Tab has many columns, assuming it's a data structure, joining with spaces")
+                logger.info(
+                    "Tab has many columns, assuming it's a data structure, joining with spaces"
+                )
                 data = " ".join(row)
                 keywords: list = re.findall(
                     r"\b(?<!\[)[A-Z-+]{2,}\b", data
@@ -52,7 +55,7 @@ class Command(BaseCommand):
                 data = self._normalize_text(text=data)
                 Data.objects.create(data_type=data_type, text=data)
             line_count += 1
-        print(f"Processed {line_count} lines.")
+        logger.info(f"Processed {line_count} lines.")
 
     @staticmethod
     def _normalize_text(text: str) -> str:
