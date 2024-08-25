@@ -2,7 +2,7 @@ import base64
 import json
 from pathlib import Path
 
-import requests
+import httpx
 
 from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL
 
@@ -23,35 +23,39 @@ class GetImgAiAPI:
             "accept": "application/json",
         }
 
-    def _get(self, endpoint: str, params: dict | None = None) -> dict | list | None:
+    async def _get(self, endpoint: str, params: dict | None = None) -> dict | list | None:
         """Sends a GET request to the GetImgAI API."""
-        response = requests.get(f"{self.base_url}{endpoint}", headers=self.headers, params=params)
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{self.base_url}{endpoint}", headers=self.headers, params=params
+            )
         # response.raise_for_status() #TODO: uncomment this line
         if response.status_code == 200 and response.text:
             return json.loads(response.text)
         return None
 
-    def _post(self, endpoint: str, data: dict, added_headers: dict | None) -> dict | None:
+    async def _post(self, endpoint: str, data: dict, added_headers: dict | None) -> dict | None:
         """Sends a POST request to the GetImgAI API."""
         headers = self.headers
         if added_headers:
             headers.update(added_headers)
-        response = requests.post(f"{self.base_url}{endpoint}", headers=headers, json=data)
-        # response.raise_for_status() #TODO: uncomment this line
+        async with httpx.AsyncClient() as client:
+            response = await client.post(f"{self.base_url}{endpoint}", headers=headers, json=data)
+        # response.raise_for_status() # TODO: uncomment this line
         if response.status_code and response.text:
             return json.loads(response.text)
         return None
 
-    def get_models(
+    async def get_models(
         self, family: str | None = "text-to-image", pipeline: str | None = None
     ) -> list | None:
         """https://docs.getimg.ai/reference/getmodels
         e.g. family="text-to-image", pipeline="stable-diffusion-xl"
         e.g. family="text-to-image", pipeline="essential-v2"
         """
-        return self._get(endpoint="models", params={"family": family, "pipeline": pipeline})  # type: ignore
+        return await self._get(endpoint="models", params={"family": family, "pipeline": pipeline})  # type: ignore
 
-    def essential_v2(
+    async def essential_v2(
         self,
         prompt: str,
         style: str = "photorealism",
@@ -68,11 +72,11 @@ class GetImgAiAPI:
             "output_format": output_format,
             "response_format": response_format,
         }
-        return self._post(
+        return await self._post(
             endpoint="essential-v2/text-to-image", data=data, added_headers=added_headers
         )  # type: ignore
 
-    def stable_diffusion_xl(
+    async def stable_diffusion_xl(
         self,
         prompt: str,
         negative_prompt: str,
@@ -105,11 +109,11 @@ class GetImgAiAPI:
             "output_format": output_format,
             "response_format": response_format,
         }
-        return self._post(
+        return await self._post(
             endpoint="stable-diffusion-xl/text-to-image", data=data, added_headers=added_headers
         )  # type: ignore
 
-    def stable_diffusion(
+    async def stable_diffusion(
         self,
         prompt: str,
         model: str = "stable-diffusion-v1-5",
@@ -142,11 +146,11 @@ class GetImgAiAPI:
             "output_format": output_format,
             "response_format": response_format,
         }
-        return self._post(
+        return await self._post(
             endpoint="stable-diffusion/text-to-image", data=data, added_headers=added_headers
         )  # type: ignore
 
-    def latent_consistency(
+    async def latent_consistency(
         self,
         prompt: str,
         negative_prompt: str,
@@ -171,6 +175,6 @@ class GetImgAiAPI:
             "output_format": output_format,
             "response_format": response_format,
         }
-        return self._post(
+        return await self._post(
             endpoint="latent-consistency/text-to-image", data=data, added_headers=added_headers
         )  # type: ignore

@@ -1,7 +1,7 @@
 import csv
 import re
 
-import requests
+import httpx
 from django.core.management.base import BaseCommand
 
 from base_data_app.models import Data, DataType, Language
@@ -24,7 +24,7 @@ class Command(BaseCommand):
             or 3
         )
         language = Language.objects.get(lang=lang)
-        response = requests.get(csv_url)
+        response = httpx.get(url=csv_url)
         csv_bytestream = response.content.decode("utf-8")
         csv_reader = csv.reader(csv_bytestream.splitlines())
         for r in range(skipped_rows):
