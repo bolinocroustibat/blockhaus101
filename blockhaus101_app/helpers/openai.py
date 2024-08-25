@@ -1,4 +1,4 @@
-import openai
+from openai import AsyncOpenAI
 
 from blockhaus101.settings import (
     OPENAI_API_KEY,
@@ -12,7 +12,7 @@ from blockhaus101.settings import (
 class OpenAiAPI:
     def __init__(self):
         try:
-            self.api_key = OPENAI_API_KEY
+            self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
             self.model: dict = next(
                 (model for model in OPENAI_MODELS if model["model-name"] == OPENAI_MODEL)
             )
@@ -27,7 +27,7 @@ class OpenAiAPI:
     def model_friendly_name(self) -> str:
         return self.model["friendly-name"]
 
-    def reformulate(self, html_text: str) -> tuple[str | None, float | None, str | None]:
+    async def reformulate(self, html_text: str) -> tuple[str | None, float | None, str | None]:
         """Reformulate a text using GPT.
 
         Args:
@@ -48,7 +48,7 @@ class OpenAiAPI:
 
         # Initialize OpenAI
         # openai.organization = OPENAI_ORGANIZATION
-        openai.api_key = self.api_key
+        self.client.api_key = self.api_key
 
         # Request OpenAI
         print("Requesting OpenAI to reformulate text...")
@@ -63,7 +63,7 @@ class OpenAiAPI:
             },
         ]
         try:
-            response = openai.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.model["model-name"],
                 messages=messages,
                 user="warning-trading",

@@ -67,6 +67,5 @@ class Command(BaseCommand):
     def _generate_image(self, artist: Artist) -> None:
         get_imgai_api = GetImgAiAPI()
         img_prompt = "Generate a photorealistic image of an artwork"
-        loop = asyncio.get_event_loop()
-        res = loop.run_until_complete(get_imgai_api.essential_v2(prompt=img_prompt))
+        res: dict | None = asyncio.run(get_imgai_api.essential_v2(prompt=img_prompt))
         print(res)

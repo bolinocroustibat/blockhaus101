@@ -63,7 +63,7 @@ jiter==0.5.0
     # via openai
 oauthlib==3.2.2
     # via requests-oauthlib
-openai==1.40.6
+openai==1.42.0
     # via blockhaus101
 packaging==24.1
     # via gunicorn
