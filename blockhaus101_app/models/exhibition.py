@@ -44,7 +44,7 @@ class Exhibition(models.Model):
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate(self) -> None:
-        title_structures = Data.choose_random(type="expos", language=self.language)
+        title_structures = Data.choose_random(data_type="expos", language=self.language)
         title = title_structures.text
         title = title.replace("[SELF]", self.artist.name)
         title = title.replace("[SELFDISCIPLINE]", self.artist.discipline_text)
@@ -53,7 +53,7 @@ class Exhibition(models.Model):
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
             chosen_data = Data.choose_random_excluding(
-                type=word_type, language=self.language, excluding=used_words
+                data_type=word_type, language=self.language, excluding=used_words
             )
             if chosen_data:
                 chosen_word = chosen_data[0]

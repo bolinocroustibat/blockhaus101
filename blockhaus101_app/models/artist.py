@@ -44,16 +44,16 @@ class Artist(models.Model):
 
     def _generate_name(self) -> None:
         # first name and genre
-        firstname = Data.choose_random(type="FIRSTNAME", language=self.language)
+        firstname = Data.choose_random(data_type="FIRSTNAME", language=self.language)
         self.gender = firstname.gender
         # last name
-        lastname = Data.choose_random(type="LASTNAME", language=self.language)
+        lastname = Data.choose_random(data_type="LASTNAME", language=self.language)
         # full name
         self.name = firstname.text + " " + lastname.text
 
     def generate(self) -> None:
         self._generate_name()
-        self.discipline = Data.choose_random(type="DISCIPLINE", language=self.language)
+        self.discipline = Data.choose_random(data_type="DISCIPLINE", language=self.language)
 
     def generate_biography(self, expo_title: str) -> None:
         self.bio_used_words: dict = {}
@@ -77,7 +77,7 @@ class Artist(models.Model):
 
     def _generate_bio_sentence(self, position: int, expo_title: str) -> str:
         bio_structures = Data.objects.filter(
-            language=self.language, type__name="bio", position=position
+            language=self.language, data_type__name="bio", position=position
         )
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.name)
@@ -90,7 +90,7 @@ class Artist(models.Model):
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
-                    type=word_type,
+                    data_type=word_type,
                     language=self.language,
                     excluding=self.bio_used_words,
                 )

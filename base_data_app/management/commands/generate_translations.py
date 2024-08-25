@@ -49,7 +49,7 @@ class Command(BaseCommand):
 
         data_type = DataType.objects.get(name=options["data_type"])
 
-        for d in Data.objects.filter(type=data_type):
+        for d in Data.objects.filter(data_type=data_type):
             if translate:
                 translator = Translator()
                 new_text: str = translator.translate(d.text, src="fr", dest=dest_lang).text
@@ -58,7 +58,7 @@ class Command(BaseCommand):
 
             if not Data.objects.filter(language=dest_language, text=new_text):
                 new_d = Data(
-                    type=data_type,
+                    data_type=data_type,
                     text=new_text,
                     language=dest_language,
                     translation=d,

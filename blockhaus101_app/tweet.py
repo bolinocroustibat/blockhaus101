@@ -25,7 +25,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
     language = Language.objects.get(lang=lang)
-    tweet_structure = Data.choose_random(type=tweet_type, language=language)
+    tweet_structure = Data.choose_random(data_type=tweet_type, language=language)
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text)
@@ -41,7 +41,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     for k in keywords:
         word_type = k.replace("[", "").replace("]", "")
         chosen_data = Data.choose_random_excluding(
-            type=word_type, language=language, excluding=used_words
+            data_type=word_type, language=language, excluding=used_words
         )
         if chosen_data:
             chosen_word = chosen_data[0]

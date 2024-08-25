@@ -9,7 +9,7 @@ from blockhaus101.settings import logger
 
 
 class Data(models.Model):
-    type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
+    data_type = models.ForeignKey(DataType, related_name="data", on_delete=models.CASCADE)
     text = models.TextField("data", max_length=3000)
     language = models.ForeignKey(
         Language,
@@ -49,11 +49,11 @@ class Data(models.Model):
         ordering = ["position"]
 
     @classmethod
-    def choose_random(cls, type: str, language: Language | None = None) -> Self | None:
+    def choose_random(cls, data_type: str, language: Language | None = None) -> Self | None:
         """
         https://stackoverflow.com/questions/63425139/how-do-i-quickly-get-a-weighted-random-instance-of-a-django-model-instance-based
         """
-        entries = cls.objects.filter(type__name=type)
+        entries: models.QuerySet = cls.objects.filter(data_type__name=data_type)
         if language:
             entries = entries.filter(
                 models.Q(language=language) | models.Q(language=None)
@@ -70,32 +70,32 @@ class Data(models.Model):
     @classmethod
     def choose_random_excluding(
         cls,
-        type: str,
+        data_type: str,
         language: Language | None = None,
         excluding: dict | None = None,
     ) -> tuple[str, dict] | None:
         """
         Choose a random entry from the database, according to the type, and to the entries already being used before.
         """
-        chosen_entry: Data | None = cls.choose_random(type=type, language=language)
+        chosen_entry: Data | None = cls.choose_random(data_type=data_type, language=language)
         if chosen_entry:
             if not excluding:
                 excluding = {}
-            if excluding.get(type):
-                while chosen_entry.text in excluding[type]:
+            if excluding.get(data_type):
+                while chosen_entry.text in excluding[data_type]:
                     logger.debug(
-                        f"entry '{chosen_entry.text}' of type '{type}' has been used already, let's choose another"
+                        f"entry '{chosen_entry.text}' of type '{data_type}' has been used already, let's choose another"
                     )
-                    chosen_entry = cls.choose_random(type=type, language=language)
-                    if chosen_entry not in excluding[type]:
+                    chosen_entry = cls.choose_random(data_type=data_type, language=language)
+                    if chosen_entry not in excluding[data_type]:
                         logger.debug(f"...ok we found another: {chosen_entry.text}")
                         break
             else:
                 # create the forbidden entries type array for this type of entry if it doesn't exist
-                excluding[type] = list()
+                excluding[data_type] = list()
             entry = chosen_entry.text  # store the chosen entry
             # add the entry to the array of the entry type in the forbidden entries array
-            excluding[type].append(entry)
+            excluding[data_type].append(entry)
             # # TODO
             # try:  # if there is a gender attribute to the data
             #     gender = chosen_entry.gender
