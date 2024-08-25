@@ -25,20 +25,32 @@ Needed:
 ...among other stuff
 
 ```
-# For a sqlite database
+# For a PostgreSQL database
 DATABASES = {
-	'default': {
-		'ENGINE': 'django.db.backends.sqlite3',
-		'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+	"default": {
+		"ENGINE": "django.db.backends.postgresql",
+		"NAME": "blockhaus101_django",
+		"USER": "postgres",
+		"PASSWORD": "",
+		"HOST": "localhost",  # Or an IP Address that your DB is hosted on. DO NOT USE "127.0.0.1" but "localhost"
+		"PORT": "5432",
 	}
 }
+ALLOWED_HOSTS = ["*"]
 LOGGING = {
 	"version": 1,
 	"disable_existing_loggers": False,
 	"formatters": {
 		"colored": {
-			"()": "coloredlogs.ColoredFormatter",
-			"format": "%(name)s %(levelname)s %(message)s",
+			"()": "colorlog.ColoredFormatter",
+			"format": "%(log_color)s[%(levelname)s]%(reset)s %(asctime)s %(name)s %(message)s",
+			"log_colors": {
+				"DEBUG": "cyan",
+				"INFO": "green",
+				"WARNING": "yellow",
+				"ERROR": "red",
+				"CRITICAL": "bold_red",
+			},
 		},
 	},
 	"handlers": {

@@ -5,7 +5,7 @@ description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale d
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
     "babel<3.0.0,>=2.10.3",
-    "coloredlogs<16.0,>=15.0",
+    "colorlog>=6.8.2",
     "Django<5.2.0,>=5.1.0",
     "django-debug-toolbar<5.0.0,>=4.0.0",
     "django-simple-captcha<1.0.0,>=0.5.17",
