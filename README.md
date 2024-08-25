@@ -5,7 +5,13 @@
 ### Set up the Python environment
 
 ```bash
-pdm install
+rye sync
+```
+
+### Lint and format the code
+
+```bash
+ruff check --fix && ruff format
 ```
 
 ### Set a local settings file
