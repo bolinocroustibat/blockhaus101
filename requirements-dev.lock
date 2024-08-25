@@ -56,6 +56,7 @@ hpack==4.0.0
 httpcore==1.0.5
     # via httpx
 httpx==0.27.0
+    # via blockhaus101
     # via googletrans-py
     # via openai
 humanfriendly==10.0
@@ -90,7 +91,6 @@ pydantic-core==2.20.1
 pysocks==1.7.1
     # via requests
 requests==2.32.3
-    # via blockhaus101
     # via requests-oauthlib
     # via tweepy
 requests-oauthlib==2.0.0
