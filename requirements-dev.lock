@@ -44,7 +44,7 @@ django-ranged-response==0.2.0
 django-simple-captcha==0.6.0
     # via blockhaus101
 googletrans-py==4.0.0
-gunicorn==22.0.0
+gunicorn==23.0.0
     # via blockhaus101
 h11==0.14.0
     # via httpcore
