@@ -56,7 +56,7 @@ class ExpoText(models.Model):
         logger.debug(f"Used words for exhibition text: {self.used_words}")
 
     def create_expo_sentence(self, position: int) -> str:
-        structures = Data.objects.filter(type__name="phrases", position=position)
+        structures = Data.objects.filter(data_type__name="phrases", position=position)
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text)
@@ -66,7 +66,7 @@ class ExpoText(models.Model):
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
             chosen_data = Data.choose_random_excluding(
-                type=word_type, language=self.language, excluding=self.used_words
+                data_type=word_type, language=self.language, excluding=self.used_words
             )
             if chosen_data:
                 chosen_word = chosen_data[0]

@@ -31,16 +31,16 @@ class Command(BaseCommand):
             next(csv_reader)
         line_count = 0
         data_type = DataType.objects.get_or_create(name=input_type, language=language)[0]
-        data_to_be_deleted = Data.objects.filter(type=data_type)
+        data_to_be_deleted = Data.objects.filter(data_type=data_type)
         data_to_be_deleted.delete()
         for row in csv_reader:
             print(row)
             if len(row) == 1:
                 print("Tab has one column")
-                Data.objects.create(type=data_type, text=row[0])
+                Data.objects.create(data_type=data_type, text=row[0])
             elif len(row) == 2:
                 print("Tab has two columns, assuming the first is data, second one is gender")
-                Data.objects.create(type=data_type, text=row[0], gender=row[1])
+                Data.objects.create(data_type=data_type, text=row[0], gender=row[1])
             else:
                 print("Tab has many columns, assuming it's a data structure, joining with spaces")
                 data = " ".join(row)
@@ -50,7 +50,7 @@ class Command(BaseCommand):
                 for k in set(keywords):
                     data = data.replace(k, f"[{k}]")
                 data = self._normalize_text(text=data)
-                Data.objects.create(type=data_type, text=data)
+                Data.objects.create(data_type=data_type, text=data)
             line_count += 1
         print(f"Processed {line_count} lines.")
 

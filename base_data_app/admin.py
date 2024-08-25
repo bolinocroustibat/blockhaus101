@@ -18,7 +18,7 @@ class DataAdmin(admin.ModelAdmin):
     model = Data
     list_display = (
         "text",
-        "type",
+        "data_type",
         "language",
         "translation",
         "gender",
@@ -29,6 +29,6 @@ class DataAdmin(admin.ModelAdmin):
     )
     list_filter = (
         "language",
-        "type",
+        "data_type",
     )
-    search_fields = ["text", "type__name"]
+    search_fields = ["text", "data_type__name"]
