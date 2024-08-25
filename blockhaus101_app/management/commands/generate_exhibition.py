@@ -1,10 +1,13 @@
 import asyncio
+from datetime import datetime
+from pathlib import Path
 
+from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import GetImgAiAPI
+from blockhaus101_app.helpers import GetImgAiAPI, decode_b64_img, save_b64_img
 from blockhaus101_app.models import Artist, Exhibition
 
 
@@ -56,7 +59,7 @@ class Command(BaseCommand):
         logger.info(exhibition)
 
         if img:
-            self._generate_image(artist)
+            self._generate_image(exhibition)
 
         if save:
             artist.save()
@@ -64,8 +67,17 @@ class Command(BaseCommand):
             exhibition.save()
             logger.info("Exhibition saved in DB")
 
-    def _generate_image(self, artist: Artist) -> None:
+    def _generate_image(self, exhibition: Exhibition) -> None:
         get_imgai_api = GetImgAiAPI()
         img_prompt = "Generate a photorealistic image of an artwork"
-        res: dict | None = asyncio.run(get_imgai_api.essential_v2(prompt=img_prompt))
-        logger.debug(res)
+        res: dict | None = asyncio.run(get_imgai_api.stable_diffusion_xl(prompt=img_prompt))
+        if res:
+            cost: float = res["cost"]
+            img_b64_data: str = res["image"]
+            filename: str = (
+                f"{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}_{exhibition.artist.name_slug}"
+            )
+            filepath: Path = save_b64_img(img_b64_data, filename)
+            exhibition.image1 = decode_b64_img(img_b64_data)
+            exhibition.save()
+            logger.info(f"Image generated for a cost of {cost}$ and saved in {filepath}")
