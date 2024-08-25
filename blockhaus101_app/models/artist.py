@@ -23,6 +23,10 @@ class Artist(models.Model):
         return f"{self.name}, {self.gender}, {self.discipline}.\n{self.bio}"
 
     @property
+    def name_slug(self) -> str:
+        return self.name.replace(" ", "-").lower()
+
+    @property
     def discipline_text(self, lang: str | None = None) -> str:
         if lang:
             try:

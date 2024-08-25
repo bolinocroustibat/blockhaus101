@@ -1,17 +1,8 @@
-import base64
 import json
-from pathlib import Path
 
 import httpx
 
-from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL
-
-
-def save_image(img_data: bytes, filename: str, format: str = "png") -> None:
-    """Save an image to the filesystem."""
-    filepath: Path = Path(f"blockhaus101_app/static/images/{filename}.{format}")
-    with open(filepath, "wb") as file:
-        file.write(base64.decodebytes(img_data))
+from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL, logger
 
 
 class GetImgAiAPI:
@@ -19,7 +10,7 @@ class GetImgAiAPI:
         self.api_key = GETIMGAI_API_KEY
         self.base_url = GETIMGAI_API_URL
         self.headers = {
-            "Authorization": "Bearer {self.api_key}",
+            "Authorization": f"Bearer {self.api_key}",
             "accept": "application/json",
         }
 
@@ -34,13 +25,17 @@ class GetImgAiAPI:
             return json.loads(response.text)
         return None
 
-    async def _post(self, endpoint: str, data: dict, added_headers: dict | None) -> dict | None:
+    async def _post(
+        self, endpoint: str, data: dict, added_headers: dict | None, timeout: int | None = None
+    ) -> dict | None:
         """Sends a POST request to the GetImgAI API."""
         headers = self.headers
         if added_headers:
             headers.update(added_headers)
         async with httpx.AsyncClient() as client:
-            response = await client.post(f"{self.base_url}{endpoint}", headers=headers, json=data)
+            response = await client.post(
+                f"{self.base_url}{endpoint}", headers=headers, json=data, timeout=timeout
+            )
         # response.raise_for_status() # TODO: uncomment this line
         if response.status_code and response.text:
             return json.loads(response.text)
@@ -73,14 +68,17 @@ class GetImgAiAPI:
             "response_format": response_format,
         }
         return await self._post(
-            endpoint="essential-v2/text-to-image", data=data, added_headers=added_headers
+            endpoint="essential-v2/text-to-image",
+            data=data,
+            timeout=60,
+            added_headers=added_headers,
         )  # type: ignore
 
     async def stable_diffusion_xl(
         self,
         prompt: str,
-        negative_prompt: str,
         model: str = "stable-diffusion-xl-v1-0",
+        negative_prompt: str | None = None,
         prompt_2: str | None = None,
         negative_prompt_2: str | None = None,
         width: int = 1024,  # can be 256 to 1536

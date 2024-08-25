@@ -16,6 +16,9 @@ class Exhibition(models.Model):
     artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.PROTECT)
     startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
     enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
+    image1 = models.ImageField(
+        "exhibition image 1", upload_to="exhibitions_imgs", blank=True, null=True
+    )
     created = models.DateTimeField(auto_now=True)
 
     class Meta:
