@@ -5,7 +5,7 @@ from django.db import models
 
 from base_data_app.models.data_type import DataType
 from base_data_app.models.language import Language
-from blockhaus101.settings import logger
+from blockhaus101.settings import GENDER_CHOICES, logger
 
 
 class Data(models.Model):
@@ -24,10 +24,6 @@ class Data(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-    )
-    GENDER_CHOICES = (
-        ("m", "male"),
-        ("f", "female"),
     )
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
     PLURAL_CHOICES = (
