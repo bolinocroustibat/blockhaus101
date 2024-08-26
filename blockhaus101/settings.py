@@ -125,7 +125,7 @@ MAIL_SUCCESS_MESSAGE = {
     "fr": "Votre demande a bien été envoyée. Nous vous tiendrons au courant dans les plus brefs délais.",
 }
 
-GENDER_CHOICES = (("m", "male"), ("f", "female"))
+GENDER_CHOICES = (("f", "female"), ("m", "male"))
 
 # Captcha
 CAPTCHA_LETTER_ROTATION = 0
