@@ -1,6 +1,6 @@
 [project]
 name = "blockhaus101"
-version = "1.6.7"
+version = "1.6.8"
 description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale de l’art contemporain. Uniquement sur rendez-vous."
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
@@ -50,12 +50,6 @@ dev-dependencies = [
 distribution = false
 dev-dependencies = { dev = ["ruff>=0.6.0", "mypy>=1.8.0"] }
 
-[tool.pdm.build]
-includes = []
-
 [tool.ruff]
 line-length = 100
 lint = { extend-select = ["I"], ignore = ["F401"] }
-
-[tool.setuptools]
-py-modules = []
