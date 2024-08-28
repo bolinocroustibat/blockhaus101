@@ -1,4 +1,4 @@
-from random import choice, choices
+from random import choices
 from typing import Self
 
 from django.db import models

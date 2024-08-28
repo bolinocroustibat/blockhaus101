@@ -48,8 +48,8 @@ dev-dependencies = [
 
 [tool.pdm]
 distribution = false
-dev-dependencies = { dev = ["ruff>=0.6.0", "mypy>=1.8.0"] }
+dev-dependencies = { dev = ["ruff>=0.6.2", "mypy>=1.8.0"] }
 
 [tool.ruff]
 line-length = 100
-lint = { extend-select = ["I"], ignore = ["F401"] }
+lint = { extend-select = ["I"] }

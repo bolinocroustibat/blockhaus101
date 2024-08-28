@@ -1,2 +1,3 @@
-from .data import Data, DataType  # noqa: F401
-from .language import Language  # noqa: F401
+# ruff: noqa: F401
+from .data import Data, DataType
+from .language import Language
