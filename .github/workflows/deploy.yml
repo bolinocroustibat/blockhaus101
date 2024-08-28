@@ -13,10 +13,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the changed files back to the repository.
-      contents: write
-
     steps:
 
       - name: Checkout repository
@@ -30,10 +26,9 @@ jobs:
         with:
           branch: main
           commit_message: "chore: bump version to ${{ github.ref_name }}"
-          # Optional commit user and author settings
-          commit_user_name: Adrien Carpentier # defaults to "github-actions[bot]"
-          commit_user_email: me@adriencarpentier.com # defaults to "41898282+github-actions[bot]@users.noreply.github.com"
-          commit_author: Adrien Carpentier <me@adriencarpentier.com> # defaults to "username <username@users.noreply.github.com>", where "username" belongs to the author of the commit that triggered the run
+          commit_user_name: Adrien Carpentier
+          commit_user_email: me@adriencarpentier.com
+          commit_author: Adrien Carpentier <me@adriencarpentier.com>
 
       - name: Install SSH key
         uses: shimataro/ssh-key-action@v2
