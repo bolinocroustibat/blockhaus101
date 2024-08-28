@@ -19,7 +19,7 @@ asgiref==3.8.1
     # via django
 babel==2.16.0
     # via blockhaus101
-certifi==2024.7.4
+certifi==2024.8.30
     # via httpcore
     # via httpx
     # via requests
@@ -55,24 +55,24 @@ hpack==4.0.0
     # via h2
 httpcore==1.0.5
     # via httpx
-httpx==0.27.0
+httpx==0.27.2
     # via blockhaus101
     # via googletrans-py
     # via openai
 hyperframe==6.0.1
     # via h2
-idna==3.7
+idna==3.8
     # via anyio
     # via httpx
     # via requests
 jiter==0.5.0
     # via openai
-mypy==1.11.1
+mypy==1.11.2
 mypy-extensions==1.0.0
     # via mypy
 oauthlib==3.2.2
     # via requests-oauthlib
-openai==1.42.0
+openai==1.43.0
     # via blockhaus101
 packaging==24.1
     # via gunicorn
@@ -93,7 +93,7 @@ requests==2.32.3
     # via tweepy
 requests-oauthlib==2.0.0
     # via tweepy
-ruff==0.6.2
+ruff==0.6.3
 sentry-sdk==2.13.0
     # via blockhaus101
 six==1.16.0
