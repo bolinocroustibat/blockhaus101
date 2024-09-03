@@ -5,7 +5,7 @@
 ### Set up the Python environment
 
 ```bash
-rye sync
+uv sync
 ```
 
 ### Lint and format the code
