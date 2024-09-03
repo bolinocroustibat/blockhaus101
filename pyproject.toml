@@ -24,10 +24,6 @@ license = { text = "MIT" }
 [project.urls]
 homepage = "https://www.blockhaus101.com"
 
-[build-system]
-requires = ["pdm-pep517>=1.0.0"]
-build-backend = "pdm.pep517.api"
-
 [tool.mypy]
 [[tool.mypy.overrides]]
 module = [
@@ -39,13 +35,6 @@ module = [
 ]
 ignore_missing_imports = true
 
-[tool.rye]
-dev-dependencies = [
-    "ruff>=0.6.2",
-    "mypy>=1.8.0",
-    "googletrans-py>=4.0.0",
-]
-
 [tool.pdm]
 distribution = false
 dev-dependencies = { dev = ["ruff>=0.6.2", "mypy>=1.8.0"] }
@@ -53,3 +42,10 @@ dev-dependencies = { dev = ["ruff>=0.6.2", "mypy>=1.8.0"] }
 [tool.ruff]
 line-length = 100
 lint = { extend-select = ["I"] }
+
+[tool.uv]
+dev-dependencies = [
+    "googletrans-py>=4.0.0",
+    "mypy>=1.11.2",
+    "ruff>=0.6.3",
+]
