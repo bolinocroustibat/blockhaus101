@@ -1,6 +1,6 @@
-import importlib.metadata
 import logging
 import os
+import tomllib
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -210,11 +210,10 @@ except Exception as e:
 
 logger = logging.getLogger("blockhaus101")
 
-
-APP_NAME: str = importlib.metadata.metadata("blockhaus101")["name"]
-VERSION: str = importlib.metadata.version(APP_NAME)
-
-
+with open("pyproject.toml", "rb") as f:
+    pyproject: dict = tomllib.load(f)
+APP_NAME: str = pyproject["project"]["name"]
+VERSION: str = pyproject["project"]["version"]
 if ENVIRONMENT in ["staging", "production"]:
     sentry_sdk.init(
         dsn="https://38a42a04381f4e0dbb2c1f4f2229bb69@o352691.ingest.sentry.io/4503999464865792",
