@@ -39,6 +39,10 @@ ignore_missing_imports = true
 line-length = 100
 lint = { extend-select = ["I"] }
 
+# Necessary to avoid issues when installing when using `pip install .`
+[tool.setuptools]
+py-modules = []
+
 [tool.uv]
 dev-dependencies = [
     "googletrans-py>=4.0.0",
