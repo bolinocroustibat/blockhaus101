@@ -11,7 +11,7 @@ uv sync
 ### Lint and format the code
 
 ```bash
-ruff check --fix && ruff format
+uv run ruff check --fix && ruff format
 ```
 
 ### Set a local settings file
