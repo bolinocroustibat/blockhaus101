@@ -51,10 +51,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/www/blockhaus101
-            source /home/www/blockhaus101/.venv/bin/activate
-            pip3 install /home/www/blockhaus101/.
-            python3 /home/www/blockhaus101/manage.py migrate
-            python3 /home/www/blockhaus101/manage.py collectstatic --no-input
+            uv sync
+            uv run /home/www/blockhaus101/manage.py migrate
+            uv run /home/www/blockhaus101/manage.py collectstatic --no-input
             sudo systemctl restart blockhaus101.service
 
       - name: Create Sentry "${{ github.ref_name }}" release

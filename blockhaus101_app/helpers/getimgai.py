@@ -2,7 +2,7 @@ import json
 
 import httpx
 
-from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL, logger
+from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL
 
 
 class GetImgAiAPI:
