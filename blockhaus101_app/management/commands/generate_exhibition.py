@@ -2,7 +2,6 @@ import asyncio
 from datetime import datetime
 from pathlib import Path
 
-from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
@@ -21,7 +20,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--img",
             dest="img",
-            default=True,
+            default=False,
             help="Generate an image of the exhibition using generate AI API",
         )
         parser.add_argument(
@@ -37,9 +36,9 @@ class Command(BaseCommand):
             logger.error("Language code doesn't exist")
             raise ValueError
 
-        img: bool = True
-        if options.get("img") in ["False", False]:
-            img = False
+        img: bool = False
+        if options.get("img") in ["True", True]:
+            img = True
 
         save: bool = False
         if options.get("save") in ["True", True]:
@@ -74,9 +73,8 @@ class Command(BaseCommand):
         if res:
             cost: float = res["cost"]
             img_b64_data: str = res["image"]
-            filename: str = (
-                f"{datetime.now().strftime("%Y-%m-%d_%H-%M-%S")}_{exhibition.artist.name_slug}"
-            )
+            now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename: str = f"{now}_{exhibition.artist.name_slug}"
             filepath: Path = save_b64_img(img_b64_data, filename)
             exhibition.image1 = decode_b64_img(img_b64_data)
             exhibition.save()
