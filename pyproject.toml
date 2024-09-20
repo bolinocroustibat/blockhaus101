@@ -1,6 +1,6 @@
 [project]
 name = "blockhaus101"
-version = "1.6.12"
+version = "1.6.13"
 description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale de l’art contemporain. Uniquement sur rendez-vous."
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
@@ -18,7 +18,7 @@ dependencies = [
     "uvicorn<=0.31.0",
     "xmltodict<1.0.0,>=0.12.0",
 ]
-requires-python = ">=3.12,<3.13"
+requires-python = ">=3.11,<3.12"
 license = { text = "MIT" }
 
 [project.urls]
