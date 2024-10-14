@@ -47,9 +47,9 @@ class Command(BaseCommand):
         if options["save"] or options["img"]:
             artist.save()
             logger.info("Artist saved in DB with its biography")
-            exhibition.save()
-            logger.info("Exhibition saved in DB")
 
             if options["img"]:
                 exhibition.generate_image()
-                exhibition.save()
+
+            exhibition.save()
+            logger.info("Exhibition saved in DB")

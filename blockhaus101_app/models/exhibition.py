@@ -50,8 +50,10 @@ class Exhibition(models.Model):
                 logger.debug("No exhibition found, saving this new one as the first one...")
         super(Exhibition, self).save(*args, **kwargs)
 
-    def generate(self) -> None:
+    def generate(self, img: bool = False) -> None:
         self.title = self.generate_title()
+        if img:
+            self.generate_image()
 
     def generate_title(self) -> str:
         title_structures = Data.choose_random(data_type="expos", language=self.language)
@@ -73,10 +75,10 @@ class Exhibition(models.Model):
         logger.debug(f"Used words for exhibition title: {used_words}")
         return title
 
-    def generate_image(self, img_format: Literal["png", "jpg"] = "png") -> None:
+    def generate_image(self, img_format: Literal["png", "jpg"] = "png") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.discipline_text(lang="en")
-        img_prompt = f'Generate a photorealistic image of a {discipline} artwork from a contemporary art exhibition named "{self.title}". Don\'t show the artist, but show the artwork only, in the exhibition room'
+        img_prompt = f'Generate a photorealistic image of a contemporary {discipline} art exhibition named "{self.title}" with abstract {discipline} works. Don\'t show the artist, but show the artwork(s) or the performance(s) only, in the exhibition room.'
         logger.debug(img_prompt)
         res: dict | None = asyncio.run(
             get_imgai_api.stable_diffusion_xl(prompt=img_prompt, output_format=img_format)
@@ -91,9 +93,12 @@ class Exhibition(models.Model):
                 now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                 filename: str = f"{now}_{self.artist.name_slug}"
                 img_bytes: bytes = base64.b64decode(b64_data, validate=True)
-                file = ContentFile(img_bytes, name=f"{filename}.{img_format}")
-                self.image1 = file
-                logger.info(f"Image generated for a cost of {cost}$ and saved in {file.name}")
+                self.image1 = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+                logger.info(
+                    f'Image generated for a cost of {cost}$ and saved in "{str(self.image1)}"'
+                )
+                return self.image1
+        return None
 
     @classmethod
     def get_current(cls, lang: str = "fr") -> Self | None:
