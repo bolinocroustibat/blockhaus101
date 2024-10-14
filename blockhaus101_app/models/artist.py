@@ -26,7 +26,6 @@ class Artist(models.Model):
     def name_slug(self) -> str:
         return self.name.replace(" ", "-").lower()
 
-    @property
     def discipline_text(self, lang: str | None = None) -> str:
         if lang:
             try:
@@ -36,7 +35,7 @@ class Artist(models.Model):
             else:
                 try:
                     translated_discipline = Data.objects.filter(
-                        type="DISCIPLINE", language=language, translation=self.discipline
+                        data_type__name="DISCIPLINE", language=language, translation=self.discipline
                     ).first()
                     return translated_discipline.text
                 except Data.DoesNotExist:
@@ -84,7 +83,7 @@ class Artist(models.Model):
         )
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.name)
-        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline_text)
+        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.discipline_text())
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
             if k == "[EXPO]":

@@ -1,12 +1,13 @@
-blockhaus101/__pycache__/
-blockhaus101_app/__pycache__/
-blockhaus101_app/json_data/*
-db.sqlite3
+# MacOS
 *.DS_Store
+
+# VSCode
 *.vscode/
-debug.log
+
+# Apache
 *.htpasswd
-static/
+
+# SublimeText
 *.sublime-project
 *.sublime-workspace
 
@@ -127,3 +128,9 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# project specific
+db.sqlite3
+debug.log
+media/
+static/

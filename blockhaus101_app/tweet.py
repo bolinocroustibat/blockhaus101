@@ -28,7 +28,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     tweet_structure = Data.choose_random(data_type=tweet_type, language=language)
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
-    tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text)
+    tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text())
     tweet = tweet.replace("[EXPO]", exhibition.title)
     if "[EXPOSTARTDATE]" in tweet:
         expo_startdate: str = format_date(exhibition.startdate, format="medium", locale=lang)
