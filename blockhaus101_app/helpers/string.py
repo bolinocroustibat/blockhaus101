@@ -8,13 +8,12 @@ def correct_sentence(lang: str, sentence: str) -> str:
     # Remove all extra spaces
     sentence = " ".join(sentence.split())
 
+    # Remove spaces before and after some characters
+    sentence = _strtr(sentence, {"( ": "(", " )": ")", " ,": ",", " .": "."})
+
     # Correct the sentence
-    corrections_en: dict = {
-        "( ": "(",
-        " )": ")",
-        " ,": ",",
-    }
-    corrections_fr: dict = {  # we could also use "replace(old, new)"
+    CORRECTIONS_EN: dict = {}
+    CORRECTIONS_FR: dict = {  # we could also use "replace(old, new)"
         "( ": "(",
         " )": ")",
         " ,": ",",
@@ -73,9 +72,9 @@ def correct_sentence(lang: str, sentence: str) -> str:
         " que U": " qu’U",
     }
     if lang == "en":
-        sentence = _strtr(sentence, corrections_en)
+        sentence = _strtr(sentence, CORRECTIONS_EN)
     elif lang == "fr":
-        sentence = _strtr(sentence, corrections_fr)
+        sentence = _strtr(sentence, CORRECTIONS_FR)
     else:
         logger.error(f"Language not supported: {lang}")
     return capitalize_sentence(sentence)
