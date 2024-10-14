@@ -2,6 +2,13 @@ from blockhaus101.settings import logger
 
 
 def correct_sentence(lang: str, sentence: str) -> str:
+    # Remove first and  end spaces
+    sentence = "".join(sentence.rstrip().lstrip())
+
+    # Remove all extra spaces
+    sentence = " ".join(sentence.split())
+
+    # Correct the sentence
     corrections_en: dict = {
         "( ": "(",
         " )": ")",

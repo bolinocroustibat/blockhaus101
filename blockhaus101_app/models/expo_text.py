@@ -59,7 +59,7 @@ class ExpoText(models.Model):
         structures = Data.objects.filter(data_type__name="phrases", position=position)
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
-        sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text)
+        sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text())
         sentence = sentence.replace("[SELFEXPO]", self.exhibition.title)
         sentence = sentence.replace("[EXPO]", self.exhibition.generate_title())
         keywords: list = re.findall(r"\[[^][]*]", sentence)

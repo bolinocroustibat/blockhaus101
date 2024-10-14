@@ -1,11 +1,15 @@
+import asyncio
+import base64
 import re
 from datetime import datetime, timedelta
-from typing import Self
+from typing import Literal, Self
 
+from django.core.files.base import ContentFile
 from django.db import models
 
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
+from blockhaus101_app.helpers import GetImgAiAPI
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.sitesetting import SiteSetting
 
@@ -53,7 +57,7 @@ class Exhibition(models.Model):
         title_structures = Data.choose_random(data_type="expos", language=self.language)
         title = title_structures.text
         title = title.replace("[SELF]", self.artist.name)
-        title = title.replace("[SELFDISCIPLINE]", self.artist.discipline_text)
+        title = title.replace("[SELFDISCIPLINE]", self.artist.discipline_text())
         keywords: list = re.findall(r"\[[^][]*]", title)
         used_words: dict = {}
         for k in keywords:
@@ -68,6 +72,28 @@ class Exhibition(models.Model):
                 title = title.replace(f"[{word_type}]", chosen_word, 1)
         logger.debug(f"Used words for exhibition title: {used_words}")
         return title
+
+    def generate_image(self, img_format: Literal["png", "jpg"] = "png") -> None:
+        get_imgai_api = GetImgAiAPI()
+        discipline: str = self.artist.discipline_text(lang="en")
+        img_prompt = f'Generate a photorealistic image of a {discipline} artwork from a contemporary art exhibition named "{self.title}". Don\'t show the artist, but show the artwork only, in the exhibition room'
+        logger.debug(img_prompt)
+        res: dict | None = asyncio.run(
+            get_imgai_api.stable_diffusion_xl(prompt=img_prompt, output_format=img_format)
+        )
+        if res:
+            try:
+                cost: float = res["cost"]
+                b64_data: str = res["image"]
+            except Exception as e:
+                logger.error(f"Error while requesting image generation: {str(e)}")
+            else:
+                now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                filename: str = f"{now}_{self.artist.name_slug}"
+                img_bytes: bytes = base64.b64decode(b64_data, validate=True)
+                file = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+                self.image1 = file
+                logger.info(f"Image generated for a cost of {cost}$ and saved in {file.name}")
 
     @classmethod
     def get_current(cls, lang: str = "fr") -> Self | None:

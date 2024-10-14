@@ -1,12 +1,7 @@
-import asyncio
-from datetime import datetime
-from pathlib import Path
-
 from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import GetImgAiAPI, decode_b64_img, save_b64_img
 from blockhaus101_app.models import Artist, Exhibition
 
 
@@ -19,14 +14,14 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--img",
-            dest="img",
             default=False,
+            action="store_true",
             help="Generate an image of the exhibition using generate AI API",
         )
         parser.add_argument(
             "--save",
-            dest="save",
             default=False,
+            action="store_true",
             help="Save into the database",
         )
 
@@ -35,14 +30,6 @@ class Command(BaseCommand):
         if lang not in ["fr", "en"]:
             logger.error("Language code doesn't exist")
             raise ValueError
-
-        img: bool = False
-        if options.get("img") in ["True", True]:
-            img = True
-
-        save: bool = False
-        if options.get("save") in ["True", True]:
-            save = True
 
         language = Language.objects.get(lang=lang)
 
@@ -57,25 +44,12 @@ class Command(BaseCommand):
         logger.info(artist)
         logger.info(exhibition)
 
-        if img:
-            self._generate_image(exhibition)
-
-        if save:
+        if options["save"] or options["img"]:
             artist.save()
             logger.info("Artist saved in DB with its biography")
             exhibition.save()
             logger.info("Exhibition saved in DB")
 
-    def _generate_image(self, exhibition: Exhibition) -> None:
-        get_imgai_api = GetImgAiAPI()
-        img_prompt = "Generate a photorealistic image of an artwork"
-        res: dict | None = asyncio.run(get_imgai_api.stable_diffusion_xl(prompt=img_prompt))
-        if res:
-            cost: float = res["cost"]
-            img_b64_data: str = res["image"]
-            now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename: str = f"{now}_{exhibition.artist.name_slug}"
-            filepath: Path = save_b64_img(img_b64_data, filename)
-            exhibition.image1 = decode_b64_img(img_b64_data)
-            exhibition.save()
-            logger.info(f"Image generated for a cost of {cost}$ and saved in {filepath}")
+            if options["img"]:
+                exhibition.generate_image()
+                exhibition.save()
