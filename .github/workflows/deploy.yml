@@ -58,9 +58,9 @@ jobs:
           script: |
             cd /home/www/blockhaus101
             git pull
-            uv sync
-            uv run /home/www/blockhaus101/manage.py migrate
-            uv run /home/www/blockhaus101/manage.py collectstatic --no-input
+            source .venv/bin/activate
+            python3 /home/www/blockhaus101/manage.py migrate
+            python3 /home/www/blockhaus101/manage.py collectstatic --no-input
             sudo systemctl restart blockhaus101.service
 
       - name: Create Sentry "${{ github.ref_name }}" release
