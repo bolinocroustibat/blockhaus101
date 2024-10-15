@@ -33,15 +33,14 @@ class Artist(models.Model):
             except Language.DoesNotExist:
                 logger.error(f"Language {lang} doesn't exist")
             else:
-                try:
-                    translated_discipline = Data.objects.filter(
-                        data_type__name="DISCIPLINE", language=language, translation=self.discipline
-                    ).first()
+                translated_discipline = Data.objects.filter(
+                    data_type__name="DISCIPLINE", language=language, translation=self.discipline
+                ).first()
+                if translated_discipline:
                     return translated_discipline.text
-                except Data.DoesNotExist:
-                    logger.error(
-                        f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
-                    )
+                logger.error(
+                    f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
+                )
         return self.discipline.text
 
     def _generate_name(self) -> None:
