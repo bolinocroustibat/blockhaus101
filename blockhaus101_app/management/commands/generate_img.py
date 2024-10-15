@@ -5,7 +5,7 @@ from blockhaus101_app.models import Exhibition
 
 
 class Command(BaseCommand):
-    help = "Generate an image for an existing exhibition"
+    help = "Generate an image for an existing exhibition, from its ID"
 
     def add_arguments(self, parser):
         parser.add_argument(
