@@ -38,7 +38,7 @@ class Artist(models.Model):
                 ).first()
                 if translated_discipline:
                     return translated_discipline.text
-                logger.error(
+                logger.warning(
                     f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
                 )
         return self.discipline.text
