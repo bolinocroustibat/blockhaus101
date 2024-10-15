@@ -55,7 +55,7 @@ class GetImgAiAPI:
         prompt: str,
         style: str = "photorealism",
         aspect_ratio: str = "1:1",
-        output_format: str = "png",  # can be "jpeg" or "png"
+        output_format: str = "jpeg",  # can be "jpeg" or "png"
         response_format: str = "b64",  # can be "b64" or "url"
     ) -> dict | None:
         """https://docs.getimg.ai/reference/postessentialv2texttoimage"""
@@ -87,7 +87,7 @@ class GetImgAiAPI:
         guidance: float = 7.5,  # 0 to 20. Guidance scale as defined in Classifier-Free Diffusion Guidance. Higer guidance forces the model to better follow the prompt, but result in lower quality output.
         seed: int = 0,  # 0 to 2147483647. Random seed for the model.
         scheduler: str = "euler",  #  Scheduler used to denoise the encoded image latents.
-        output_format: str = "png",  # can be "jpeg" or "png"
+        output_format: str = "jpeg",  # can be "jpeg" or "png"
         response_format: str = "b64",  # can be "b64" or "url"
     ) -> dict | None:
         """https://docs.getimg.ai/reference/poststablediffusionxltexttoimage"""
@@ -124,7 +124,7 @@ class GetImgAiAPI:
         guidance: float = 7.5,  # 0 to 20. Guidance scale as defined in Classifier-Free Diffusion Guidance. Higer guidance forces the model to better follow the prompt, but result in lower quality output.
         seed: int = 0,  # 0 to 2147483647. Random seed for the model.
         scheduler: str = "dpmsolver++",  #  Scheduler used to denoise the encoded image latents.
-        output_format: str = "png",  # can be "jpeg" or "png"
+        output_format: str = "jpeg",  # can be "jpeg" or "png"
         response_format: str = "b64",  # can be "b64" or "url"
     ) -> dict | None:
         """https://docs.getimg.ai/reference/poststablediffusionxltexttoimage"""
@@ -157,7 +157,7 @@ class GetImgAiAPI:
         height: int = 512,  # can be 256 to 1024
         steps: int = 4,  # 1 to 8. The number of denoising steps. More steps usually can produce higher quality images, but take more time to generate.
         seed: int = 0,  # 0 to 2147483647. Random seed for the model.
-        output_format: str = "png",  # can be "jpeg" or "png"
+        output_format: str = "jpeg",  # can be "jpeg" or "png"
         response_format: str = "b64",  # can be "b64" or "url"
     ) -> dict | None:
         """https://docs.getimg.ai/reference/poststablediffusionxltexttoimage"""
