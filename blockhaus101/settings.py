@@ -1,25 +1,24 @@
 import logging
 import os
 import tomllib
+from pathlib import Path
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from blockhaus101.captcha import custom_captcha_challenge
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))
-)  # BASE_DIR is where your manage.py lies
-SITE_ROOT = os.path.abspath(
-    os.path.dirname(__file__)
-)  # SITE_ROOT is BASE_DIR + your_project_name (where this settings.py is)
+# Define BASE_DIR as the directory containing the settings.py file
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Define SITE_ROOT as the root directory of your project
+SITE_ROOT = BASE_DIR.parent
 
 # where the static files will go when doing a collectstatic if debug=false
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = "/static/"
 # where the media (and notably the Blockhaus101 generated images) will go
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_ROOT = BASE_DIR / "media"
 MEDIA_URL = "/media/"
 
 # TWEEPY
