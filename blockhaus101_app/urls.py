@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path, re_path
 from django.views.generic import RedirectView
 
@@ -36,4 +38,4 @@ urlpatterns = [
     ),
     re_path(r"^(?P<lang>fr)/contact/$", views.contact, name="contact"),
     re_path(r"^(?P<slug>[-\w]+)/$", views.exhibition, name="exhibition"),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

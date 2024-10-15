@@ -57,6 +57,7 @@ def index(request, lang: str) -> HttpResponse:
             "artist_bio": artist.bio,
             "expo_title": exhibition.title,
             "expo_text": expo_text.text,
+            "expo_image1": exhibition.image1.url,
             "artist_gender": artist.gender,
         },
     )
@@ -85,6 +86,7 @@ def exhibition(request, slug: str) -> HttpResponse:
                 "artist_bio": artist.bio,
                 "expo_title": exhibition.title,
                 "expo_text": expo_text.text,
+                "expo_image1": exhibition.image1.url,
                 "artist_gender": artist.gender,
             },
         )
@@ -134,6 +136,11 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             expo_text.generate()
             expo_text.save()
         exhibition["text"] = expo_text.text
+        # Image
+        if e.image1:
+            exhibition["image1"] = e.image1.url
+        else:
+            exhibition["image1"] = None
         full_exhibs.append(exhibition)
     return render(
         request,

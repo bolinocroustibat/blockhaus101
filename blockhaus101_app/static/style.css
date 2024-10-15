@@ -1,5 +1,5 @@
 body{
-	background: white; 
+	background: white;
 	color:black;
 	font-family: helvetica,sans-serif;
 }
@@ -21,7 +21,7 @@ h1 .big_h1 {
 	nav {
 		font-size: 0.8em;
 	}
-	.project-wrapper {
+	.expo-wrapper {
 		font-size: 0.8em;
 	}
 }
@@ -63,39 +63,40 @@ li .active {
 	font-weight: bold;
 }
 
-.project-wrapper{
+.expo-wrapper{
+	display: flex;
 	padding-left: 15px;
 	border-left: 1px solid black;
 	font-family: courier;
+	.expo-text-wrapper {
+		padding-left: 15px;
+		.artist {
+			margin-bottom: 15px;
+			text-transform: uppercase;
+			font-weight: bold;
+		}
+		.expo-title {
+			font-style: italic;
+		}
+		.bio {
+			font-style:italic;
+			margin:10px 0 10px 0;
+		}
+		.expo-text{
+			line-height: 140%;
+		}
+	}
+	img {
+		width: 400px;
+	}
 }
 
-.project-wrapper a{
+.expo-wrapper a{
 	text-decoration:none;
 }
 
-.project-wrapper a:hover{
+.expo-wrapper a:hover{
 	text-decoration:underline;
-}
-
-.artist {
-	margin-bottom:15px;
-	text-transform:uppercase;
-	font-weight:bold;
-}
-
-.expo {
-	font-style:italic;
-}
-
-.bio {
-	font-style:italic;
-	margin:10px 0 10px 0;
-}
-
-.text{
-	display: block;
-	line-height: 140%;
-	margin-top:15px;
 }
 
 #share-wrapper{
@@ -109,8 +110,8 @@ li .active {
 }
 
 #list-link {
-	position:fixed; 
-	bottom: 30px; 
+	position:fixed;
+	bottom: 30px;
 	right:20px;
 	font-size:0.4em;
 	color:#F3F3F3;

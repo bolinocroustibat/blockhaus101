@@ -1,4 +1,5 @@
 {% extends "en/base.html" %}
+{% load static %}
 
 {% block meta %}
 <title>blockhaus 101 - {{ artist_name }} - {{ expo_title|capfirst }}</title>
@@ -13,13 +14,16 @@
 {% block content %}
 <div class="past-expo-date mb-4 mt-5">
 	{{ description }}
-	<div class="mt-5">From {{ expo_startdate }} to {{ expo_enddate }} :</div>
+	<div class="mt-5">From {{ expo_startdate }} to {{ expo_enddate }}:</div>
 </div>
 
-<div class="col-lg-8 col-12 mb-5 project-wrapper">
-	<span class="artist">{{ artist_name }}</span>&nbsp;|&nbsp;<span class="expo">{{ expo_title|capfirst }}</span>
-	<div class="bio">{{ artist_bio }}</div>
-	<div class="text">{{ expo_text }}</div>
+<div class="col-lg-8 col-12 mb-5 expo-wrapper">
+	<div class="expo-text-wrapper">
+		<span class="artist">{{ artist_name }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ expo_title|capfirst }}</span>
+		<div class="bio">{{ artist_bio }}</div>
+		<div class="expo-text">{{ expo_text }}</div>
+	</div>
+	<img src="{{ expo_image1 }}" />
 </div>
 
 {% endblock %}
