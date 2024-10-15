@@ -75,7 +75,7 @@ class Exhibition(models.Model):
         logger.debug(f"Used words for exhibition title: {used_words}")
         return title
 
-    def generate_image(self, img_format: Literal["png", "jpg"] = "png") -> ContentFile | None:
+    def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.discipline_text(lang="en")
         img_prompt = f'Generate a photorealistic image of a contemporary {discipline} art exhibition named "{self.title}" with abstract {discipline} works. Don\'t show the artist, but show the artwork(s) or the performance(s) only, in the exhibition room.'
@@ -84,12 +84,12 @@ class Exhibition(models.Model):
             get_imgai_api.stable_diffusion_xl(prompt=img_prompt, output_format=img_format)
         )
         if res:
-            try:
+            if "error" in res:
+                logger.error(f"Error while requesting image generation: {res["error"]}")
+                return None
+            else:
                 cost: float = res["cost"]
                 b64_data: str = res["image"]
-            except Exception as e:
-                logger.error(f"Error while requesting image generation: {str(e)}")
-            else:
                 now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
                 filename: str = f"{now}_{self.artist.name_slug}"
                 img_bytes: bytes = base64.b64decode(b64_data, validate=True)
