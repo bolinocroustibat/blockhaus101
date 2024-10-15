@@ -15,15 +15,9 @@ SITE_ROOT = os.path.abspath(
     os.path.dirname(__file__)
 )  # SITE_ROOT is BASE_DIR + your_project_name (where this settings.py is)
 
-# Blockhaus specific - path to json cache
-JSON_PATH = os.path.join(
-    os.path.abspath(os.path.join(BASE_DIR, "blockhaus101_app", "json_data/")), ""
-)
-
 # where the static files will go when doing a collectstatic if debug=false
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 STATIC_URL = "/static/"
-
 # where the media (and notably the Blockhaus101 generated images) will go
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
