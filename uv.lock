@@ -47,7 +47,7 @@ wheels = [
 
 [[package]]
 name = "blockhaus101"
-version = "1.7.0"
+version = "1.7.1"
 source = { virtual = "." }
 dependencies = [
     { name = "babel" },
