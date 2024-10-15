@@ -23,7 +23,9 @@
 			<div class="bio">{{ e.bio }}</div>
 			<div class="text">{{ e.text }}</div>
 		</div>
+		{% if expo_image1 %}
 		<img src="{{ e.image1 }}" />
+		{% endif %}
 	</div>
 	{% endfor %}
 {% endif %}

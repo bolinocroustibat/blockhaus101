@@ -23,7 +23,9 @@
 		<div class="bio">{{ artist_bio }}</div>
 		<div class="expo-text">{{ expo_text }}</div>
 	</div>
-	<img src="{{ expo_image1 }}" />
+	{% if expo_image1 %}
+		<img src="{{ expo_image1 }}" />
+	{% endif %}
 </div>
 
 {% endblock %}

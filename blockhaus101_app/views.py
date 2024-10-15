@@ -57,7 +57,7 @@ def index(request, lang: str) -> HttpResponse:
             "artist_bio": artist.bio,
             "expo_title": exhibition.title,
             "expo_text": expo_text.text,
-            "expo_image1": exhibition.image1.url,
+            "expo_image1": exhibition.image1.url if exhibition.image1 else None,
             "artist_gender": artist.gender,
         },
     )
@@ -86,7 +86,7 @@ def exhibition(request, slug: str) -> HttpResponse:
                 "artist_bio": artist.bio,
                 "expo_title": exhibition.title,
                 "expo_text": expo_text.text,
-                "expo_image1": exhibition.image1.url,
+                "expo_image1": exhibition.image1.url if exhibition.image1 else None,
                 "artist_gender": artist.gender,
             },
         )
