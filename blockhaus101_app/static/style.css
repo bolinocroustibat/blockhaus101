@@ -69,7 +69,7 @@ li .active {
 	border-left: 1px solid black;
 	font-family: courier;
 	.expo-text-wrapper {
-		padding-left: 15px;
+		padding-right: 15px;
 		.artist {
 			margin-bottom: 15px;
 			text-transform: uppercase;
@@ -87,7 +87,8 @@ li .active {
 		}
 	}
 	img {
-		width: 400px;
+		max-width: 400px;
+		max-height: 400px;
 	}
 }
 
