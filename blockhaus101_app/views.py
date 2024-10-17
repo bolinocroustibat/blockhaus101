@@ -37,14 +37,18 @@ def index(request, lang: str) -> HttpResponse:
 
         exhibition = Exhibition(language=language)
         exhibition.artist = artist
-        exhibition.generate()
+        exhibition.generate(img=True)
         exhibition.save()
         logger.debug(f'New exhibition "{exhibition.title}" has been created in DB')
+
+        artist.generate_biography(expo_title=exhibition.title)
+        artist.save()
 
     expo_text = ExpoText(language=language, exhibition=exhibition)
     ip = get_client_ip(request)
     expo_text.generate(ip=ip)
     expo_text.save()
+
     return render(
         request,
         f"{lang}/index.html",
