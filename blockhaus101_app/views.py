@@ -31,23 +31,20 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug("There is no current exhibition.")
 
         artist = Artist(language=language)
-        artist.generate()
-        artist.save()
+        artist.generate(save=True)
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
         exhibition = Exhibition(language=language)
         exhibition.artist = artist
-        exhibition.generate(img=True)
-        exhibition.save()
+        exhibition.generate(img=True, save=True)
         logger.debug(f'New exhibition "{exhibition.title}" has been created in DB')
 
         artist.generate_biography(expo_title=exhibition.title)
         artist.save()
 
     expo_text = ExpoText(language=language, exhibition=exhibition)
-    ip = get_client_ip(request)
-    expo_text.generate(ip=ip)
-    expo_text.save()
+    ip: str = get_client_ip(request)
+    expo_text.generate(ip=ip, save=True)
 
     return render(
         request,
@@ -137,8 +134,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         if not expo_text:
             # Generate and save a text for the exhibition
             expo_text = ExpoText(language=language, exhibition=e)
-            expo_text.generate()
-            expo_text.save()
+            expo_text.generate(save=True)
         exhibition["text"] = expo_text.text
         # Image
         if e.image1:

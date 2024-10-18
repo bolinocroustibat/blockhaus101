@@ -39,7 +39,7 @@ class ExpoText(models.Model):
             self.slug = slug
             super(ExpoText, self).save(*args, **kwargs)
 
-    def generate(self, ip: str | None = None) -> None:
+    def generate(self, ip: str | None = None, save: bool = True) -> None:
         self.ip = ip
         self.text = ""
         self.used_words: dict = {}
@@ -54,6 +54,8 @@ class ExpoText(models.Model):
         if self.exhibition.artist.gender == "f":
             self.text = self.text.replace("Il ", "Elle ")
         logger.debug(f"Used words for exhibition text: {self.used_words}")
+        if save:
+            self.save()
 
     def create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(data_type__name="phrases", position=position)

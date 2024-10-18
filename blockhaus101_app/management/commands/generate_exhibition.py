@@ -34,10 +34,10 @@ class Command(BaseCommand):
         language = Language.objects.get(lang=lang)
 
         artist = Artist(language=language)
-        artist.generate()
+        artist.generate(save=False)
 
         exhibition = Exhibition(language=language, artist=artist)
-        exhibition.generate()
+        exhibition.generate(save=False)
 
         artist.generate_biography(expo_title=exhibition.title)
 
