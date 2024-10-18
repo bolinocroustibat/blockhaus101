@@ -90,6 +90,11 @@ li .active {
 		max-width: 400px;
 		max-height: 400px;
 	}
+	@media screen and (max-width: 800px) {
+		img {
+			max-width: 180px;
+			max-height: 180px;
+		}
 }
 
 .expo-wrapper a{
