@@ -52,9 +52,11 @@ class Artist(models.Model):
         # full name
         self.name = firstname.text + " " + lastname.text
 
-    def generate(self) -> None:
+    def generate(self, save: bool = True) -> None:
         self._generate_name()
         self.discipline = Data.choose_random(data_type="DISCIPLINE", language=self.language)
+        if save:
+            self.save()
 
     def generate_biography(self, expo_title: str) -> None:
         self.bio_used_words: dict = {}

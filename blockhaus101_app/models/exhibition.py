@@ -50,10 +50,12 @@ class Exhibition(models.Model):
                 logger.debug("No exhibition found, saving this new one as the first one...")
         super(Exhibition, self).save(*args, **kwargs)
 
-    def generate(self, img: bool = False) -> None:
+    def generate(self, img: bool = False, save: bool = True) -> None:
         self.title = self.generate_title()
         if img:
             self.generate_image()
+        if save:
+            self.save()
 
     def generate_title(self) -> str:
         title_structures = Data.choose_random(data_type="expos", language=self.language)
@@ -95,7 +97,7 @@ class Exhibition(models.Model):
                 img_bytes: bytes = base64.b64decode(b64_data, validate=True)
                 self.image1 = ContentFile(img_bytes, name=f"{filename}.{img_format}")
                 logger.info(
-                    f'Image generated for a cost of {cost}$ and saved in "{str(self.image1)}"'
+                    f'Image generated for a cost of {cost}$ as "{str(self.image1)}", not saved in DB (yet?)'
                 )
                 return self.image1
         return None

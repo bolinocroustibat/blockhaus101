@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
         parser.add_argument(
             "--save",
-            default=False,
+            default=True,
             action="store_true",
             help="Save into the database",
         )
@@ -29,4 +29,4 @@ class Command(BaseCommand):
 
         if options["save"]:
             exhibition.save()
-            logger.info("Exhibition with image saved in DB")
+            logger.info(f'Exhibition "{exhibition}" with image saved in DB.')
