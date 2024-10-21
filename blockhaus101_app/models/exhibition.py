@@ -7,7 +7,7 @@ from django.core.files.base import ContentFile
 from django.db import models
 
 from base_data_app.models.language import Language
-from blockhaus101.settings import logger
+from blockhaus101.settings import GETIMGAPI_PROMPT, logger
 from blockhaus101_app.helpers import GetImgAiAPI
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
@@ -58,7 +58,10 @@ class Exhibition(models.Model):
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.discipline_text(lang="en")
-        img_prompt = f'Generate a photorealistic image of a contemporary {discipline} art exhibition named "{self.title}" with abstract {discipline} works. Don\'t show the artist, but show the artwork(s) or the performance(s) only, in the exhibition room.'
+        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="en")
+        img_prompt: str = GETIMGAPI_PROMPT.format(
+            discipline=discipline, exhibition_title=exhibition_title.title
+        )
         logger.debug(img_prompt)
         res: dict | None = asyncio.run(
             get_imgai_api.stable_diffusion_xl(prompt=img_prompt, output_format=img_format)
