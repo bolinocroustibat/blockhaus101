@@ -2,7 +2,7 @@ from openai import AsyncOpenAI
 
 from blockhaus101.settings import (
     OPENAI_API_KEY,
-    OPENAI_MODEL,
+    OPENAI_MODEL_ID,
     OPENAI_SYSTEM_PROMPT,
     OPENAI_USER_PROMPT,
     logger,
@@ -10,14 +10,14 @@ from blockhaus101.settings import (
 
 
 class OpenAiAPI:
-    def initialize(self) -> None:
+    def __init__(self) -> None:
         self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        self.model = OPENAI_MODEL
+        self.model_id = OPENAI_MODEL_ID
         # Get the prompts
         self.system_prompt = OPENAI_SYSTEM_PROMPT
         self.user_prompt = OPENAI_USER_PROMPT
 
-    async def get_models_ids(self) -> list[str] | None:
+    async def get_models_ids(self) -> list[str]:
         """Get the list of the official names for all the available OpenAI models."""
         try:
             models = await self.client.models.list()
@@ -25,11 +25,11 @@ class OpenAiAPI:
         except Exception as e:
             logger.error(f"Unable to get the list of OpenAI models: {str(e)}")
 
-    async def reformulate(self, html_text: str) -> tuple[str | None, float | None, str | None]:
+    async def reformulate(self, text: str) -> tuple[str | None, float | None, str | None]:
         """Reformulate a text using GPT.
 
         Args:
-            html_text (str): _description_
+            text (str): _description_
 
         Returns:
             str: reformulated HTML text
@@ -44,12 +44,7 @@ class OpenAiAPI:
         price: float | None = None
         error_msg: str | None = None
 
-        # Initialize OpenAI
-        # openai.organization = OPENAI_ORGANIZATION
-        self.client.api_key = self.api_key
-
         # Request OpenAI
-        logger.info("Requesting OpenAI to reformulate text...")
         messages: list[dict] = [
             {
                 "role": "system",
@@ -57,13 +52,15 @@ class OpenAiAPI:
             },
             {
                 "role": "user",
-                "content": self.user_prompt.format(html_text=html_text),
+                "content": self.user_prompt.format(text=text),
             },
         ]
+        logger.info("Requesting OpenAI to reformulate text...")
+        # logger.debug(f"Messages: {messages}")
         try:
             response = await self.client.chat.completions.create(
-                model=self.model["model-name"],
-                messages=messages,
+                model=self.model_id,
+                messages=messages,  # type: ignore
                 user="warning-trading",
             )
         except Exception as e:
@@ -114,7 +111,7 @@ class OpenAiAPI:
         Returns:
             float: price of the request
         """
-        price: float = (self.model["price_input_per_1M"] * (input_tokens / 1000000)) + (
-            self.model["price_output_per_1M"] * (output_tokens / 1000000)
+        price: float = (self.model.price_input_per_1M * (input_tokens / 1000000)) + (
+            self.model.price_output_per_1M * (output_tokens / 1000000)
         )
         return price
