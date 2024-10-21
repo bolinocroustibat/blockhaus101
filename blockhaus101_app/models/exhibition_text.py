@@ -7,10 +7,11 @@ from django.template.defaultfilters import slugify
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers import correct_sentence
-from blockhaus101_app.models import Exhibition, ExhibitionTitle
+from blockhaus101_app.models.exhibition import Exhibition
+from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 
-class ExpoText(models.Model):
+class ExhibitionText(models.Model):
     language = models.ForeignKey(Language, related_name="expotexts", on_delete=models.PROTECT)
     text = models.TextField("exhibition text", max_length=3000)
     exhibition = models.ForeignKey(
@@ -32,7 +33,7 @@ class ExpoText(models.Model):
         verbose_name_plural = "textes d'exposition"
 
     def create(self, *args, **kwargs):
-        super(ExpoText, self).__init__(*args, **kwargs)
+        super(ExhibitionText, self).__init__(*args, **kwargs)
         self.ip = kwargs.get("ip", None)
         self.text = ""
         self.used_words: dict = {}
@@ -57,7 +58,7 @@ class ExpoText(models.Model):
         slug: str | None = self.unique_slugify(value=slug_string, max_elements=10)
         if slug:
             self.slug = slug
-            super(ExpoText, self).save(*args, **kwargs)
+            super(ExhibitionText, self).save(*args, **kwargs)
 
     def create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(data_type__name="phrases", position=position)

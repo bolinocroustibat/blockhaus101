@@ -18,8 +18,8 @@ from blockhaus101_app.models import (
     Artist,
     ArtistBiography,
     Exhibition,
+    ExhibitionText,
     ExhibitionTitle,
-    ExpoText,
     SiteSetting,
 )
 
@@ -33,7 +33,6 @@ def index(request, lang: str) -> HttpResponse:
     exhibition_title = ExhibitionTitle.objects.filter(
         language=language, exhibition=exhibition
     ).first()
-    logger.error(f"Exhibition title: {exhibition_title.title}")
 
     if exhibition:
         artist = exhibition.artist
@@ -55,7 +54,7 @@ def index(request, lang: str) -> HttpResponse:
         biography.generate(expo_title=exhibition_title.title, save=True)
         logger.debug(f'New artist biography "{biography.bio}" has been created in DB')
 
-    expo_text = ExpoText(language=language, exhibition=exhibition, ip=get_client_ip(request))
+    expo_text = ExhibitionText(language=language, exhibition=exhibition, ip=get_client_ip(request))
     expo_text.save()
 
     return render(
@@ -79,7 +78,7 @@ def index(request, lang: str) -> HttpResponse:
 def exhibition(request, slug: str) -> HttpResponse:
     try:
         # get expo + artist from database from expo slug
-        expo_text = ExpoText.objects.get(slug=slug)
+        expo_text = ExhibitionText.objects.get(slug=slug)
         language = expo_text.language
         description = SiteSetting.objects.get(language=language).description
         lang: str = language.lang
@@ -105,7 +104,7 @@ def exhibition(request, slug: str) -> HttpResponse:
                 "artist_gender": artist.gender,
             },
         )
-    except ExpoText.DoesNotExist:
+    except ExhibitionText.DoesNotExist:
         logger.warning("Exhibition not found")
         raise Http404("Exhibition not found")
 
@@ -134,9 +133,9 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         biography = ArtistBiography.objects.get(language=language, artist=e.artist)
         exhibition["bio"] = biography.bio
         # Get an existing text for each exhibition
-        expo_text = ExpoText.objects.filter(language=language, exhibition=e).first()
+        expo_text = ExhibitionText.objects.filter(language=language, exhibition=e).first()
         if not expo_text:
-            expo_text = ExpoText(language=language, exhibition=e)
+            expo_text = ExhibitionText(language=language, exhibition=e)
             expo_text.save()
         exhibition["text"] = expo_text.text
         # Image
