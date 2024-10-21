@@ -1,4 +1,5 @@
 # ruff: noqa: F401
+from .ai_model import AiModel
 from .artist import Artist
 from .artist_bio import ArtistBiography
 from .exhibition import Exhibition
