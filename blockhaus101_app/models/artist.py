@@ -36,7 +36,7 @@ class Artist(models.Model):
 
     def discipline_text(self, language: Language | None = None) -> str:
         if language:
-            if self.discipline.translation
+            if self.discipline.translation:
                 if self.discipline.translation.language == language:
                     return self.discipline.translation.text
             translated_discipline = Data.objects.filter(
