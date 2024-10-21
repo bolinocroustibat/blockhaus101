@@ -31,11 +31,6 @@ class Exhibition(models.Model):
         exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="fr")
         return f"{exhibition_title.text} ({self.pk})"
 
-    def create(self, *args, **kwargs):
-        super(Exhibition, self).__init__(*args, **kwargs)
-        language = Language.objects.get(lang="fr")  # default language
-        ExhibitionTitle.objects.create(exhibition=self, language=language)
-
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
             try:
@@ -57,8 +52,9 @@ class Exhibition(models.Model):
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
-        discipline: str = self.artist.discipline_text(lang="en")
-        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="en")
+        language = Language.objects.get(lang="en")
+        discipline: str = self.artist.discipline_text(language=language)
+        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language=language)
         img_prompt: str = GETIMGAPI_PROMPT.format(
             discipline=discipline, exhibition_title=exhibition_title.text
         )

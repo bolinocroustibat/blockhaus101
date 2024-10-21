@@ -17,8 +17,7 @@ class Artist(models.Model):
     def __str__(self) -> str:
         return f"{self.name} ({self.pk})"
 
-    def create(self, *args, **kwargs):
-        super(Artist, self).__init__(*args, **kwargs)
+    def generate(self, *args, **kwargs):
         # first name and genre
         firstname = Data.choose_random(data_type="FIRSTNAME")
         self.gender = firstname.gender
@@ -35,19 +34,17 @@ class Artist(models.Model):
     def name_slug(self) -> str:
         return self.name.replace(" ", "-").lower()
 
-    def discipline_text(self, lang: str | None = None) -> str:
-        if lang:
-            try:
-                language = Language.objects.get(lang=lang)
-            except Language.DoesNotExist:
-                logger.error(f"Language {lang} doesn't exist")
+    def discipline_text(self, language: Language | None = None) -> str:
+        if language:
+            if self.discipline.translation.language == language:
+                return self.discipline.translation.text
             else:
                 translated_discipline = Data.objects.filter(
                     data_type__name="DISCIPLINE", language=language, translation=self.discipline
                 ).first()
                 if translated_discipline:
                     return translated_discipline.text
-                logger.warning(
-                    f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
-                )
+            logger.warning(
+                f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
+            )
         return self.discipline.text

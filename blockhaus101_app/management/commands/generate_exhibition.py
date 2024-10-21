@@ -33,12 +33,15 @@ class Command(BaseCommand):
         language = Language.objects.get(lang=lang)
 
         artist = Artist()
-        exhibition = Exhibition(artist)
-        exhibition_title = ExhibitionTitle(exhibition, language)
+        artist.generate()
+        exhibition = Exhibition(artist=artist)
+        exhibition_title = ExhibitionTitle(language=language, exhibition=exhibition)
+        exhibition_title.generate()
         biography = ArtistBiography(artist=artist, language=language)
-        biography.generate(expo_title=exhibition_title.text)
+        biography.generate(expo_title=exhibition_title.text, save=False)
 
         logger.info(artist)
+        logger.info(biography.text)
         logger.info(exhibition_title.text)
 
         if options["save"] or options["img"]:

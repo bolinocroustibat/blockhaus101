@@ -21,7 +21,7 @@ class TestGenerateContent(TestCase):
         self.artist = Artist()
         logger.info(f'New artist "{self.artist.name}" generated')
         self.exhibition.artist = self.artist
-        self.exhibition.generate(save=False)
+        self.exhibition = Exhibition(artist=self.artist)
         logger.info(f'New exhibition "{self.exhibition.text}" generated')
 
     def test_generate_tweet(self):

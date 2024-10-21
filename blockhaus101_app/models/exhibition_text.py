@@ -12,13 +12,13 @@ from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 class ExhibitionText(models.Model):
     language = models.ForeignKey(Language, related_name="expotexts", on_delete=models.PROTECT)
-    text = models.TextField("exhibition text", max_length=3000)
     exhibition = models.ForeignKey(
         "Exhibition",
         related_name="expotexts",
         on_delete=models.CASCADE,
         verbose_name="exhibition",
     )
+    text = models.TextField("exhibition text", max_length=3000)
     slug = models.SlugField(default=None, null=True, blank=True, max_length=150, verbose_name="URL")
     ip = models.GenericIPAddressField("creator IP address", blank=True, null=True)
     created = models.DateTimeField(auto_now=True)
@@ -31,21 +31,21 @@ class ExhibitionText(models.Model):
         verbose_name = "texte d'exposition"
         verbose_name_plural = "textes d'exposition"
 
-    def create(self, *args, **kwargs):
-        super(ExhibitionText, self).__init__(*args, **kwargs)
+    def generate(self, *args, **kwargs):
         self.ip = kwargs.get("ip", None)
         self.text = ""
         self.used_words: dict = {}
         if randint(1, 3) == 1:
-            self.text = self.create_expo_sentence(position=1)
-        self.text = self.text + " " + self.create_expo_sentence(position=2)
+            self.text = self._create_expo_sentence(position=1)
+        self.text = self.text + " " + self._create_expo_sentence(position=2)
         if randint(1, 3) == 1:
-            self.text = self.text + " " + self.create_expo_sentence(position=3)
-        self.text = self.text + " " + self.create_expo_sentence(position=4)
-        self.text = self.text + " " + self.create_expo_sentence(position=5)
-        self.text = self.text + " " + self.create_expo_sentence(position=6)
+            self.text = self.text + " " + self._create_expo_sentence(position=3)
+        self.text = self.text + " " + self._create_expo_sentence(position=4)
+        self.text = self.text + " " + self._create_expo_sentence(position=5)
+        self.text = self.text + " " + self._create_expo_sentence(position=6)
         if self.exhibition.artist.gender == "f":
             self.text = self.text.replace("Il ", "Elle ")
+        self.text = correct_sentence(lang=self.language.lang, sentence=self.text)
         logger.debug(f"Used words for exhibition text: {self.used_words}")
 
     def save(self, *args, **kwargs) -> None:
@@ -54,18 +54,23 @@ class ExhibitionText(models.Model):
         )
         slug_string = f"{self.exhibition.artist.name}-{exhibition_title.text}"
         # if this slug exists for others, add a number at the end of the slug attribute of the instance:
-        slug: str | None = self.unique_slugify(value=slug_string, max_elements=10)
+        slug: str | None = self._unique_slugify(value=slug_string, max_elements=10)
         if slug:
             self.slug = slug
             super(ExhibitionText, self).save(*args, **kwargs)
 
-    def create_expo_sentence(self, position: int) -> str:
+    def _create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(data_type__name="phrases", position=position)
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
-        sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text())
-        sentence = sentence.replace("[SELFEXPO]", self.exhibition.text)
-        sentence = sentence.replace("[EXPO]", self.exhibition.generate_title(self.language))
+        sentence = sentence.replace(
+            "[SELFDISCIPLINE]", self.exhibition.artist.discipline_text(language=self.language)
+        )
+        exhibition_title = ExhibitionTitle.objects.get(
+            exhibition=self.exhibition, language=self.language
+        )
+        sentence = sentence.replace("[SELFEXPO]", exhibition_title.text)
+        sentence = sentence.replace("[EXPO]", exhibition_title.generate())
         keywords: list = re.findall(r"\[[^][]*]", sentence)
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
@@ -80,7 +85,7 @@ class ExhibitionText(models.Model):
         sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
         return sentence
 
-    def unique_slugify(self, value: str, max_elements: int | None = None) -> str | None:
+    def _unique_slugify(self, value: str, max_elements: int | None = None) -> str | None:
         """
         Modified from SmileyChris' post @ https://djangosnippets.org/snippets/690/
         Calculates a unique slug of ``value`` for an instance.
