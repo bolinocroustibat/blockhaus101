@@ -5,8 +5,8 @@ from blockhaus101_app.models import (
     Artist,
     ArtistBiography,
     Exhibition,
+    ExhibitionText,
     ExhibitionTitle,
-    ExpoText,
     SiteSetting,
 )
 
@@ -40,8 +40,8 @@ class ExhibitionTitleAdminInline(admin.TabularInline):
     extra = 1
 
 
-class ExpoTextAdminInline(admin.TabularInline):
-    model = ExpoText
+class ExhibitionTextAdminInline(admin.TabularInline):
+    model = ExhibitionText
     extra = 1
     exclude = ("ip",)
     readonly_fields = ("slug",)
@@ -53,7 +53,7 @@ class ExhibitionAdmin(admin.ModelAdmin):
     list_display = ("get_fr_title", "startdate", "enddate", "created", "id")
     list_filter = ("artist__name",)
     search_fields = ["get_fr_title", "get_en_title", "artist__name"]
-    inlines = [ExhibitionTitleAdminInline, ExpoTextAdminInline]
+    inlines = [ExhibitionTitleAdminInline, ExhibitionTextAdminInline]
 
     def get_fr_title(self, obj):
         return obj.titles.filter(language__lang="fr").first().title
