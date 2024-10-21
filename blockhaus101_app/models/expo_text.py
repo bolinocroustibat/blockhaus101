@@ -28,8 +28,8 @@ class ExpoText(models.Model):
 
     class Meta:
         db_table = "blockhaus101_expotexts"
-        verbose_name = "Exhibition text"
-        verbose_name_plural = "Exhibitions texts"
+        verbose_name = "texte d'exposition"
+        verbose_name_plural = "textes d'exposition"
 
     def save(self, *args, **kwargs) -> None:
         slug_string = f"{self.exhibition.artist.name}-{self.exhibition.title}"
@@ -63,7 +63,7 @@ class ExpoText(models.Model):
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text())
         sentence = sentence.replace("[SELFEXPO]", self.exhibition.title)
-        sentence = sentence.replace("[EXPO]", self.exhibition.generate_title())
+        sentence = sentence.replace("[EXPO]", self.exhibition.generate_title(self.language))
         keywords: list = re.findall(r"\[[^][]*]", sentence)
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")

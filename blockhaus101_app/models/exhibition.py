@@ -7,7 +7,8 @@ from typing import Literal, Self
 from django.core.files.base import ContentFile
 from django.db import models
 
-from base_data_app.models import Data, Language
+from base_data_app.models import Data
+from base_data_app.models.language import Language
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers import GetImgAiAPI
 from blockhaus101_app.models.artist import Artist
@@ -15,7 +16,6 @@ from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
-    language = models.ForeignKey(Language, related_name="exhibitions", on_delete=models.PROTECT)
     title = models.CharField("exhibition title", max_length=80)
     artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.PROTECT)
     startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
@@ -27,9 +27,10 @@ class Exhibition(models.Model):
 
     class Meta:
         db_table = "blockhaus101_exhibitions"
+        verbose_name = "exposition"
 
     def __str__(self) -> str:
-        return self.title
+        return f"{self.title} ({self.pk})"
 
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
@@ -51,14 +52,15 @@ class Exhibition(models.Model):
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate(self, img: bool = False, save: bool = True) -> None:
-        self.title = self.generate_title()
+        language = Language.objects.get(lang="fr")
+        self.title = self.generate_title(language)  # TODO: generate for both languages
         if img:
             self.generate_image()
         if save:
             self.save()
 
-    def generate_title(self) -> str:
-        title_structures = Data.choose_random(data_type="expos", language=self.language)
+    def generate_title(self, language: Language) -> str:
+        title_structures = Data.choose_random(data_type="expos", language=language)
         title = title_structures.text
         title = title.replace("[SELF]", self.artist.name)
         title = title.replace("[SELFDISCIPLINE]", self.artist.discipline_text())
@@ -67,7 +69,7 @@ class Exhibition(models.Model):
         for k in keywords:
             word_type = k.replace("[", "").replace("]", "")
             chosen_data = Data.choose_random_excluding(
-                data_type=word_type, language=self.language, excluding=used_words
+                data_type=word_type, language=language, excluding=used_words
             )
             if chosen_data:
                 chosen_word = chosen_data[0]
@@ -103,12 +105,11 @@ class Exhibition(models.Model):
         return None
 
     @classmethod
-    def get_current(cls, lang: str = "fr") -> Self | None:
+    def get_current(cls) -> Self | None:
         """
         Get the exhibition for the current period
         """
         exhibitions = cls.objects.filter(
-            language__lang=lang,
             startdate__lte=datetime.now(),
             enddate__gte=datetime.now(),
         )

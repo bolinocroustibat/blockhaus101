@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.models import Artist, Exhibition
+from blockhaus101_app.models import Artist, ArtistBiography, Exhibition
 
 
 class Command(BaseCommand):
@@ -33,19 +33,21 @@ class Command(BaseCommand):
 
         language = Language.objects.get(lang=lang)
 
-        artist = Artist(language=language)
+        artist = Artist()
         artist.generate(save=False)
 
-        exhibition = Exhibition(language=language, artist=artist)
+        exhibition = Exhibition(artist=artist)
         exhibition.generate(save=False)
 
-        artist.generate_biography(expo_title=exhibition.title)
+        biography = ArtistBiography(artist=artist, language=language)
+        biography.generate(expo_title=exhibition.title, save=False)
 
         logger.info(artist)
         logger.info(exhibition)
 
         if options["save"] or options["img"]:
             artist.save()
+            biography.save()
             logger.info("Artist saved in DB with its biography")
 
             if options["img"]:

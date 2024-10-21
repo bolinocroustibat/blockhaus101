@@ -24,7 +24,8 @@ class SiteSetting(models.Model):
 
     class Meta:
         db_table = "blockhaus101_settings"
-        verbose_name = "General setting"
+        verbose_name = "réglage du site"
+        verbose_name_plural = "réglages du site"
 
     def __str__(self) -> str:
         return "Settings {}".format(self.language)
