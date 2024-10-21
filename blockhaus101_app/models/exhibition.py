@@ -1,22 +1,20 @@
 import asyncio
 import base64
-import re
 from datetime import datetime, timedelta
 from typing import Literal, Self
 
 from django.core.files.base import ContentFile
 from django.db import models
 
-from base_data_app.models import Data
 from base_data_app.models.language import Language
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers import GetImgAiAPI
 from blockhaus101_app.models.artist import Artist
+from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
-    title = models.CharField("exhibition title", max_length=80)
     artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.PROTECT)
     startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
     enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
@@ -30,12 +28,13 @@ class Exhibition(models.Model):
         verbose_name = "exposition"
 
     def __str__(self) -> str:
-        return f"{self.title} ({self.pk})"
+        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="fr")
+        return f"{exhibition_title.title} ({self.pk})"
 
     def create(self, *args, **kwargs):
         super(Exhibition, self).__init__(*args, **kwargs)
         language = Language.objects.get(lang="fr")  # default language
-        self.title = self.generate_title(language)  # TODO: generate titles for both languages
+        ExhibitionTitle.objects.create(exhibition=self, language=language)
 
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
@@ -55,26 +54,6 @@ class Exhibition(models.Model):
                 self.enddate = datetime.now() + timedelta(days=period)
                 logger.debug("No exhibition found, saving this new one as the first one...")
         super(Exhibition, self).save(*args, **kwargs)
-
-    def generate_title(self, language: Language) -> str:
-        title_structures = Data.choose_random(data_type="expos", language=language)
-        title = title_structures.text
-        title = title.replace("[SELF]", self.artist.name)
-        title = title.replace("[SELFDISCIPLINE]", self.artist.discipline_text())
-        keywords: list = re.findall(r"\[[^][]*]", title)
-        used_words: dict = {}
-        for k in keywords:
-            word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random_excluding(
-                data_type=word_type, language=language, excluding=used_words
-            )
-            if chosen_data:
-                chosen_word = chosen_data[0]
-                used_words = chosen_data[1]
-                # only replace one occurence, we want the same keyword to be able to be replaced by another word
-                title = title.replace(f"[{word_type}]", chosen_word, 1)
-        logger.debug(f"Used words for exhibition title: {used_words}")
-        return title
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()

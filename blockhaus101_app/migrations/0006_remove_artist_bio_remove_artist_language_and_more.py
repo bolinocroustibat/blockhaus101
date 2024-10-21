@@ -4,7 +4,7 @@ import django.db.models.deletion
 from django.db import migrations, models
 
 
-def migrate_biograhies(apps, schema_editor):
+def migrate_biographies(apps, schema_editor):
     # Move existing artist bios to the new model
     Artist = apps.get_model("blockhaus101_app", "Artist")
     ArtistBiography = apps.get_model("blockhaus101_app", "ArtistBiography")
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 "db_table": "blockhaus101_artists_biographies",
             },
         ),
-        migrations.RunPython(migrate_biograhies),
+        migrations.RunPython(migrate_biographies),
         migrations.RemoveField(
             model_name="artist",
             name="bio",
