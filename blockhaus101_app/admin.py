@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from blockhaus101.settings import ENVIRONMENT, VERSION
-from blockhaus101_app.models import Artist, Exhibition, ExpoText, SiteSetting
+from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, ExpoText, SiteSetting
 
 admin.AdminSite.site_header = f"Blockhaus101 {VERSION} ({ENVIRONMENT})"
 admin.AdminSite.site_title = "Blockhaus101"
@@ -14,25 +14,31 @@ class SiteSettingAdmin(admin.ModelAdmin):
     list_display = ("language", "period")
 
 
-@admin.register(Exhibition)
-class ExhibitionAdmin(admin.ModelAdmin):
-    model = Exhibition
-    list_display = ("title", "startdate", "enddate", "created", "language", "id")
-    list_filter = ("language", "artist__name")
-    search_fields = ["title", "artist__name"]
+class ArtistBioAdminInline(admin.TabularInline):
+    model = ArtistBiography
+    extra = 1
 
 
 @admin.register(Artist)
 class ArtistAdmin(admin.ModelAdmin):
     model = Artist
-    list_display = ("name", "gender", "discipline", "created", "language", "id")
-    list_filter = ("language",)
+    list_display = ("name", "gender", "discipline", "created", "id")
+    list_filter = ("gender",)
     search_fields = ["name", "discipline", "gender"]
+    inlines = [ArtistBioAdminInline]
 
 
-@admin.register(ExpoText)
-class ExpoTextAdmin(admin.ModelAdmin):
+class ExpoTextAdminInline(admin.TabularInline):
     model = ExpoText
-    list_display = ("text", "exhibition", "slug", "ip", "created", "language", "id")
-    list_filter = ("language", "ip")
-    search_fields = ["text"]
+    extra = 1
+    exclude = ("ip",)
+    readonly_fields = ("slug",)
+
+
+@admin.register(Exhibition)
+class ExhibitionAdmin(admin.ModelAdmin):
+    model = Exhibition
+    list_display = ("title", "startdate", "enddate", "created", "id")
+    list_filter = ("artist__name",)
+    search_fields = ["title", "artist__name"]
+    inlines = [ExpoTextAdminInline]

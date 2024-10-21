@@ -11,7 +11,7 @@ class TestGenerateContent(TestCase):
 
     def test_generate_exhibition(self):
         # try to get exhibition for current period
-        current_exhibition = Exhibition.get_current(lang="fr")
+        current_exhibition = Exhibition.get_current()
         if current_exhibition:
             self.exhibition = current_exhibition
             self.artist = Artist.objects.filter(artist_exhibition=self.exhibition)[0]

@@ -14,7 +14,7 @@ from blockhaus101.settings import (
 )
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
-from blockhaus101_app.models import Artist, Exhibition, ExpoText, SiteSetting
+from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, ExpoText, SiteSetting
 
 
 def index(request, lang: str) -> HttpResponse:
@@ -22,25 +22,27 @@ def index(request, lang: str) -> HttpResponse:
     description = SiteSetting.objects.get(language=language).description
 
     # try to get an exhibition for current period
-    exhibition = Exhibition.get_current(lang=lang)
+    exhibition = Exhibition.get_current()
 
     if exhibition:
         artist = Artist.objects.filter(exhibitions=exhibition).first()
+        biography = ArtistBiography.objects.filter(artist=artist, language=language).first()
         logger.info(f'Current exhibition: {artist.name} "{exhibition.title}"')
     else:
         logger.debug("There is no current exhibition.")
 
-        artist = Artist(language=language)
+        artist = Artist()
         artist.generate(save=True)
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
-        exhibition = Exhibition(language=language)
+        exhibition = Exhibition()
         exhibition.artist = artist
         exhibition.generate(img=True, save=True)
         logger.debug(f'New exhibition "{exhibition.title}" has been created in DB')
 
-        artist.generate_biography(expo_title=exhibition.title)
-        artist.save()
+        biography = ArtistBiography(language=language, artist=artist)
+        biography.generate(expo_title=exhibition.title, save=True)
+        logger.debug(f'New artist biography "{biography.bio}" has been created in DB')
 
     expo_text = ExpoText(language=language, exhibition=exhibition)
     ip: str = get_client_ip(request)
@@ -55,7 +57,7 @@ def index(request, lang: str) -> HttpResponse:
             "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang),
             "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
             "artist_name": artist.name,
-            "artist_bio": artist.bio,
+            "artist_bio": biography.bio,
             "expo_title": exhibition.title,
             "expo_text": expo_text.text,
             "expo_image1": exhibition.image1.url if exhibition.image1 else None,
@@ -107,9 +109,7 @@ def exhibition(request, slug: str) -> HttpResponse:
 def past_exhibitions(request, lang: str) -> HttpResponse:
     language = Language.objects.get(lang=lang)
     full_exhibs = list()
-    exhibitions = Exhibition.objects.filter(
-        language=language, enddate__lte=datetime.now()
-    ).order_by("-enddate")
+    exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by("-enddate")
     # # Get all artists with enddate before today
     # artists = Artist.objects.filter(enddate__lte=datetime.now())
     for e in exhibitions:
@@ -128,7 +128,11 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         exhibition["enddate"] = format_date(enddate, format="long", locale=lang)
         exhibition["title"] = e.title
         exhibition["name"] = e.artist.name
-        exhibition["bio"] = e.artist.bio
+        biography = ArtistBiography.objects.get(artist=e.artist, language=language)
+        if not biography:  # TODO: shouldn't happen, to be removed
+            biography = ArtistBiography(artist=e.artist, language=language)
+            biography.generate(expo_title=e.title, save=True)
+        exhibition["bio"] = biography.bio
         # Get an existing text for each exhibition
         expo_text = ExpoText.objects.filter(language=language, exhibition=e).first()
         if not expo_text:
