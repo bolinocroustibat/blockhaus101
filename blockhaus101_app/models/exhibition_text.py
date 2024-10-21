@@ -7,7 +7,6 @@ from django.template.defaultfilters import slugify
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers import correct_sentence
-from blockhaus101_app.models.exhibition import Exhibition
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 
@@ -15,7 +14,7 @@ class ExhibitionText(models.Model):
     language = models.ForeignKey(Language, related_name="expotexts", on_delete=models.PROTECT)
     text = models.TextField("exhibition text", max_length=3000)
     exhibition = models.ForeignKey(
-        Exhibition,
+        "Exhibition",
         related_name="expotexts",
         on_delete=models.CASCADE,
         verbose_name="exhibition",
