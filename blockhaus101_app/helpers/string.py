@@ -1,7 +1,11 @@
+from typing import Literal
+
 from blockhaus101.settings import logger
 
 
-def correct_sentence(lang: str, sentence: str) -> str:
+def correct_sentence(
+    lang: str, sentence: str, subject_gender: Literal["f", "m"] | None = None
+) -> str:
     # Remove first and  end spaces
     sentence = "".join(sentence.rstrip().lstrip())
 
@@ -75,6 +79,15 @@ def correct_sentence(lang: str, sentence: str) -> str:
         sentence = _strtr(sentence, CORRECTIONS_EN)
     elif lang == "fr":
         sentence = _strtr(sentence, CORRECTIONS_FR)
+        if subject_gender == "f":
+            sentence = sentence.replace(" il ", " elle ")
+            sentence = sentence.replace("qu'il ", "qu'elle ")
+            sentence = sentence.replace("Il ", "Elle ")
+            sentence = sentence.replace(" né ", " née ")
+            sentence = sentence.replace("Né ", "Née ")
+            sentence = sentence.replace("iplômé ", "iplômée ")
+            sentence = sentence.replace("marqué ", "marquée ")
+            sentence = sentence.replace("obsédé ", "obsédée ")
     else:
         logger.error(f"Language not supported: {lang}")
     return capitalize_sentence(sentence)

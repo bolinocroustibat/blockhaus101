@@ -34,15 +34,6 @@ class ArtistBiography(models.Model):
             self.bio = (
                 self.bio + " " + self._generate_bio_sentence(position=4, expo_title=expo_title)
             )
-        if self.artist.gender == "f":
-            self.bio = self.bio.replace(" il ", " elle ")
-            self.bio = self.bio.replace("qu'il ", "qu'elle ")
-            self.bio = self.bio.replace("Il ", " Elle ")
-            self.bio = self.bio.replace(" né ", " née ")
-            self.bio = self.bio.replace("Né ", "Née ")
-            self.bio = self.bio.replace("iplômé ", "iplômée ")
-            self.bio = self.bio.replace("marqué ", "marquée ")
-            self.bio = self.bio.replace("obsédé ", "obsédée ")
         logger.debug(f"Used words for artist biography: {self.bio_used_words}")
         if save:
             self.save()
