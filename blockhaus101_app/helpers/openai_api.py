@@ -3,7 +3,6 @@ from openai import AsyncOpenAI
 from blockhaus101.settings import (
     OPENAI_API_KEY,
     OPENAI_MODEL,
-    OPENAI_MODELS,
     OPENAI_SYSTEM_PROMPT,
     OPENAI_USER_PROMPT,
     logger,
@@ -11,22 +10,20 @@ from blockhaus101.settings import (
 
 
 class OpenAiAPI:
-    def __init__(self):
-        try:
-            self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-            self.model: dict = next(
-                (model for model in OPENAI_MODELS if model["model-name"] == OPENAI_MODEL)
-            )
-            self.system_prompt = OPENAI_SYSTEM_PROMPT
-            self.user_prompt = OPENAI_USER_PROMPT
-        except Exception:
-            error_msg = "La configuration OpenAI n'est pas valide. OpenAI API key, OpenAI system prompt et OpenAI user prompt ont-ils bien été configurés dans les réglages ?"  # noqa: E501
-            logger.error(error_msg)
-            return error_msg
+    def initialize(self) -> None:
+        self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        self.model = OPENAI_MODEL
+        # Get the prompts
+        self.system_prompt = OPENAI_SYSTEM_PROMPT
+        self.user_prompt = OPENAI_USER_PROMPT
 
-    @property
-    def model_friendly_name(self) -> str:
-        return self.model["friendly-name"]
+    async def get_models_ids(self) -> list[str] | None:
+        """Get the list of the official names for all the available OpenAI models."""
+        try:
+            models = await self.client.models.list()
+            return [m.id for m in models.data]
+        except Exception as e:
+            logger.error(f"Unable to get the list of OpenAI models: {str(e)}")
 
     async def reformulate(self, html_text: str) -> tuple[str | None, float | None, str | None]:
         """Reformulate a text using GPT.

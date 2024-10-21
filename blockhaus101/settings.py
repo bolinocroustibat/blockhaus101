@@ -131,67 +131,9 @@ CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 # A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.  # noqa 501
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).
 # https://openai.com/pricing/
-OPENAI_MODELS = [
-    {
-        "friendly-name": "GPT-4 Turbo 2024-04-09 (optimized for vision)",
-        "model-name": "gpt-4-turbo-2024-04-09",
-        "max-input-tokens": 128000,
-        "max-output-tokens": 4096,
-        "price_input_per_1M": 10,
-        "price_output_per_1M": 30,
-    },
-    {
-        "friendly-name": "GPT-4 Turbo 0125 preview",
-        "model-name": "gpt-4-0125-preview",
-        "max-input-tokens": 128000,
-        "max-output-tokens": 4096,
-        "price_input_per_1M": 10,
-        "price_output_per_1M": 30,
-    },
-    {
-        "friendly-name": "GPT-4 Turbo 1106 preview",
-        "model-name": "gpt-4-1106-preview",
-        "max-input-tokens": 128000,
-        "max-output-tokens": 4096,
-        "price_input_per_1M": 10,
-        "price_output_per_1M": 30,
-    },
-    {
-        "friendly-name": "GPT-4 0613",
-        "model-name": "gpt-4",
-        "max-input-tokens": 8192,
-        "max-output-tokens": 8192,
-        "price_input_per_1M": 30,
-        "price_output_per_1M": 60,
-    },  # https://community.openai.com/t/gpt-4-32k-vs-gpt-4-turbo-api-legal-advice-on-using/659991/7
-    {
-        "friendly-name": "GPT-4 32k",
-        "model-name": "gpt-4-32k",
-        "max-input-tokens": 32768,
-        "max-output-tokens": 32768,
-        "price_input_per_1M": 60,
-        "price_output_per_1M": 120,
-    },  # https://community.openai.com/t/gpt-4-32k-vs-gpt-4-turbo-api-legal-advice-on-using/659991/7
-    {
-        "friendly-name": "GPT-3.5 Turbo 0125",
-        "model-name": "gpt-3.5-turbo-0125",
-        "max-input-tokens": 16385,
-        "max-output-tokens": 4096,
-        "price_input_per_1M": 0.5,
-        "price_output_per_1M": 1.5,
-    },
-    {
-        "friendly-name": "GPT-3.5 Turbo Instruct",
-        "model-name": "gpt-3.5-turbo-instruct",
-        "max-input-tokens": 4096,
-        "max-output-tokens": 4096,
-        "price_input_per_1M": 1.5,
-        "price_output_per_1M": 2,
-    },
-]
 OPENAI_MODEL = "gpt-3.5-turbo-0125"
 OPENAI_SYSTEM_PROMPT = "Bonjour, vous parlez français et vous pouvez reformuler un texte français en gradant son style et son sens, mais en l'étoffant légèrement."
-OPENAI_USER_PROMPT = "Je souhaite que vous reformuliez ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allonge, si possible autour de 50% plus long. Ne pas inclure dans votre réponse autre chose que le texte en lui-même. Voici le texte HTML à reformuler: « {html_text} »"
+OPENAI_USER_PROMPT = "Je souhaite que vous reformuliez ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans votre réponse autre chose que le texte en lui-même. Voici le texte HTML à reformuler: « {html_text} »"
 
 GETIMGAPI_PROMPT = 'Generate a photorealistic image of a contemporary {discipline} art exhibition named "{exhibition_title}" with abstract {discipline} works. Don\'t show the artist, but show the artwork(s) or the performance(s) only, in the exhibition room.'
 

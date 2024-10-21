@@ -14,7 +14,7 @@ class ArtistBiography(models.Model):
     text = models.TextField("artist biography", max_length=2000)
 
     def __str__(self) -> str:
-        return f"{self.artist.name} ({self.language.lang})"
+        return f"{self.text[:20]} ({self.pk})"
 
     class Meta:
         db_table = "blockhaus101_artists_biographies"
@@ -44,7 +44,9 @@ class ArtistBiography(models.Model):
         )
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.artist.name)
-        biosentence = biosentence.replace("[SELFDISCIPLINE]", self.artist.discipline_text())
+        biosentence = biosentence.replace(
+            "[SELFDISCIPLINE]", self.artist.discipline_text(language=self.language)
+        )
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
             if k == "[EXPO]":

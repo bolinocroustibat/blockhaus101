@@ -30,9 +30,7 @@ def index(request, lang: str) -> HttpResponse:
 
     # try to get an exhibition for current period
     exhibition = Exhibition.get_current()
-    exhibition_title = ExhibitionTitle.objects.filter(
-        language=language, exhibition=exhibition
-    ).first()
+    exhibition_title = ExhibitionTitle.objects.get(language=language, exhibition=exhibition)
 
     if exhibition:
         artist = exhibition.artist
@@ -42,10 +40,13 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug("There is no current exhibition.")
 
         artist = Artist()
+        artist.generate()
         artist.save()
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
-        exhibition = Exhibition(artist)
+        exhibition = Exhibition(artist=artist)
+        exhibition_title = ExhibitionTitle(language=language, exhibition=exhibition)
+        exhibition_title.generate()
         exhibition.generate_image()
         exhibition.save()
         logger.debug(f'New exhibition "{exhibition_title.text}" has been created in DB')
@@ -55,6 +56,7 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 
     expo_text = ExhibitionText(language=language, exhibition=exhibition, ip=get_client_ip(request))
+    expo_text.generate()
     expo_text.save()
 
     return render(
@@ -134,9 +136,6 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         exhibition["bio"] = biography.text
         # Get an existing text for each exhibition
         expo_text = ExhibitionText.objects.filter(language=language, exhibition=e).first()
-        if not expo_text:
-            expo_text = ExhibitionText(language=language, exhibition=e)
-            expo_text.save()
         exhibition["text"] = expo_text.text
         # Image
         exhibition["image1"] = None

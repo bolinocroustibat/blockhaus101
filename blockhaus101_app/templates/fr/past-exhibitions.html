@@ -19,8 +19,8 @@
 	<div class="past-expo-date mb-4 mt-5">Du {{ e.startdate }} au {{ e.enddate }}</div>
 	<div class="col-lg-8 col-12 mb-5 expo-wrapper">
 		<div class="expo-text-wrapper">
-			<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.text|capfirst }}</span>
-			<div class="bio">{{ e.text }}</div>
+			<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title|capfirst }}</span>
+			<div class="bio">{{ e.bio }}</div>
 			<div class="text">{{ e.text }}</div>
 		</div>
 		{% if e.image1 %}

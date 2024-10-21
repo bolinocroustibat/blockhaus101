@@ -21,7 +21,7 @@ class Command(BaseCommand):
         # try to get the exhibition for current period
         exhibition = Exhibition.get_current()
         artist = Artist.objects.filter(exhibitions=exhibition)[0]
-        logger.info(f'Current exhibition: {artist.name} "{exhibition.text}"')
+        logger.info(f'Current exhibition: {artist.name} "{exhibition}"')
         tweet = generate_tweet(
             lang=options["lang"],
             artist=artist,
