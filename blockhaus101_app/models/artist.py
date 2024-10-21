@@ -36,14 +36,14 @@ class Artist(models.Model):
 
     def discipline_text(self, language: Language | None = None) -> str:
         if language:
-            if self.discipline.translation.language == language:
-                return self.discipline.translation.text
-            else:
-                translated_discipline = Data.objects.filter(
-                    data_type__name="DISCIPLINE", language=language, translation=self.discipline
-                ).first()
-                if translated_discipline:
-                    return translated_discipline.text
+            if self.discipline.translation
+                if self.discipline.translation.language == language:
+                    return self.discipline.translation.text
+            translated_discipline = Data.objects.filter(
+                data_type__name="DISCIPLINE", language=language, translation=self.discipline
+            ).first()
+            if translated_discipline:
+                return translated_discipline.text
             logger.warning(
                 f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
             )
