@@ -56,7 +56,7 @@ class ExhibitionAdmin(admin.ModelAdmin):
     inlines = [ExhibitionTitleAdminInline, ExhibitionTextAdminInline]
 
     def get_fr_title(self, obj):
-        return obj.titles.filter(language__lang="fr").first().title
+        return obj.texts.filter(language__lang="fr").first().title
 
     def get_en_title(self, obj):
         return obj.titles.filter(language__lang="en").first().title

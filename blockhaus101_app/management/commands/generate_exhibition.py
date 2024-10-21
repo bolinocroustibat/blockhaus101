@@ -6,7 +6,7 @@ from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, Exhibit
 
 
 class Command(BaseCommand):
-    help = "Generate new artist and save in the DB"
+    help = "Generate new exhibition with artist and biography"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -30,16 +30,16 @@ class Command(BaseCommand):
         if lang not in ["fr", "en"]:
             logger.error("Language code doesn't exist")
             raise ValueError
-
         language = Language.objects.get(lang=lang)
+
         artist = Artist()
         exhibition = Exhibition(artist)
         exhibition_title = ExhibitionTitle(exhibition, language)
         biography = ArtistBiography(artist=artist, language=language)
-        biography.generate(expo_title=exhibition_title.title)
+        biography.generate(expo_title=exhibition_title.text)
 
         logger.info(artist)
-        logger.info(exhibition_title.title)
+        logger.info(exhibition_title.text)
 
         if options["save"] or options["img"]:
             artist.save()

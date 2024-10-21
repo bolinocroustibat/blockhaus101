@@ -9,7 +9,7 @@ from blockhaus101.settings import logger
 class ExhibitionTitle(models.Model):
     language = models.ForeignKey(Language, related_name="titles", on_delete=models.PROTECT)
     exhibition = models.ForeignKey("Exhibition", related_name="titles", on_delete=models.CASCADE)
-    title = models.CharField("exhibition title", max_length=80)
+    text = models.CharField("exhibition title", max_length=80)
 
     class Meta:
         db_table = "blockhaus101_exhibitions_titles"
@@ -21,7 +21,7 @@ class ExhibitionTitle(models.Model):
         verbose_name_plural = "titres d'exposition"
 
     def __str__(self) -> str:
-        return f"{self.title} ({self.pk})"
+        return f"{self.text} ({self.pk})"
 
     def create(self, *args, **kwargs):
         super(ExhibitionTitle, self).__init__(*args, **kwargs)

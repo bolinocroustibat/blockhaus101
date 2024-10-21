@@ -37,7 +37,7 @@ def index(request, lang: str) -> HttpResponse:
     if exhibition:
         artist = exhibition.artist
         biography = ArtistBiography.objects.get(language=language, artist=artist)
-        logger.info(f'Current exhibition: {artist.name} "{exhibition_title.title}"')
+        logger.info(f'Current exhibition: {artist.name} "{exhibition_title.text}"')
     else:
         logger.debug("There is no current exhibition.")
 
@@ -48,11 +48,11 @@ def index(request, lang: str) -> HttpResponse:
         exhibition = Exhibition(artist)
         exhibition.generate_image()
         exhibition.save()
-        logger.debug(f'New exhibition "{exhibition_title.title}" has been created in DB')
+        logger.debug(f'New exhibition "{exhibition_title.text}" has been created in DB')
 
         biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_title.title, save=True)
-        logger.debug(f'New artist biography "{biography.bio}" has been created in DB')
+        biography.generate(expo_title=exhibition_title.text, save=True)
+        logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 
     expo_text = ExhibitionText(language=language, exhibition=exhibition, ip=get_client_ip(request))
     expo_text.save()
@@ -66,8 +66,8 @@ def index(request, lang: str) -> HttpResponse:
             "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang),
             "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
             "artist_name": artist.name,
-            "artist_bio": biography.bio,
-            "expo_title": exhibition_title.title,
+            "artist_bio": biography.text,
+            "expo_title": exhibition_title.text,
             "expo_text": expo_text.text,
             "expo_image1": exhibition.image1.url if exhibition.image1 else None,
             "artist_gender": artist.gender,
@@ -97,8 +97,8 @@ def exhibition(request, slug: str) -> HttpResponse:
                 ),
                 "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
                 "artist_name": artist.name,
-                "artist_bio": biography.bio,
-                "expo_title": exhibition_title.title,
+                "artist_bio": biography.text,
+                "expo_title": exhibition_title.text,
                 "expo_text": expo_text.text,
                 "expo_image1": exhibition.image1.url if exhibition.image1 else None,
                 "artist_gender": artist.gender,
@@ -127,11 +127,11 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         exhibition: dict = {}
         exhibition["startdate"] = format_date(e.startdate.date(), format="long", locale=lang)
         exhibition["enddate"] = format_date(e.enddate.date(), format="long", locale=lang)
-        exhibition["title"] = ExhibitionTitle.objects.get(language=language, exhibition=e).title
+        exhibition["title"] = ExhibitionTitle.objects.get(language=language, exhibition=e).text
         exhibition["name"] = e.artist.name
         # Get the artist biography for each exhibition
         biography = ArtistBiography.objects.get(language=language, artist=e.artist)
-        exhibition["bio"] = biography.bio
+        exhibition["bio"] = biography.text
         # Get an existing text for each exhibition
         expo_text = ExhibitionText.objects.filter(language=language, exhibition=e).first()
         if not expo_text:

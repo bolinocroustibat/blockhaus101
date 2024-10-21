@@ -52,7 +52,7 @@ class ExhibitionText(models.Model):
         exhibition_title = ExhibitionTitle.objects.get(
             exhibition=self.exhibition, language=self.language
         )
-        slug_string = f"{self.exhibition.artist.name}-{exhibition_title.title}"
+        slug_string = f"{self.exhibition.artist.name}-{exhibition_title.text}"
         # if this slug exists for others, add a number at the end of the slug attribute of the instance:
         slug: str | None = self.unique_slugify(value=slug_string, max_elements=10)
         if slug:
@@ -64,7 +64,7 @@ class ExhibitionText(models.Model):
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace("[SELFDISCIPLINE]", self.exhibition.artist.discipline_text())
-        sentence = sentence.replace("[SELFEXPO]", self.exhibition.title)
+        sentence = sentence.replace("[SELFEXPO]", self.exhibition.text)
         sentence = sentence.replace("[EXPO]", self.exhibition.generate_title(self.language))
         keywords: list = re.findall(r"\[[^][]*]", sentence)
         for k in keywords:

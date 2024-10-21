@@ -9,8 +9,8 @@ def migrate_biographies(apps, schema_editor):
     Artist = apps.get_model("blockhaus101_app", "Artist")
     ArtistBiography = apps.get_model("blockhaus101_app", "ArtistBiography")
     for artist in Artist.objects.all():
-        if artist.bio:
-            bio = ArtistBiography(artist=artist, bio=artist.bio, language=artist.language)
+        if artist.text:
+            bio = ArtistBiography(artist=artist, bio=artist.text, language=artist.language)
             bio.save()
 
 
