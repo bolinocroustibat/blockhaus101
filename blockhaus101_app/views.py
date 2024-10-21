@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from babel.dates import format_date
 from django.core.mail import send_mail
@@ -114,37 +114,23 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
     # artists = Artist.objects.filter(enddate__lte=datetime.now())
     for e in exhibitions:
         exhibition: dict = {}
-        try:
-            # try to get the startdate of most recent exhibition (previous on the loop)
-            if (
-                e.enddate.date() == previous_expo_startdate  # BUG: to fix # noqa
-            ):  # if the startdate of the most recent exhition is the same day as the enddate of this one
-                enddate = e.enddate.date() - timedelta(days=1)  # remove one day to the enddate
-            else:
-                enddate = e.enddate.date()
-        except Exception:
-            enddate = e.enddate.date()
         exhibition["startdate"] = format_date(e.startdate.date(), format="long", locale=lang)
-        exhibition["enddate"] = format_date(enddate, format="long", locale=lang)
+        exhibition["enddate"] = format_date(e.enddate.date(), format="long", locale=lang)
         exhibition["title"] = e.title
         exhibition["name"] = e.artist.name
-        biography = ArtistBiography.objects.get(artist=e.artist, language=language)
-        if not biography:  # TODO: shouldn't happen, to be removed
-            biography = ArtistBiography(artist=e.artist, language=language)
-            biography.generate(expo_title=e.title, save=True)
+        # Get the artist biography for each exhibition
+        biography = ArtistBiography.objects.get(language=language, artist=e.artist)
         exhibition["bio"] = biography.bio
         # Get an existing text for each exhibition
         expo_text = ExpoText.objects.filter(language=language, exhibition=e).first()
         if not expo_text:
-            # Generate and save a text for the exhibition
             expo_text = ExpoText(language=language, exhibition=e)
             expo_text.generate(save=True)
         exhibition["text"] = expo_text.text
         # Image
+        exhibition["image1"] = None
         if e.image1:
             exhibition["image1"] = e.image1.url
-        else:
-            exhibition["image1"] = None
         full_exhibs.append(exhibition)
     return render(
         request,
