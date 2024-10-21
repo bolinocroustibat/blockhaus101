@@ -23,6 +23,8 @@ def index(request, lang: str) -> HttpResponse:
 
     # try to get an exhibition for current period
     exhibition = Exhibition.get_current()
+    logger.error(exhibition.pk)
+    logger.error(exhibition.title)
 
     if exhibition:
         artist = Artist.objects.filter(exhibitions=exhibition).first()
@@ -32,12 +34,12 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug("There is no current exhibition.")
 
         artist = Artist()
-        artist.generate(save=True)
+        artist.save()
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
-        exhibition = Exhibition()
-        exhibition.artist = artist
-        exhibition.generate(img=True, save=True)
+        exhibition = Exhibition(artist=artist)
+        exhibition.generate_image()
+        exhibition.save()
         logger.debug(f'New exhibition "{exhibition.title}" has been created in DB')
 
         biography = ArtistBiography(language=language, artist=artist)

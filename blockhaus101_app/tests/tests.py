@@ -18,7 +18,7 @@ class TestGenerateContent(TestCase):
             logger.info(f'Current exhibition: {self.artist.name} "{self.exhibition.title}"')
         else:
             logger.info("There is no current exhibition.")
-        self.artist.generate(save=False)
+        self.artist = Artist()
         logger.info(f'New artist "{self.artist.name}" generated')
         self.exhibition.artist = self.artist
         self.exhibition.generate(save=False)
