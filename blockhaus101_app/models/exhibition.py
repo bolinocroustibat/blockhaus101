@@ -32,6 +32,11 @@ class Exhibition(models.Model):
     def __str__(self) -> str:
         return f"{self.title} ({self.pk})"
 
+    def create(self, *args, **kwargs):
+        super(Exhibition, self).__init__(*args, **kwargs)
+        language = Language.objects.get(lang="fr")  # default language
+        self.title = self.generate_title(language)  # TODO: generate titles for both languages
+
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
             try:
@@ -50,14 +55,6 @@ class Exhibition(models.Model):
                 self.enddate = datetime.now() + timedelta(days=period)
                 logger.debug("No exhibition found, saving this new one as the first one...")
         super(Exhibition, self).save(*args, **kwargs)
-
-    def generate(self, img: bool = False, save: bool = True) -> None:
-        language = Language.objects.get(lang="fr")
-        self.title = self.generate_title(language)  # TODO: generate for both languages
-        if img:
-            self.generate_image()
-        if save:
-            self.save()
 
     def generate_title(self, language: Language) -> str:
         title_structures = Data.choose_random(data_type="expos", language=language)

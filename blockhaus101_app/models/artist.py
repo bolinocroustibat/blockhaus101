@@ -17,6 +17,20 @@ class Artist(models.Model):
     def __str__(self) -> str:
         return f"{self.name} ({self.pk})"
 
+    def create(self, *args, **kwargs):
+        super(Artist, self).__init__(*args, **kwargs)
+        # first name and genre
+        firstname = Data.choose_random(data_type="FIRSTNAME")
+        self.gender = firstname.gender
+        # last name
+        lastname = Data.choose_random(data_type="LASTNAME")
+        # full name
+        self.name = firstname.text + " " + lastname.text
+        # discipline
+        self.discipline = Data.choose_random(
+            data_type="DISCIPLINE", language=Language.objects.get(lang="en")
+        )
+
     @property
     def name_slug(self) -> str:
         return self.name.replace(" ", "-").lower()
@@ -37,18 +51,3 @@ class Artist(models.Model):
                     f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
                 )
         return self.discipline.text
-
-    def generate(self, save: bool = True) -> None:
-        # first name and genre
-        firstname = Data.choose_random(data_type="FIRSTNAME")
-        self.gender = firstname.gender
-        # last name
-        lastname = Data.choose_random(data_type="LASTNAME")
-        # full name
-        self.name = firstname.text + " " + lastname.text
-        # discipline
-        self.discipline = Data.choose_random(
-            data_type="DISCIPLINE", language=Language.objects.get(lang="en")
-        )
-        if save:
-            self.save()
