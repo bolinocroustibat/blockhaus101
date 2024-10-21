@@ -1,7 +1,14 @@
 from django.contrib import admin
 
 from blockhaus101.settings import ENVIRONMENT, VERSION
-from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, ExpoText, SiteSetting
+from blockhaus101_app.models import (
+    Artist,
+    ArtistBiography,
+    Exhibition,
+    ExhibitionTitle,
+    ExpoText,
+    SiteSetting,
+)
 
 admin.AdminSite.site_header = f"Blockhaus101 {VERSION} ({ENVIRONMENT})"
 admin.AdminSite.site_title = "Blockhaus101"
@@ -28,6 +35,11 @@ class ArtistAdmin(admin.ModelAdmin):
     inlines = [ArtistBioAdminInline]
 
 
+class ExhibitionTitleAdminInline(admin.TabularInline):
+    model = ExhibitionTitle
+    extra = 1
+
+
 class ExpoTextAdminInline(admin.TabularInline):
     model = ExpoText
     extra = 1
@@ -38,7 +50,13 @@ class ExpoTextAdminInline(admin.TabularInline):
 @admin.register(Exhibition)
 class ExhibitionAdmin(admin.ModelAdmin):
     model = Exhibition
-    list_display = ("title", "startdate", "enddate", "created", "id")
+    list_display = ("get_fr_title", "startdate", "enddate", "created", "id")
     list_filter = ("artist__name",)
-    search_fields = ["title", "artist__name"]
-    inlines = [ExpoTextAdminInline]
+    search_fields = ["get_fr_title", "get_en_title", "artist__name"]
+    inlines = [ExhibitionTitleAdminInline, ExpoTextAdminInline]
+
+    def get_fr_title(self, obj):
+        return obj.titles.filter(language__lang="fr").first().title
+
+    def get_en_title(self, obj):
+        return obj.titles.filter(language__lang="en").first().title

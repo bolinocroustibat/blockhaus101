@@ -31,8 +31,4 @@ class Migration(migrations.Migration):
                 "verbose_name_plural": "textes d'exposition",
             },
         ),
-        migrations.RemoveField(
-            model_name="exhibition",
-            name="language",
-        ),
     ]

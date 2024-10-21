@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers import correct_sentence
-from blockhaus101_app.models import Exhibition
+from blockhaus101_app.models import Exhibition, ExhibitionTitle
 
 
 class ExpoText(models.Model):
@@ -31,16 +31,9 @@ class ExpoText(models.Model):
         verbose_name = "texte d'exposition"
         verbose_name_plural = "textes d'exposition"
 
-    def save(self, *args, **kwargs) -> None:
-        slug_string = f"{self.exhibition.artist.name}-{self.exhibition.title}"
-        # if this slug exists for others, add a number at the end of the slug attribute of the instance:
-        slug: str | None = self.unique_slugify(value=slug_string, max_elements=10)
-        if slug:
-            self.slug = slug
-            super(ExpoText, self).save(*args, **kwargs)
-
-    def generate(self, ip: str | None = None, save: bool = True) -> None:
-        self.ip = ip
+    def create(self, *args, **kwargs):
+        super(ExpoText, self).__init__(*args, **kwargs)
+        self.ip = kwargs.get("ip", None)
         self.text = ""
         self.used_words: dict = {}
         if randint(1, 3) == 1:
@@ -54,8 +47,17 @@ class ExpoText(models.Model):
         if self.exhibition.artist.gender == "f":
             self.text = self.text.replace("Il ", "Elle ")
         logger.debug(f"Used words for exhibition text: {self.used_words}")
-        if save:
-            self.save()
+
+    def save(self, *args, **kwargs) -> None:
+        exhibition_title = ExhibitionTitle.objects.get(
+            exhibition=self.exhibition, language=self.language
+        )
+        slug_string = f"{self.exhibition.artist.name}-{exhibition_title.title}"
+        # if this slug exists for others, add a number at the end of the slug attribute of the instance:
+        slug: str | None = self.unique_slugify(value=slug_string, max_elements=10)
+        if slug:
+            self.slug = slug
+            super(ExpoText, self).save(*args, **kwargs)
 
     def create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(data_type__name="phrases", position=position)

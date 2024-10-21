@@ -14,7 +14,14 @@ from blockhaus101.settings import (
 )
 from blockhaus101_app.forms import FormContact
 from blockhaus101_app.helpers import get_client_ip
-from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, ExpoText, SiteSetting
+from blockhaus101_app.models import (
+    Artist,
+    ArtistBiography,
+    Exhibition,
+    ExhibitionTitle,
+    ExpoText,
+    SiteSetting,
+)
 
 
 def index(request, lang: str) -> HttpResponse:
@@ -23,13 +30,15 @@ def index(request, lang: str) -> HttpResponse:
 
     # try to get an exhibition for current period
     exhibition = Exhibition.get_current()
-    logger.error(exhibition.pk)
-    logger.error(exhibition.title)
+    exhibition_title = ExhibitionTitle.objects.filter(
+        language=language, exhibition=exhibition
+    ).first()
+    logger.error(f"Exhibition title: {exhibition_title.title}")
 
     if exhibition:
-        artist = Artist.objects.filter(exhibitions=exhibition).first()
-        biography = ArtistBiography.objects.filter(artist=artist, language=language).first()
-        logger.info(f'Current exhibition: {artist.name} "{exhibition.title}"')
+        artist = exhibition.artist
+        biography = ArtistBiography.objects.get(language=language, artist=artist)
+        logger.info(f'Current exhibition: {artist.name} "{exhibition_title.title}"')
     else:
         logger.debug("There is no current exhibition.")
 
@@ -37,18 +46,17 @@ def index(request, lang: str) -> HttpResponse:
         artist.save()
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
-        exhibition = Exhibition(artist=artist)
+        exhibition = Exhibition(artist)
         exhibition.generate_image()
         exhibition.save()
-        logger.debug(f'New exhibition "{exhibition.title}" has been created in DB')
+        logger.debug(f'New exhibition "{exhibition_title.title}" has been created in DB')
 
         biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition.title, save=True)
+        biography.generate(expo_title=exhibition_title.title, save=True)
         logger.debug(f'New artist biography "{biography.bio}" has been created in DB')
 
-    expo_text = ExpoText(language=language, exhibition=exhibition)
-    ip: str = get_client_ip(request)
-    expo_text.generate(ip=ip, save=True)
+    expo_text = ExpoText(language=language, exhibition=exhibition, ip=get_client_ip(request))
+    expo_text.save()
 
     return render(
         request,
@@ -60,7 +68,7 @@ def index(request, lang: str) -> HttpResponse:
             "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
             "artist_name": artist.name,
             "artist_bio": biography.bio,
-            "expo_title": exhibition.title,
+            "expo_title": exhibition_title.title,
             "expo_text": expo_text.text,
             "expo_image1": exhibition.image1.url if exhibition.image1 else None,
             "artist_gender": artist.gender,
@@ -74,9 +82,11 @@ def exhibition(request, slug: str) -> HttpResponse:
         expo_text = ExpoText.objects.get(slug=slug)
         language = expo_text.language
         description = SiteSetting.objects.get(language=language).description
-        lang = language.lang
+        lang: str = language.lang
         exhibition = expo_text.exhibition
+        exhibition_title = ExhibitionTitle.objects.get(language, exhibition)
         artist = exhibition.artist
+        biography = ArtistBiography(language, artist)
         return render(
             request,
             f"{lang}/index.html",
@@ -88,8 +98,8 @@ def exhibition(request, slug: str) -> HttpResponse:
                 ),
                 "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
                 "artist_name": artist.name,
-                "artist_bio": artist.bio,
-                "expo_title": exhibition.title,
+                "artist_bio": biography.bio,
+                "expo_title": exhibition_title.title,
                 "expo_text": expo_text.text,
                 "expo_image1": exhibition.image1.url if exhibition.image1 else None,
                 "artist_gender": artist.gender,
@@ -118,7 +128,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         exhibition: dict = {}
         exhibition["startdate"] = format_date(e.startdate.date(), format="long", locale=lang)
         exhibition["enddate"] = format_date(e.enddate.date(), format="long", locale=lang)
-        exhibition["title"] = e.title
+        exhibition["title"] = ExhibitionTitle.objects.get(language=language, exhibition=e).title
         exhibition["name"] = e.artist.name
         # Get the artist biography for each exhibition
         biography = ArtistBiography.objects.get(language=language, artist=e.artist)
@@ -127,7 +137,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         expo_text = ExpoText.objects.filter(language=language, exhibition=e).first()
         if not expo_text:
             expo_text = ExpoText(language=language, exhibition=e)
-            expo_text.generate(save=True)
+            expo_text.save()
         exhibition["text"] = expo_text.text
         # Image
         exhibition["image1"] = None

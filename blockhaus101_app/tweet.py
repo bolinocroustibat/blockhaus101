@@ -13,7 +13,7 @@ from blockhaus101.settings import (
     logger,
 )
 from blockhaus101_app.helpers import correct_sentence
-from blockhaus101_app.models import Artist, Exhibition
+from blockhaus101_app.models import Artist, Exhibition, ExhibitionTitle
 
 
 def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type: str) -> str:
@@ -29,7 +29,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text())
-    tweet = tweet.replace("[EXPO]", exhibition.title)
+    tweet = tweet.replace("[EXPO]", ExhibitionTitle.objects.get(language, exhibition).title)
     if "[EXPOSTARTDATE]" in tweet:
         expo_startdate: str = format_date(exhibition.startdate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOSTARTDATE]", expo_startdate)

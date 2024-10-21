@@ -9,7 +9,7 @@ from blockhaus101_app.helpers import correct_sentence
 
 
 class ArtistBiography(models.Model):
-    language = models.ForeignKey(Language, related_name="artists", on_delete=models.PROTECT)
+    language = models.ForeignKey(Language, related_name="biographies", on_delete=models.PROTECT)
     artist = models.ForeignKey("Artist", related_name="biographies", on_delete=models.CASCADE)
     bio = models.TextField("artist biography", max_length=2000)
 
