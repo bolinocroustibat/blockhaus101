@@ -29,7 +29,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text())
-    tweet = tweet.replace("[EXPO]", ExhibitionTitle.objects.get(language, exhibition).title)
+    tweet = tweet.replace("[EXPO]", ExhibitionTitle.objects.get(language, exhibition).text)
     if "[EXPOSTARTDATE]" in tweet:
         expo_startdate: str = format_date(exhibition.startdate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOSTARTDATE]", expo_startdate)

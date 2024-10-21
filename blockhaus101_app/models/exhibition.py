@@ -29,7 +29,7 @@ class Exhibition(models.Model):
 
     def __str__(self) -> str:
         exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="fr")
-        return f"{exhibition_title.title} ({self.pk})"
+        return f"{exhibition_title.text} ({self.pk})"
 
     def create(self, *args, **kwargs):
         super(Exhibition, self).__init__(*args, **kwargs)
@@ -60,7 +60,7 @@ class Exhibition(models.Model):
         discipline: str = self.artist.discipline_text(lang="en")
         exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="en")
         img_prompt: str = GETIMGAPI_PROMPT.format(
-            discipline=discipline, exhibition_title=exhibition_title.title
+            discipline=discipline, exhibition_title=exhibition_title.text
         )
         logger.debug(img_prompt)
         res: dict | None = asyncio.run(
