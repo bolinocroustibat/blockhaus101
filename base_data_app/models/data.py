@@ -45,14 +45,14 @@ class Data(models.Model):
         ordering = ["position"]
 
     @classmethod
-    def choose_random(cls, data_type: str, language: Language | None = None) -> Self | None:
+    def choose_random(cls, data_type: str, lang: str | None = None) -> Self | None:
         """
         https://stackoverflow.com/questions/63425139/how-do-i-quickly-get-a-weighted-random-instance-of-a-django-model-instance-based
         """
         entries: models.QuerySet = cls.objects.filter(data_type__name=data_type)
-        if language:
+        if lang:
             entries = entries.filter(
-                models.Q(language=language) | models.Q(language=None)
+                models.Q(language__lang=lang) | models.Q(language=None)
             )  # we choose entries with the right language or no language
         if entries:
             return choices(entries, weights=[e.weight for e in entries])[0]
@@ -62,35 +62,40 @@ class Data(models.Model):
     def choose_random_excluding(
         cls,
         data_type: str,
-        language: Language | None = None,
+        lang: str | None = None,
         excluding: dict | None = None,
-    ) -> tuple[str, dict] | None:
+    ) -> tuple[Self, dict] | None:
         """
         Choose a random entry from the database, according to the type, and to the entries already being used before.
+        Args:
+            data_type: str: the type of the entry
+            language: Language: the language of the entry
+            excluding: dict: the entries already being used. The excluding dict has the data type as key and the list of the entries already being used as value.
+        Returns:
+            tuple: the chosen entry and the updated excluding dict, or None. The excluding dict has the data type as key and the list of the entries already being used as value.
         """
-        chosen_entry: Data | None = cls.choose_random(data_type=data_type, language=language)
+        chosen_entry: Data | None = cls.choose_random(data_type=data_type, lang=lang)
         if chosen_entry:
             if not excluding:
                 excluding = {}
             if excluding.get(data_type):
-                while chosen_entry.text in excluding[data_type]:
+                while chosen_entry in excluding[data_type]:
                     logger.debug(
                         f"entry '{chosen_entry.text}' of type '{data_type}' has been used already, let's choose another"
                     )
-                    chosen_entry = cls.choose_random(data_type=data_type, language=language)
+                    chosen_entry = cls.choose_random(data_type=data_type, lang=lang)
                     if chosen_entry not in excluding[data_type]:
                         logger.debug(f"...ok we found another: {chosen_entry.text}")
                         break
             else:
                 # create the forbidden entries type array for this type of entry if it doesn't exist
                 excluding[data_type] = list()
-            entry = chosen_entry.text  # store the chosen entry
             # add the entry to the array of the entry type in the forbidden entries array
-            excluding[data_type].append(entry)
+            excluding[data_type].append(chosen_entry)
             # # TODO
             # try:  # if there is a gender attribute to the data
             #     gender = chosen_entry.gender
             # except:
             #     gender = ""
-            return (entry, excluding)
+            return (chosen_entry, excluding)
         return None

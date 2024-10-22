@@ -1,5 +1,3 @@
-import re
-
 import tweepy
 from babel.dates import format_date
 
@@ -12,7 +10,7 @@ from blockhaus101.settings import (
     TWITTER_CONSUMER_SECRET,
     logger,
 )
-from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.helpers import correct_sentence, replace_text
 from blockhaus101_app.models import Artist, Exhibition, ExhibitionTitle
 
 
@@ -25,10 +23,10 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
     language = Language.objects.get(lang=lang)
-    tweet_structure = Data.choose_random(data_type=tweet_type, language=language)
+    tweet_structure = Data.choose_random(data_type=tweet_type, lang=lang)
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
-    tweet = tweet.replace("[SELFDISCIPLINE]", artist.discipline_text(language=language))
+    tweet = tweet.replace("[SELFDISCIPLINE]", artist.get_discipline(lang=lang))
     tweet = tweet.replace("[EXPO]", ExhibitionTitle.objects.get(language, exhibition).text)
     if "[EXPOSTARTDATE]" in tweet:
         expo_startdate: str = format_date(exhibition.startdate, format="medium", locale=lang)
@@ -36,18 +34,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     if "[EXPOENDDATE]" in tweet:
         expo_enddate: str = format_date(exhibition.enddate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
-    keywords: list = re.findall(r"\[[^][]*]", tweet)
-    used_words: dict = {}
-    for k in keywords:
-        word_type = k.replace("[", "").replace("]", "")
-        chosen_data = Data.choose_random_excluding(
-            data_type=word_type, language=language, excluding=used_words
-        )
-        if chosen_data:
-            chosen_word = chosen_data[0]
-            used_words = chosen_data[1]
-            # only replace one occurence, we want the same keyword to be able to be replaced by another word
-            tweet = tweet.replace(f"[{word_type}]", chosen_word, 1)
+    tweet, used_words = replace_text(tweet, lang)
     return correct_sentence(lang=lang, sentence=tweet)
 
 

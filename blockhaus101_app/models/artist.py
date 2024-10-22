@@ -26,21 +26,19 @@ class Artist(models.Model):
         # full name
         self.name = firstname.text + " " + lastname.text
         # discipline
-        self.discipline = Data.choose_random(
-            data_type="DISCIPLINE", language=Language.objects.get(lang="en")
-        )
+        self.discipline = Data.choose_random(data_type="DISCIPLINE", lang="en")
 
     @property
     def name_slug(self) -> str:
         return self.name.replace(" ", "-").lower()
 
-    def discipline_text(self, language: Language | None = None) -> str:
-        if language:
+    def get_discipline(self, lang: str | None = None) -> str:
+        if lang:
             if self.discipline.translation:
-                if self.discipline.translation.language == language:
+                if self.discipline.translation.language == Language.objects.get(lang=lang):
                     return self.discipline.translation.text
             translated_discipline = Data.objects.filter(
-                data_type__name="DISCIPLINE", language=language, translation=self.discipline
+                data_type__name="DISCIPLINE", language__lang=lang, translation=self.discipline
             ).first()
             if translated_discipline:
                 return translated_discipline.text
