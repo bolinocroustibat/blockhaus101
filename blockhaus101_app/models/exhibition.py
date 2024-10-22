@@ -52,9 +52,10 @@ class Exhibition(models.Model):
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
-        language = Language.objects.get(lang="en")
-        discipline: str = self.artist.discipline_text(language=language)
-        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language=language)
+        discipline: str = self.artist.discipline_text(language=Language.objects.get(lang="en"))
+        exhibition_title = ExhibitionTitle.objects.get(
+            exhibition=self, language=Language.objects.get(lang="fr")
+        )  # TODO: change language
         img_prompt: str = GETIMGAPI_PROMPT.format(
             discipline=discipline, exhibition_title=exhibition_title.text
         )
