@@ -45,11 +45,10 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
         exhibition = Exhibition(artist=artist)
-        exhibition.save()
         exhibition_title = ExhibitionTitle(language=language, exhibition=exhibition)
         exhibition_title.generate()
-        exhibition_title.save()
         exhibition.generate_image()
+        exhibition.save()
         logger.debug(f'New exhibition "{exhibition_title.text}" has been created in DB')
 
         biography = ArtistBiography(language=language, artist=artist)
