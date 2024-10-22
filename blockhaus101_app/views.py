@@ -51,8 +51,12 @@ def index(request, lang: str) -> HttpResponse:
 
         exhibition = Exhibition(artist=artist)
         exhibition.save()
-        exhibition_title_fr = exhibition.generate()
+        exhibition_title_fr, exhibition_title_en = exhibition.generate()
         exhibition_title_fr.save()
+        exhibition_title_en.save()
+        exhibition_title = ExhibitionTitle.objects.get(
+            language=language, exhibition=exhibition
+        )  # Get the title in the current language
         exhibition.generate_image()
         exhibition.save()
         logger.debug(
@@ -60,7 +64,7 @@ def index(request, lang: str) -> HttpResponse:
         )
 
         biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_title_fr.text)
+        biography.generate(expo_title=exhibition_title.text)
         biography.save()
         logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 
