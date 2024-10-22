@@ -37,8 +37,8 @@ class Command(BaseCommand):
         exhibition = Exhibition(artist=artist)
         exhibition_title = ExhibitionTitle(language=language, exhibition=exhibition)
         exhibition_title.generate()
-        biography = ArtistBiography(artist=artist, language=language)
-        biography.generate(expo_title=exhibition_title.text, save=False)
+        biography = ArtistBiography(language=language, artist=artist)
+        biography.generate(expo_title=exhibition_title.text)
 
         logger.info(artist)
         logger.info(biography.text)

@@ -30,12 +30,17 @@ def index(request, lang: str) -> HttpResponse:
 
     # try to get an exhibition for current period
     exhibition = Exhibition.get_current()
-    exhibition_title = ExhibitionTitle.objects.get(language=language, exhibition=exhibition)
 
     if exhibition:
+        exhibition_title = ExhibitionTitle.objects.get(language=language, exhibition=exhibition)
         artist = exhibition.artist
+        logger.debug(
+            f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
+        )
         biography = ArtistBiography.objects.get(language=language, artist=artist)
-        logger.info(f'Current exhibition: {artist.name} "{exhibition_title.text}"')
+        logger.info(
+            f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
+        )
     else:
         logger.debug("There is no current exhibition.")
 
@@ -45,14 +50,17 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
         exhibition = Exhibition(artist=artist)
+        exhibition.save()
         exhibition_title = ExhibitionTitle(language=language, exhibition=exhibition)
         exhibition_title.generate()
+        exhibition_title.save()
         exhibition.generate_image()
         exhibition.save()
         logger.debug(f'New exhibition "{exhibition_title.text}" has been created in DB')
 
         biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_title.text, save=True)
+        biography.generate(expo_title=exhibition_title.text)
+        biography.save()
         logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 
     expo_text = ExhibitionText(language=language, exhibition=exhibition, ip=get_client_ip(request))

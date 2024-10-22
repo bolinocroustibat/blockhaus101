@@ -25,7 +25,7 @@ class ArtistBiography(models.Model):
         verbose_name = "biographie d'artiste"
         verbose_name_plural = "biographies d'artiste"
 
-    def generate(self, expo_title: str, save: bool = True) -> None:
+    def generate(self, expo_title: str) -> str:
         self.text_used_words: dict = {}
         self.text = self._generate_bio_sentence(position=1, expo_title=expo_title)
         self.text = self.text + " " + self._generate_bio_sentence(position=2, expo_title=expo_title)
@@ -35,8 +35,7 @@ class ArtistBiography(models.Model):
                 self.text + " " + self._generate_bio_sentence(position=4, expo_title=expo_title)
             )
         logger.debug(f"Used words for artist biography: {self.text_used_words}")
-        if save:
-            self.save()
+        return self.text
 
     def _generate_bio_sentence(self, position: int, expo_title: str) -> str:
         bio_structures = Data.objects.filter(
