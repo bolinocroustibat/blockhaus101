@@ -5,7 +5,7 @@ from django.db import models
 
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.helpers import correct_text
 
 
 class ArtistBiography(models.Model):
@@ -26,7 +26,7 @@ class ArtistBiography(models.Model):
         verbose_name_plural = "biographies d'artiste"
 
     def generate(self, expo_title: str) -> str:
-        self.text_used_words: dict = {}
+        self.text_used_data: list = []
         self.text = self._generate_bio_sentence(position=1, expo_title=expo_title)
         self.text = self.text + " " + self._generate_bio_sentence(position=2, expo_title=expo_title)
         self.text = self.text + " " + self._generate_bio_sentence(position=3, expo_title=expo_title)
@@ -34,7 +34,7 @@ class ArtistBiography(models.Model):
             self.text = (
                 self.text + " " + self._generate_bio_sentence(position=4, expo_title=expo_title)
             )
-        logger.debug(f"Used words for artist biography: {self.text_used_words}")
+        logger.debug(f"Used words for artist biography: {self.text_used_data}")
         return self.text
 
     def _generate_bio_sentence(self, position: int, expo_title: str) -> str:
@@ -56,12 +56,12 @@ class ArtistBiography(models.Model):
                 chosen_data = Data.choose_random_excluding(
                     data_type=word_type,
                     lang=self.language.lang,
-                    excluding=self.text_used_words,
+                    excluding=self.text_used_data,
                 )
                 if chosen_data:
                     chosen_word = chosen_data[0].text
-                    self.text_used_words = chosen_data[1]
+                    self.text_used_data = chosen_data[1]
                     # only replace one occurence, we want the same keyword to be able to be replaced by other words
                     biosentence = biosentence.replace(k, chosen_word, 1)
-        biosentence = correct_sentence(lang=self.language.lang, sentence=biosentence)
+        biosentence = correct_text(sentence=biosentence, lang=self.language.lang)
         return biosentence

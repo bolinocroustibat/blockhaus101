@@ -6,7 +6,7 @@ from django.template.defaultfilters import slugify
 
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import correct_sentence, replace_text
+from blockhaus101_app.helpers import correct_text, replace_text
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 
@@ -45,7 +45,7 @@ class ExhibitionText(models.Model):
         self.text = self.text + " " + self._create_expo_sentence(position=6)
         if self.exhibition.artist.gender == "f":
             self.text = self.text.replace("Il ", "Elle ")
-        self.text = correct_sentence(lang=self.language.lang, sentence=self.text)
+        self.text = correct_text(sentence=self.text, lang=self.language.lang)
         logger.debug(f"Used words for exhibition text: {self.used_words}")
 
     def save(self, *args, **kwargs) -> None:
@@ -72,7 +72,7 @@ class ExhibitionText(models.Model):
         sentence = sentence.replace("[SELFEXPO]", exhibition_title.text)
         sentence = sentence.replace("[EXPO]", exhibition_title.generate())
         sentence, used_words = replace_text(text=sentence, lang=self.language.lang)
-        sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
+        sentence = correct_text(sentence=sentence, lang=self.language.lang)
         return sentence
 
     def _unique_slugify(self, value: str, max_elements: int | None = None) -> str | None:

@@ -10,7 +10,7 @@ from blockhaus101.settings import (
     TWITTER_CONSUMER_SECRET,
     logger,
 )
-from blockhaus101_app.helpers import correct_sentence, replace_text
+from blockhaus101_app.helpers import correct_text, replace_text
 from blockhaus101_app.models import Artist, Exhibition, ExhibitionTitle
 
 
@@ -35,7 +35,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
         expo_enddate: str = format_date(exhibition.enddate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
     tweet, used_words = replace_text(tweet, lang)
-    return correct_sentence(lang=lang, sentence=tweet)
+    return correct_text(sentence=tweet, lang=lang)
 
 
 def send_tweet(tweet: str) -> None:

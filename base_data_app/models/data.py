@@ -63,35 +63,33 @@ class Data(models.Model):
         cls,
         data_type: str,
         lang: str | None = None,
-        excluding: dict | None = None,
-    ) -> tuple[Self, dict] | None:
+        excluding: list[Self] | None = None,
+    ) -> tuple[Self, list[Self]] | None:
         """
         Choose a random entry from the database, according to the type, and to the entries already being used before.
         Args:
             data_type: str: the type of the entry
             language: Language: the language of the entry
-            excluding: dict: the entries already being used. The excluding dict has the data type as key and the list of the entries already being used as value.
+            excluding: list: the entries already being used
         Returns:
-            tuple: the chosen entry and the updated excluding dict, or None. The excluding dict has the data type as key and the list of the entries already being used as value.
+            tuple: the chosen entry and the updated excluding list, or None.
         """
         chosen_entry: Data | None = cls.choose_random(data_type=data_type, lang=lang)
         if chosen_entry:
             if not excluding:
-                excluding = {}
-            if excluding.get(data_type):
-                while chosen_entry in excluding[data_type]:
+                # create the forbidden entries array if it doesn't exist
+                excluding = []
+            else:
+                while chosen_entry in excluding:
                     logger.debug(
                         f"entry '{chosen_entry.text}' of type '{data_type}' has been used already, let's choose another"
                     )
                     chosen_entry = cls.choose_random(data_type=data_type, lang=lang)
-                    if chosen_entry not in excluding[data_type]:
+                    if chosen_entry not in excluding:
                         logger.debug(f"...ok we found another: {chosen_entry.text}")
                         break
-            else:
-                # create the forbidden entries type array for this type of entry if it doesn't exist
-                excluding[data_type] = list()
             # add the entry to the array of the entry type in the forbidden entries array
-            excluding[data_type].append(chosen_entry)
+            excluding.append(chosen_entry)
             # # TODO
             # try:  # if there is a gender attribute to the data
             #     gender = chosen_entry.gender

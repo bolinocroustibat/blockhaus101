@@ -5,7 +5,22 @@ from base_data_app.models import Data
 from blockhaus101.settings import logger
 
 
-def replace_text(text: str, lang: str) -> tuple[str, dict[str, Data]]:
+def replace_match(match: re.Match, used_data: list[Data], lang: str) -> str:
+    """
+    Replace each placeholder in text_en with the corresponding data from used_data
+    """
+    if used_data:
+        data = used_data.pop(0)
+        try:
+            word_en = Data.objects.get(language__lang=lang, translation=data).text
+        except Data.DoesNotExist:
+            logger.error(f"Translation not found for data: {data}")
+            word_en = data.text  # Use the untranslated string
+        return word_en
+    return match.group(0)
+
+
+def replace_text(text: str, lang: str) -> tuple[str, list[Data]]:
     """
     Replace keywords in a text by random data from the database.
     Args:
@@ -15,23 +30,21 @@ def replace_text(text: str, lang: str) -> tuple[str, dict[str, Data]]:
         tuple: the modified text and the used words, the used words is a dict with the data type as key and the list of the used data as value
     """
     keywords: list = re.findall(r"\[[^][]*]", text)
-    used_words: dict[str, Data] = {}
+    used_data: list[Data] = []
     for k in keywords:
         word_type: str = k.replace("[", "").replace("]", "")
         chosen_data = Data.choose_random_excluding(
-            data_type=word_type, lang=lang, excluding=used_words
+            data_type=word_type, lang=lang, excluding=used_data
         )
         if chosen_data:
             chosen_word = chosen_data[0].text
-            used_words = chosen_data[1]
+            used_data = chosen_data[1]
             # only replace one occurence, we want the same keyword to be able to be replaced by another word
             text = text.replace(f"[{word_type}]", chosen_word, 1)
-    return text, used_words
+    return text, used_data
 
 
-def correct_sentence(
-    lang: str, sentence: str, subject_gender: Literal["f", "m"] | None = None
-) -> str:
+def correct_text(sentence: str, lang: str, subject_gender: Literal["f", "m"] | None = None) -> str:
     # Remove first and  end spaces
     sentence = "".join(sentence.rstrip().lstrip())
 
