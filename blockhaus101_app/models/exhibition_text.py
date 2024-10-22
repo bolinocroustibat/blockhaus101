@@ -6,7 +6,7 @@ from django.template.defaultfilters import slugify
 
 from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import correct_sentence
+from blockhaus101_app.helpers import correct_sentence, replace_text
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 
@@ -64,24 +64,14 @@ class ExhibitionText(models.Model):
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace(
-            "[SELFDISCIPLINE]", self.exhibition.artist.discipline_text(language=self.language)
+            "[SELFDISCIPLINE]", self.exhibition.artist.get_discipline(lang=self.language.lang)
         )
         exhibition_title = ExhibitionTitle.objects.get(
             exhibition=self.exhibition, language=self.language
         )
         sentence = sentence.replace("[SELFEXPO]", exhibition_title.text)
         sentence = sentence.replace("[EXPO]", exhibition_title.generate())
-        keywords: list = re.findall(r"\[[^][]*]", sentence)
-        for k in keywords:
-            word_type = k.replace("[", "").replace("]", "")
-            chosen_data = Data.choose_random_excluding(
-                data_type=word_type, language=self.language, excluding=self.used_words
-            )
-            if chosen_data:
-                chosen_word = chosen_data[0]
-                self.used_words = chosen_data[1]
-                # only replace one occurence, we want the same keyword to be able to be replaced by another word
-                sentence = sentence.replace(f"[{word_type}]", chosen_word, 1)
+        sentence, used_words = replace_text(text=sentence, lang=self.language.lang)
         sentence = correct_sentence(lang=self.language.lang, sentence=sentence)
         return sentence
 

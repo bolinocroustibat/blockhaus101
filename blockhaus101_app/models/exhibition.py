@@ -6,9 +6,10 @@ from typing import Literal, Self
 from django.core.files.base import ContentFile
 from django.db import models
 
+from base_data_app.models.data import Data
 from base_data_app.models.language import Language
 from blockhaus101.settings import GETIMGAPI_PROMPT, logger
-from blockhaus101_app.helpers import GetImgAiAPI
+from blockhaus101_app.helpers import GetImgAiAPI, replace_text
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 from blockhaus101_app.models.sitesetting import SiteSetting
@@ -31,6 +32,17 @@ class Exhibition(models.Model):
         exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="fr")
         return f"{exhibition_title.text} ({self.pk})"
 
+    def generate(self) -> ExhibitionTitle:
+        title_structure_fr = Data.choose_random(data_type="expos", lang="fr")
+        text_fr = title_structure_fr.text
+        text_fr = text_fr.replace("[SELF]", self.artist.name)
+        text_fr = text_fr.replace("[SELFDISCIPLINE]", self.artist.get_discipline(lang="fr"))
+        text_fr, used_words = replace_text(text_fr, "fr")
+        logger.debug(f"Used words for exhibition title FR: {used_words}")
+        return ExhibitionTitle(
+            language=Language.objects.get(lang="fr"), exhibition=self, text=text_fr
+        )
+
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
             try:
@@ -52,7 +64,7 @@ class Exhibition(models.Model):
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
-        discipline: str = self.artist.discipline_text(language=Language.objects.get(lang="en"))
+        discipline: str = self.artist.get_discipline(lang="en")
         exhibition_title = ExhibitionTitle.objects.get(
             exhibition=self, language=Language.objects.get(lang="fr")
         )  # TODO: change language

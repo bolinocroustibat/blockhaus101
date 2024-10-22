@@ -1,6 +1,32 @@
+import re
 from typing import Literal
 
+from base_data_app.models import Data
 from blockhaus101.settings import logger
+
+
+def replace_text(text: str, lang: str) -> tuple[str, dict[str, Data]]:
+    """
+    Replace keywords in a text by random data from the database.
+    Args:
+        text: str: the text to modify
+        language: Language: the language of the data to choose
+    Returns:
+        tuple: the modified text and the used words, the used words is a dict with the data type as key and the list of the used data as value
+    """
+    keywords: list = re.findall(r"\[[^][]*]", text)
+    used_words: dict[str, Data] = {}
+    for k in keywords:
+        word_type: str = k.replace("[", "").replace("]", "")
+        chosen_data = Data.choose_random_excluding(
+            data_type=word_type, lang=lang, excluding=used_words
+        )
+        if chosen_data:
+            chosen_word = chosen_data[0].text
+            used_words = chosen_data[1]
+            # only replace one occurence, we want the same keyword to be able to be replaced by another word
+            text = text.replace(f"[{word_type}]", chosen_word, 1)
+    return text, used_words
 
 
 def correct_sentence(

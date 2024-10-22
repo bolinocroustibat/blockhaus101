@@ -44,7 +44,7 @@ class ArtistBiography(models.Model):
         biosentence = choice(bio_structures).text
         biosentence = biosentence.replace("[SELF]", self.artist.name)
         biosentence = biosentence.replace(
-            "[SELFDISCIPLINE]", self.artist.discipline_text(language=self.language)
+            "[SELFDISCIPLINE]", self.artist.get_discipline(lang=self.language.lang)
         )
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
@@ -55,11 +55,11 @@ class ArtistBiography(models.Model):
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
                     data_type=word_type,
-                    language=self.language,
+                    lang=self.language.lang,
                     excluding=self.text_used_words,
                 )
                 if chosen_data:
-                    chosen_word = chosen_data[0]
+                    chosen_word = chosen_data[0].text
                     self.text_used_words = chosen_data[1]
                     # only replace one occurence, we want the same keyword to be able to be replaced by other words
                     biosentence = biosentence.replace(k, chosen_word, 1)
