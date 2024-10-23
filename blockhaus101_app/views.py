@@ -51,20 +51,17 @@ def index(request, lang: str) -> HttpResponse:
 
         exhibition = Exhibition(artist=artist)
         exhibition.save()
-        exhibition_title_fr, exhibition_title_en = exhibition.generate()
-        exhibition_title_fr.save()
-        exhibition_title_en.save()
-        exhibition_title = ExhibitionTitle.objects.get(
-            language=language, exhibition=exhibition
-        )  # Get the title in the current language
+        exhibition_titles: dict = exhibition.generate_titles()
+        exhibition_titles["fr"].save()
+        exhibition_titles["en"].save()
         exhibition.generate_image()
         exhibition.save()
         logger.debug(
-            f'New exhibition "{exhibition_title_fr.text}" ({exhibition.pk}) has been created in DB'
+            f'New exhibition "{exhibition_titles["fr"].text}" ({exhibition.pk}) has been created in DB'
         )
 
         biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_title.text)
+        biography.generate(expo_title=exhibition_titles[lang].text)
         biography.save()
         logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 

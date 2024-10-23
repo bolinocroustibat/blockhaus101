@@ -1,7 +1,7 @@
 from django.db import models
 
 from base_data_app.models import Data, Language
-from blockhaus101.settings import GENDER_CHOICES, logger
+from blockhaus101.settings import GENDER_CHOICES
 
 
 class Artist(models.Model):
@@ -42,7 +42,4 @@ class Artist(models.Model):
             ).first()
             if translated_discipline:
                 return translated_discipline.text
-            logger.warning(
-                f'No translation for discipline {self.discipline.pk} ("{self.discipline.text}")'
-            )
         return self.discipline.text
