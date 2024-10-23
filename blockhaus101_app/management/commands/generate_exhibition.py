@@ -35,18 +35,14 @@ class Command(BaseCommand):
         artist = Artist()
         artist.generate()
         exhibition = Exhibition(artist=artist)
-        exhibition_title_fr, exhibition_title_en = exhibition.generate()
+        exhibition_titles: dict = exhibition.generate_titles()
         biography = ArtistBiography(language=language, artist=artist)
-        if lang == "fr":
-            exhibition_title = exhibition_title_fr
-        else:
-            exhibition_title = exhibition_title_en
-        biography.generate(expo_title=exhibition_title.text)
+        biography.generate(expo_title=exhibition_titles[lang].text)
 
         logger.info(artist)
         logger.info(biography.text)
-        logger.info(exhibition_title_fr.text)
-        logger.info(exhibition_title_en.text)
+        logger.info(exhibition_titles["fr"].text)
+        logger.info(exhibition_titles["en"].text)
 
         if options["save"] or options["img"]:
             artist.save()
@@ -57,6 +53,6 @@ class Command(BaseCommand):
                 exhibition.generate_image()
 
             exhibition.save()
-            exhibition_title_fr.save()
-            exhibition_title_en.save()
+            exhibition_titles["fr"].save()
+            exhibition_titles["en"].save()
             logger.info("Exhibition saved in DB with its title")

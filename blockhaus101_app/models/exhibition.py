@@ -1,6 +1,5 @@
 import asyncio
 import base64
-import re
 from datetime import datetime, timedelta
 from typing import Literal, Self
 
@@ -10,7 +9,12 @@ from django.db import models
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
 from blockhaus101.settings import GETIMGAPI_PROMPT, logger
-from blockhaus101_app.helpers import GetImgAiAPI, correct_text, replace_match, replace_text
+from blockhaus101_app.helpers import (
+    GetImgAiAPI,
+    correct_text,
+    replace_text,
+    replace_text_translations,
+)
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 from blockhaus101_app.models.sitesetting import SiteSetting
@@ -33,10 +37,10 @@ class Exhibition(models.Model):
         exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="fr")
         return f"{exhibition_title.text} ({self.pk})"
 
-    def generate(self) -> tuple[ExhibitionTitle, ExhibitionTitle]:
-        # Generate French title
+    def generate_titles(self) -> dict[str, ExhibitionTitle]:
+        # Generate original French title
         title_structure_fr = Data.choose_random(data_type="expos", lang="fr")
-        text_fr = title_structure_fr.text
+        text_fr: str = title_structure_fr.text
         text_fr = text_fr.replace("[SELF]", self.artist.name)
         text_fr = text_fr.replace("[SELFDISCIPLINE]", self.artist.get_discipline(lang="fr"))
         text_fr, used_data = replace_text(text_fr, "fr")
@@ -44,27 +48,28 @@ class Exhibition(models.Model):
         exhibition_title_fr = ExhibitionTitle(
             language=Language.objects.get(lang="fr"), exhibition=self, text=text_fr
         )
+        res: dict = {"fr": exhibition_title_fr}
 
         logger.debug(f"Used data for exhibition title FR: {used_data}")
 
         # Generate English title
-        title_structure_en = Data.objects.get(
-            language__lang="en",
-            translation=title_structure_fr,
-        )
-        text_en = title_structure_en.text
-        text_en = text_en.replace("[SELF]", self.artist.name)
-        text_en = text_en.replace(
-            "[SELFDISCIPLINE]",
-            self.artist.get_discipline(lang="en"),
-        )
-        text_en = re.sub(r"\[.*?\]", lambda match: replace_match(match, used_data, "en"), text_en)
-        text_en = correct_text(text_en, "en")
-        exhibition_title_en = ExhibitionTitle(
-            language=Language.objects.get(lang="en"), exhibition=self, text=text_en
-        )
+        for lg in Language.objects.all().exclude(lang="fr"):
+            title_structure = Data.objects.get(
+                language=lg,
+                translation=title_structure_fr,
+            )
+            text: str = title_structure.text
+            text = text.replace("[SELF]", self.artist.name)
+            text = text.replace(
+                "[SELFDISCIPLINE]",
+                self.artist.get_discipline(lang=lg.lang),
+            )
+            text = replace_text_translations(text=text, original_keywords=used_data, lang=lg.lang)
+            text = correct_text(text, lg.lang)
+            exhibition_title = ExhibitionTitle(language=lg, exhibition=self, text=text)
+            res[lg.lang] = exhibition_title
 
-        return exhibition_title_fr, exhibition_title_en
+        return res
 
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
@@ -118,11 +123,7 @@ class Exhibition(models.Model):
         """
         Get the exhibition for the current period
         """
-        exhibitions = cls.objects.filter(
-            startdate__lte=datetime.now(),
-            enddate__gte=datetime.now(),
-        )
-        if len(exhibitions) == 0:
-            return None
-        else:
+        exhibitions = cls.objects.filter(startdate__lte=datetime.now(), enddate__gte=datetime.now())
+        if len(exhibitions) != 0:
             return exhibitions[0]
+        return None

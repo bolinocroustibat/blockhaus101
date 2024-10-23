@@ -5,19 +5,22 @@ from base_data_app.models import Data
 from blockhaus101.settings import logger
 
 
-def replace_match(match: re.Match, used_data: list[Data], lang: str) -> str:
-    """
-    Replace each placeholder in text_en with the corresponding data from used_data
-    """
-    if used_data:
-        data = used_data.pop(0)
-        try:
-            word_en = Data.objects.get(language__lang=lang, translation=data).text
-        except Data.DoesNotExist:
-            logger.error(f"Translation not found for data: {data}")
-            word_en = data.text  # Use the untranslated string
-        return word_en
-    return match.group(0)
+def replace_text_translations(text: str, original_keywords: list[Data], lang: str) -> str:
+    def translate_match(match: re.Match, original_keywords: list[Data], lang: str) -> str:
+        """
+        Replace a match with a translation of data from used_data
+        """
+        if original_keywords:
+            data: Data = original_keywords.pop(0)
+            try:
+                word: str = Data.objects.get(language__lang=lang, translation=data).text
+            except Data.DoesNotExist:
+                logger.warning(f'Translation not found for data: "{data}" ({data.pk})')
+                word = data.text  # Use the untranslated string
+            return word
+        return match.group(0)
+
+    return re.sub(r"\[.*?\]", lambda match: translate_match(match, original_keywords, lang), text)
 
 
 def replace_text(text: str, lang: str) -> tuple[str, list[Data]]:
