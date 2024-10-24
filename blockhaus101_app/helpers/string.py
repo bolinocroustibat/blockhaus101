@@ -47,17 +47,17 @@ def replace_text(text: str, lang: str) -> tuple[str, list[Data]]:
     return text, used_data
 
 
-def correct_text(sentence: str, lang: str, subject_gender: Literal["f", "m"] | None = None) -> str:
-    # Remove first and  end spaces
-    sentence = "".join(sentence.rstrip().lstrip())
+def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None = None) -> str:
+    # Remove first and end spaces
+    text = "".join(text.rstrip().lstrip())
 
     # Remove all extra spaces
-    sentence = " ".join(sentence.split())
+    text = " ".join(text.split())
 
     # Remove spaces before and after some characters
-    sentence = _strtr(sentence, {"( ": "(", " )": ")", " ,": ",", " .": "."})
+    text = _strtr(text, {"( ": "(", " )": ")", " ,": ",", " .": "."})
 
-    # Correct the sentence
+    # Correct the text
     CORRECTIONS_EN: dict = {}
     CORRECTIONS_FR: dict = {  # we could also use "replace(old, new)"
         "( ": "(",
@@ -118,28 +118,29 @@ def correct_text(sentence: str, lang: str, subject_gender: Literal["f", "m"] | N
         " que U": " qu’U",
     }
     if lang == "en":
-        sentence = _strtr(sentence, CORRECTIONS_EN)
+        text = _strtr(text, CORRECTIONS_EN)
     elif lang == "fr":
-        sentence = _strtr(sentence, CORRECTIONS_FR)
+        text = _strtr(text, CORRECTIONS_FR)
         if subject_gender == "f":
-            sentence = sentence.replace(" il ", " elle ")
-            sentence = sentence.replace("qu'il ", "qu'elle ")
-            sentence = sentence.replace("Il ", "Elle ")
-            sentence = sentence.replace(" né ", " née ")
-            sentence = sentence.replace("Né ", "Née ")
-            sentence = sentence.replace("iplômé ", "iplômée ")
-            sentence = sentence.replace("marqué ", "marquée ")
-            sentence = sentence.replace("obsédé ", "obsédée ")
+            text = text.replace(" il ", " elle ")
+            text = text.replace("qu'il ", "qu'elle ")
+            text = text.replace("qu’il ", "qu'elle ")
+            text = text.replace("Il ", "Elle ")
+            text = text.replace(" né ", " née ")
+            text = text.replace("Né ", "Née ")
+            text = text.replace("iplômé ", "iplômée ")
+            text = text.replace("marqué ", "marquée ")
+            text = text.replace("obsédé ", "obsédée ")
     else:
         logger.error(f"Language not supported: {lang}")
-    return capitalize_sentence(sentence)
+    return capitalize_text(text)
 
 
-def capitalize_sentence(sentence: str) -> str:
-    if sentence[0] == '"':  # if the first char is a double quote
-        return '"' + sentence[1].upper() + sentence[2:]  # capitalize second letter
+def capitalize_text(text: str) -> str:
+    if text[0] == '"':  # if the first char is a double quote
+        return '"' + text[1].upper() + text[2:]  # capitalize second letter
     else:
-        return sentence[0].upper() + sentence[1:]  # capitalize first letter
+        return text[0].upper() + text[1:]  # capitalize first letter
 
 
 def _strtr(string: str, correction_dict: dict) -> str:

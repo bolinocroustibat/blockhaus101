@@ -35,7 +35,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
         expo_enddate: str = format_date(exhibition.enddate, format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
     tweet, used_words = replace_text(tweet, lang)
-    return correct_text(sentence=tweet, lang=lang)
+    return correct_text(text=tweet, lang=lang)
 
 
 def send_tweet(tweet: str) -> None:
