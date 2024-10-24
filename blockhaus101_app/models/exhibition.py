@@ -41,8 +41,6 @@ class Exhibition(models.Model):
         # Generate original French title
         title_structure_fr = Data.choose_random(data_type="expos", lang="fr")
         text_fr: str = title_structure_fr.text
-        text_fr = text_fr.replace("[SELF]", self.artist.name)
-        text_fr = text_fr.replace("[SELFDISCIPLINE]", self.artist.get_discipline(lang="fr"))
         text_fr, used_data = replace_text(text_fr, "fr")
         text_fr = correct_text(text_fr, "fr")
         exhibition_title_fr = ExhibitionTitle(
@@ -52,18 +50,13 @@ class Exhibition(models.Model):
 
         logger.debug(f"Used data for exhibition title FR: {used_data}")
 
-        # Generate English title
+        # Generate titles for all other languages
         for lg in Language.objects.all().exclude(lang="fr"):
             title_structure = Data.objects.get(
                 language=lg,
                 translation=title_structure_fr,
             )
             text: str = title_structure.text
-            text = text.replace("[SELF]", self.artist.name)
-            text = text.replace(
-                "[SELFDISCIPLINE]",
-                self.artist.get_discipline(lang=lg.lang),
-            )
             text = replace_text_translations(text=text, original_keywords=used_data, lang=lg.lang)
             text = correct_text(text, lg.lang)
             exhibition_title = ExhibitionTitle(language=lg, exhibition=self, text=text)

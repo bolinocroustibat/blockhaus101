@@ -46,6 +46,7 @@ class ArtistBiography(models.Model):
         biosentence = biosentence.replace(
             "[SELFDISCIPLINE]", self.artist.get_discipline(lang=self.language.lang)
         )
+        biosentence = biosentence.replace("[SELFEXPO]", expo_title)
         keywords: list = re.findall(r"\[[^][]*]", biosentence)
         for k in keywords:
             if k == "[EXPO]":
@@ -63,5 +64,5 @@ class ArtistBiography(models.Model):
                     self.text_used_data = chosen_data[1]
                     # only replace one occurence, we want the same keyword to be able to be replaced by other words
                     biosentence = biosentence.replace(k, chosen_word, 1)
-        biosentence = correct_text(sentence=biosentence, lang=self.language.lang)
+        biosentence = correct_text(text=biosentence, lang=self.language.lang)
         return biosentence
