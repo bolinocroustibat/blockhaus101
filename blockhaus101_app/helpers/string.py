@@ -59,23 +59,12 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
 
     # Correct the text
     CORRECTIONS_EN: dict = {}
-    CORRECTIONS_FR: dict = {  # we could also use "replace(old, new)"
+    CORRECTIONS_FR: dict = {
         "( ": "(",
         " )": ")",
         " ,": ",",
         " à le ": " au ",
         " à les ": " aux ",
-        " de a": " d’a",
-        " de e": " d’e",
-        " de ê": " d’ê",
-        " de é": " d’é",
-        " de è": " d’è",
-        " de h": " d’h",
-        " de i": " d’i",
-        " de u": " d’u",
-        " de A": " d’A",
-        " de E": " d’E",
-        " de I": " d’I",
         " de de ": " de ",
         " de des ": " des ",
         " de le ": " du ",
@@ -83,18 +72,6 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
         " en la ": " en ",
         " en le ": " en ",
         " en les ": " en ",
-        " la A": " l’A",
-        " la E": " l’E",
-        " la É": " l’É",
-        " la I": " l’I",
-        " la O": " l’O",
-        " la U": " l’U",
-        " le A": " l’A",
-        " le E": " l’E",
-        " le É": " l’É",
-        " le I": " l’I",
-        " le O": " l’O",
-        " le U": " l’U",
         " le la ": " la ",
         " le le ": " le ",
         " le les ": " les ",
@@ -108,29 +85,36 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
         " son l'": " son ",
         " son l’": " son ",
         " son les ": " ses ",
-        " que a": " qu’a",
-        " que e": " qu’e",
-        " que i": " qu’i",
-        " que u": " qu’u",
-        " que A": " qu’A",
-        " que E": " qu’E",
-        " que I": " qu’I",
-        " que U": " qu’U",
     }
+
+    FRENCH_VOWELS = "aâäàeêëéèiîïìoôöòuûüùyAÂÄÀEÊËÉÈIÎÏÌOÔÖÒUÛÜÙY"
+
     if lang == "en":
         text = _strtr(text, CORRECTIONS_EN)
+
     elif lang == "fr":
-        text = _strtr(text, CORRECTIONS_FR)
+        corrections: dict = CORRECTIONS_FR.copy()
+        for vowel in FRENCH_VOWELS:
+            corrections[f" de {vowel}"] = f" d’{vowel}"
+            corrections[f" la {vowel}"] = f" l’{vowel}"
+            corrections[f" le {vowel}"] = f" l’{vowel}"
+            corrections[f" que {vowel}"] = f" qu’{vowel}"
         if subject_gender == "f":
-            text = text.replace(" il ", " elle ")
-            text = text.replace("qu'il ", "qu'elle ")
-            text = text.replace("qu’il ", "qu'elle ")
-            text = text.replace("Il ", "Elle ")
-            text = text.replace(" né ", " née ")
-            text = text.replace("Né ", "Née ")
-            text = text.replace("iplômé ", "iplômée ")
-            text = text.replace("marqué ", "marquée ")
-            text = text.replace("obsédé ", "obsédée ")
+            corrections.update(
+                {
+                    " il ": " elle ",
+                    "qu'il ": "qu'elle ",
+                    "qu’il ": "qu'elle ",
+                    "Il ": "Elle ",
+                    " né ": " née ",
+                    "Né ": "Née ",
+                    "iplômé ": "iplômée ",
+                    "marqué ": "marquée ",
+                    "obsédé ": "obsédée ",
+                }
+            )
+        text = _strtr(text, corrections)
+
     else:
         logger.error(f"Language not supported: {lang}")
     return capitalize_text(text)
