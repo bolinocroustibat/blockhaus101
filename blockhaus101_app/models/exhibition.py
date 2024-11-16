@@ -38,6 +38,9 @@ class Exhibition(models.Model):
         return f"{exhibition_title.text} ({self.pk})"
 
     def generate_titles(self) -> dict[str, ExhibitionTitle]:
+        """Generate titles for all languages.
+        Returns a dictionary with the language code as key and the ExhibitionTitle object as value."""
+
         # Generate original French title
         title_structure_fr = Data.choose_random(data_type="expos", lang="fr")
         text_fr: str = title_structure_fr.text

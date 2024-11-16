@@ -44,11 +44,13 @@ def index(request, lang: str) -> HttpResponse:
     else:
         logger.debug("There is no current exhibition.")
 
+        # create a new artist
         artist = Artist()
         artist.generate()
         artist.save()
         logger.debug(f'New artist "{artist.name}" has been created in DB')
 
+        # create a new exhibition, its titles on both languages, and image
         exhibition = Exhibition(artist=artist)
         exhibition.save()
         exhibition_titles: dict = exhibition.generate_titles()
@@ -57,11 +59,15 @@ def index(request, lang: str) -> HttpResponse:
         exhibition.generate_image()
         exhibition.save()
         logger.debug(
-            f'New exhibition "{exhibition_titles["fr"].text}" ({exhibition.pk}) has been created in DB'
+            f'New exhibition "{exhibition_title.text}" ({exhibition.pk}) has been created in DB'
         )
+        exhibition_title = exhibition_titles[
+            lang
+        ]  # get the title in the current language to be used in the template
 
+        # create a new artist biography, using the exhibition title
         biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_titles[lang].text)
+        biography.generate(expo_title=exhibition_title.text)
         biography.save()
         logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 
