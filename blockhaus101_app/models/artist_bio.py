@@ -51,7 +51,14 @@ class ArtistBiography(models.Model):
         for k in keywords:
             if k == "[EXPO]":
                 # only replace one occurence, we want the same keyword to be able to be replaced by other words
-                biosentence = biosentence.replace("[EXPO]", expo_title, 1)
+                chosen_data = Data.choose_random_excluding(
+                    data_type="expo",
+                    lang=self.language.lang,
+                    excluding=self.text_used_data,
+                )
+                if chosen_data:
+                    another_expo_title = chosen_data[0].text
+                    biosentence = biosentence.replace("[EXPO]", another_expo_title, 1)
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(
