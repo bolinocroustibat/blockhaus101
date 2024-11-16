@@ -42,6 +42,7 @@ def index(request, lang: str) -> HttpResponse:
         logger.info(
             f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
         )
+        expo_text = ExhibitionText.objects.filter(language=language, exhibition=exhibition).first()
     else:
         logger.debug("There is no current exhibition.")
 
@@ -60,11 +61,10 @@ def index(request, lang: str) -> HttpResponse:
         exhibition.generate_image()
         exhibition.save()
         logger.debug(
-            f'New exhibition "{exhibition_title.text}" ({exhibition.pk}) has been created in DB'
+            f'New exhibition "{exhibition_titles["fr"].text}" ({exhibition.pk}) has been created in DB'
         )
-        exhibition_title = exhibition_titles[
-            lang
-        ]  # get the title in the current language to be used in the template
+        # get the title in the current language to be used in the template
+        exhibition_title = exhibition_titles[lang]
 
         # create a new artist biography, using the exhibition title
         biography = ArtistBiography(language=language, artist=artist)
@@ -72,20 +72,24 @@ def index(request, lang: str) -> HttpResponse:
         biography.save()
         logger.debug(f'New artist biography "{biography.text}" has been created in DB')
 
-    expo_text = ExhibitionText(language=language, exhibition=exhibition, ip=get_client_ip(request))
-    expo_text.generate()
-    openai_api = OpenAiAPI()
-    reformulated_text, price, error_msg = asyncio.run(
-        openai_api.reformulate(text=expo_text.text)
-    )  # call the async function from the sync context
-    if reformulated_text:
-        logger.info(
-            f"Text has been reformulated by OpenAI:\n{reformulated_text}\nPriced at {price}"
+        # create a new exhibition text
+        expo_text = ExhibitionText(
+            language=language, exhibition=exhibition, ip=get_client_ip(request)
         )
-        expo_text.text = reformulated_text
-    if error_msg:
-        logger.error(f"Error while reformulating text: {error_msg}")
-    expo_text.save()
+        expo_text.generate()
+        # reformulate the text using OpenAI API
+        openai_api = OpenAiAPI()
+        reformulated_text, price, error_msg = asyncio.run(
+            openai_api.reformulate(text=expo_text.text)
+        )  # call the async function from the sync context
+        if reformulated_text:
+            logger.info(
+                f"Text has been reformulated by OpenAI:\n{reformulated_text}\nPriced at {price}"
+            )
+            expo_text.text = reformulated_text
+        if error_msg:
+            logger.error(f"Error while reformulating text: {error_msg}")
+        expo_text.save()
 
     return render(
         request,
