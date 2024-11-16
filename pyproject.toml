@@ -1,6 +1,6 @@
 [project]
 name = "blockhaus101"
-version = "1.9.2"
+version = "1.9.3"
 description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale de l’art contemporain. Uniquement sur rendez-vous."
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
