@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 
 from babel.dates import format_date
@@ -13,7 +14,7 @@ from blockhaus101.settings import (
     logger,
 )
 from blockhaus101_app.forms import FormContact
-from blockhaus101_app.helpers import get_client_ip
+from blockhaus101_app.helpers import OpenAiAPI, get_client_ip
 from blockhaus101_app.models import (
     Artist,
     ArtistBiography,
@@ -73,6 +74,17 @@ def index(request, lang: str) -> HttpResponse:
 
     expo_text = ExhibitionText(language=language, exhibition=exhibition, ip=get_client_ip(request))
     expo_text.generate()
+    openai_api = OpenAiAPI()
+    reformulated_text, price, error_msg = asyncio.run(
+        openai_api.reformulate(text=expo_text.text)
+    )  # call the async function from the sync context
+    if reformulated_text:
+        logger.info(
+            f"Text has been reformulated by OpenAI:\n{reformulated_text}\nPriced at {price}"
+        )
+        expo_text.text = reformulated_text
+    if error_msg:
+        logger.error(f"Error while reformulating text: {error_msg}")
     expo_text.save()
 
     return render(
