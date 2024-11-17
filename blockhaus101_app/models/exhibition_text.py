@@ -22,6 +22,12 @@ class ExhibitionText(models.Model):
     slug = models.SlugField(default=None, null=True, blank=True, max_length=150, verbose_name="URL")
     ip = models.GenericIPAddressField("creator IP address", blank=True, null=True)
     created = models.DateTimeField(auto_now=True)
+    ai_model = models.CharField(
+        "AI model",
+        max_length=32,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self) -> str:
         return self.text[:60]
