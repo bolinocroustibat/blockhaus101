@@ -1,9 +1,9 @@
 {% extends "fr/base.html" %}
 
 {% block meta %}
-<title>blockhaus 101 - prendre rendez-vous</title>
+<title>galerie søren bollinger - prendre rendez-vous</title>
 <meta name="Description" content="" />
-<meta property="og:title" content="blockhaus 101 - prendre rendez-vous" />
+<meta property="og:title" content="galerie søren bollinger - prendre rendez-vous" />
 <meta property="og:description" content="" />
 <meta property="og:image" content="" />
 {% endblock %}
@@ -12,14 +12,14 @@
 {% block content %}
 
 <div class="col-lg-8 col-12 p-0 mb-5">
-	<p>blockhaus 101<br />
+	<p>galerie søren bollinger<br />
 	75020 Paris</p>
 
 	<div class="mt-5">
 		{% if message %}
 			<p class="message">{{message}}</p>
 		{% else %}
-			<p>Vous pouvez demander une visite à la galerie Blockhaus 101 sur rendez-vous uniquement en remplissant ce formulaire :
+			<p>Vous pouvez demander une visite à la galerie Søren Bollinger sur rendez-vous uniquement en remplissant ce formulaire :
 			<form role="form" action= "" method="POST">
 				<div class="mt-3">
 					{{ form_contact.name.label_tag }}

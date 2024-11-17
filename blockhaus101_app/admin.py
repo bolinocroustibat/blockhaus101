@@ -10,8 +10,8 @@ from blockhaus101_app.models import (
     SiteSetting,
 )
 
-admin.AdminSite.site_header = f"Blockhaus101 {VERSION} ({ENVIRONMENT})"
-admin.AdminSite.site_title = "Blockhaus101"
+admin.AdminSite.site_header = f"galerie Søren Bollinger {VERSION} ({ENVIRONMENT})"
+admin.AdminSite.site_title = "galerie Søren Bollinger"
 admin.AdminSite.index_title = "Admin main menu"
 
 
