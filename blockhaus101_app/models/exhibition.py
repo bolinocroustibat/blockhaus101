@@ -21,7 +21,7 @@ from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
-    artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.PROTECT)
+    artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.CASCADE)
     startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
     enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
     image1 = models.ImageField(
