@@ -42,7 +42,7 @@ def index(request, lang: str) -> HttpResponse:
         logger.info(
             f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
         )
-        expo_text = ExhibitionText.objects.filter(language=language, exhibition=exhibition).first()
+        expo_text = ExhibitionText.objects.filter(language=language, exhibition=exhibition).last()
     else:
         logger.debug("There is no current exhibition.")
 
@@ -84,9 +84,16 @@ def index(request, lang: str) -> HttpResponse:
         )  # call the async function from the sync context
         if reformulated_text:
             logger.info(
-                f"Text has been reformulated by OpenAI:\n{reformulated_text}\nPriced at {price}"
+                f"Text has been reformulated by OpenAI:\n{reformulated_text}\nCost: {price}$"
             )
-            expo_text.text = reformulated_text
+            expo_text = ExhibitionText(
+                language=language,
+                exhibition=exhibition,
+                ip=get_client_ip(request),
+                text=reformulated_text,
+                ai_model=openai_api.model_id,
+            )
+            expo_text.save()
         if error_msg:
             logger.error(f"Error while reformulating text: {error_msg}")
         expo_text.save()
@@ -166,8 +173,8 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         # Get the artist biography for each exhibition
         biography = ArtistBiography.objects.get(language=language, artist=e.artist)
         exhibition["bio"] = biography.text
-        # Get an existing text for each exhibition
-        expo_text = ExhibitionText.objects.filter(language=language, exhibition=e).first()
+        # Get the latest existing text for each exhibition
+        expo_text = ExhibitionText.objects.filter(language=language, exhibition=e).last()
         exhibition["text"] = expo_text.text
         # Image
         exhibition["image1"] = None
