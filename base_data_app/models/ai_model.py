@@ -47,7 +47,7 @@ class AiModel(models.Model):
     )
 
     active = models.BooleanField(
-        "Avtivé manuellement dans l'application",
+        "Activé manuellement dans l'application",
         default=True,
     )
 
