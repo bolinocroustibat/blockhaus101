@@ -21,21 +21,12 @@ urlpatterns = [
     ),
     # Language-independent URLs
     path("captcha/", include("captcha.urls")),
-    # # New URLS with language param
-    # re_path(r"^(?P<lang>fr|en)/$", views.index, name="index"),
-    # re_path(
-    #     r"^(?P<lang>fr|en)/past-exhibitions/$",
-    #     views.past_exhibitions,
-    #     name="past_exhibitions",
-    # ),
-    # re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
-    # Only French for now
-    re_path(r"^(?P<lang>fr)/$", views.index, name="index"),
+    # New URLS with language param
+    re_path(r"^(?P<lang>fr|en)/$", views.index, name="index"),
     re_path(
-        r"^(?P<lang>fr)/past-exhibitions/$",
+        r"^(?P<lang>fr|en)/past-exhibitions/$",
         views.past_exhibitions,
         name="past_exhibitions",
     ),
-    re_path(r"^(?P<lang>fr)/contact/$", views.contact, name="contact"),
-    re_path(r"^(?P<slug>[-\w]+)/$", views.exhibition, name="exhibition"),
+    re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

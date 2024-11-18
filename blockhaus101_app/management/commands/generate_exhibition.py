@@ -2,16 +2,13 @@ from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.models import Artist, ArtistBiography, Exhibition
+from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, ExhibitionTitle
 
 
 class Command(BaseCommand):
     help = "Generate new exhibition with artist and biography"
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--lang", dest="lang", default="fr", help='Language code ("fr" or "en")'
-        )
         parser.add_argument(
             "--img",
             default=False,
@@ -26,33 +23,27 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        lang: str = options.get("lang", "fr")
-        if lang not in ["fr", "en"]:
-            logger.error("Language code doesn't exist")
-            raise ValueError
-        language = Language.objects.get(lang=lang)
-
         artist = Artist()
         artist.generate()
         exhibition = Exhibition(artist=artist)
-        exhibition_titles: dict = exhibition.generate_titles()
-        biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_titles[lang].text)
+        exhibition_titles: dict[str, ExhibitionTitle] = exhibition.generate_titles()
+        bios: dict[str, ArtistBiography] = artist.generate_bios(expo_titles=exhibition_titles)
 
         logger.info(artist)
-        logger.info(biography.text)
-        logger.info(exhibition_titles["fr"].text)
-        logger.info(exhibition_titles["en"].text)
+        for lg in Language.objects.all():
+            logger.info(bios[lg.lang].text)
+            logger.info(exhibition_titles[lg.lang].text)
 
         if options["save"] or options["img"]:
             artist.save()
-            biography.save()
-            logger.info("Artist saved in DB with its biography")
+            for lg in Language.objects.all():
+                bios[lg.lang].save()
+            logger.info("Artist saved in DB with its biographies")
 
             if options["img"]:
                 exhibition.generate_image()
 
             exhibition.save()
-            exhibition_titles["fr"].save()
-            exhibition_titles["en"].save()
-            logger.info("Exhibition saved in DB with its title")
+            for lg in Language.objects.all():
+                exhibition_titles[lg.lang].save()
+            logger.info("Exhibition saved in DB with its titles")
