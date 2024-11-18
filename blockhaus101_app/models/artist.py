@@ -2,6 +2,8 @@ from django.db import models
 
 from base_data_app.models import Data, Language
 from blockhaus101.settings import GENDER_CHOICES
+from blockhaus101_app.models.artist_bio import ArtistBiography
+from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 
 class Artist(models.Model):
@@ -27,6 +29,17 @@ class Artist(models.Model):
         self.name = firstname.text + " " + lastname.text
         # discipline
         self.discipline = Data.choose_random(data_type="DISCIPLINE", lang="en")
+
+    def generate_bios(self, expo_titles: dict[str, ExhibitionTitle]) -> dict[str, ArtistBiography]:
+        """Generate bios for all languages.
+        Returns a dictionary with the language code as key and the ArtistBiography object as value."""
+        res: dict = {}
+        for lg in Language.objects.all():
+            expo_title = expo_titles[lg.lang].text
+            bio = ArtistBiography(artist=self, language=lg)
+            bio.generate(expo_title=expo_title)
+            res[lg.lang] = bio
+        return res
 
     @property
     def name_slug(self) -> str:

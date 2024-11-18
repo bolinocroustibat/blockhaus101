@@ -15,13 +15,12 @@ from blockhaus101_app.helpers import (
     replace_text,
     replace_text_translations,
 )
-from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
-    artist = models.ForeignKey(Artist, related_name="exhibitions", on_delete=models.CASCADE)
+    artist = models.ForeignKey("Artist", related_name="exhibitions", on_delete=models.CASCADE)
     startdate = models.DateTimeField("exhibition start date", blank=True, null=True)
     enddate = models.DateTimeField("exhibition end date", blank=True, null=True)
     image1 = models.ImageField(

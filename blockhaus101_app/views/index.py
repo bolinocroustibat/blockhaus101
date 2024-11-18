@@ -30,7 +30,7 @@ def index(request, lang: str) -> HttpResponse:
         logger.debug(
             f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
         )
-        biography = ArtistBiography.objects.get(language=language, artist=artist)
+        bio = ArtistBiography.objects.get(language=language, artist=artist)
         logger.info(
             f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
         )
@@ -49,8 +49,8 @@ def index(request, lang: str) -> HttpResponse:
         exhibition = Exhibition(artist=artist)
         exhibition.save()
         exhibition_titles: dict = exhibition.generate_titles()
-        exhibition_titles["fr"].save()
-        exhibition_titles["en"].save()
+        for lg in Language.objects.all():
+            exhibition_titles[lg.lang].save()
         exhibition.generate_image()
         exhibition.save()
         logger.debug(
@@ -60,10 +60,11 @@ def index(request, lang: str) -> HttpResponse:
         exhibition_title = exhibition_titles[lang]
 
         # create a new artist biography, using the exhibition title
-        biography = ArtistBiography(language=language, artist=artist)
-        biography.generate(expo_title=exhibition_title.text)
-        biography.save()
-        logger.debug(f'New artist biography "{biography.text}" has been created in DB')
+        bios: dict[str, ArtistBiography] = artist.generate_bios(expo_titles=exhibition_titles)
+        for lg in Language.objects.all():
+            bios[lg.lang].save()
+        bio = bios[lang]
+        logger.debug(f'New artist biography "{bio.text}" has been created in DB')
 
         # create a new exhibition text
         expo_text = ExhibitionText(
@@ -86,7 +87,6 @@ def index(request, lang: str) -> HttpResponse:
                 text=reformulated_text,
                 ai_model=openai_api.model_id,
             )
-            expo_text.save()
         if error_msg:
             logger.error(f"Error while reformulating text: {error_msg}")
         expo_text.save()
@@ -100,7 +100,7 @@ def index(request, lang: str) -> HttpResponse:
             "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang),
             "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
             "artist_name": artist.name,
-            "artist_bio": biography.text,
+            "artist_bio": bio.text,
             "expo_title": exhibition_title.text,
             "expo_text": expo_text.text,
             "expo_image1": exhibition.image1.url if exhibition.image1 else None,
