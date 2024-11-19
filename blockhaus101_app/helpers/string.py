@@ -90,7 +90,9 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
     FRENCH_VOWELS = "aâäàeêëéèiîïìoôöòuûüùyAÂÄÀEÊËÉÈIÎÏÌOÔÖÒUÛÜÙY"
 
     if lang == "en":
-        text = _strtr(text, CORRECTIONS_EN)
+        corrections: dict = CORRECTIONS_EN.copy()
+        if subject_gender == "f":
+            corrections.update({" his ": " her ", "His ": "Her "})
 
     elif lang == "fr":
         corrections: dict = CORRECTIONS_FR.copy()
@@ -113,10 +115,11 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
                     "obsédé ": "obsédée ",
                 }
             )
-        text = _strtr(text, corrections)
 
     else:
         logger.error(f"Language not supported: {lang}")
+
+    text = _strtr(text, corrections)
     return capitalize_text(text)
 
 
