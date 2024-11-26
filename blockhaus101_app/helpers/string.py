@@ -13,7 +13,7 @@ def replace_text_translations(text: str, original_keywords: list[Data], lang: st
         if original_keywords:
             data: Data = original_keywords.pop(0)
             try:
-                word: str = Data.objects.get(language__lang=lang, translation=data).text
+                word: str = Data.objects.get(language__code=lang, translation=data).text
             except Data.DoesNotExist:
                 logger.warning(f'Translation not found for data: "{data}" ({data.pk})')
                 word = data.text  # Use the untranslated string

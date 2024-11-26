@@ -35,10 +35,10 @@ class Artist(models.Model):
         Returns a dictionary with the language code as key and the ArtistBiography object as value."""
         res: dict = {}
         for lg in Language.objects.all():
-            expo_title = expo_titles[lg.lang].text
+            expo_title = expo_titles[lg.code].text
             bio = ArtistBiography(artist=self, language=lg)
             bio.generate(expo_title=expo_title)
-            res[lg.lang] = bio
+            res[lg.code] = bio
         return res
 
     @property
@@ -48,10 +48,10 @@ class Artist(models.Model):
     def get_discipline(self, lang: str | None = None) -> str:
         if lang:
             if self.discipline.translation:
-                if self.discipline.translation.language == Language.objects.get(lang=lang):
+                if self.discipline.translation.language == Language.objects.get(code=lang):
                     return self.discipline.translation.text
             translated_discipline = Data.objects.filter(
-                data_type__name="DISCIPLINE", language__lang=lang, translation=self.discipline
+                data_type__name="DISCIPLINE", language__code=lang, translation=self.discipline
             ).first()
             if translated_discipline:
                 return translated_discipline.text

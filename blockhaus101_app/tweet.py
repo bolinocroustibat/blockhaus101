@@ -22,7 +22,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     else:
         logger.error("Unknown tweet type")
         raise ValueError("Invalid tweet type")
-    language = Language.objects.get(lang=lang)
+    language = Language.objects.get(code=lang)
     tweet_structure = Data.choose_random(data_type=tweet_type, lang=lang)
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)

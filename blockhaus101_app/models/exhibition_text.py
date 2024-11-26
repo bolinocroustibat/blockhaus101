@@ -51,7 +51,7 @@ class ExhibitionText(models.Model):
         self.text = self.text + " " + self._create_expo_sentence(position=6)
         self.text = correct_text(
             text=self.text,
-            lang=self.language.lang,
+            lang=self.language.code,
             subject_gender=self.exhibition.artist.gender,
         )
         logger.debug(f"Used words for exhibition text: {self.used_words}")
@@ -74,16 +74,16 @@ class ExhibitionText(models.Model):
         sentence = choice(structures).text
         sentence = sentence.replace("[SELF]", self.exhibition.artist.name)
         sentence = sentence.replace(
-            "[SELFDISCIPLINE]", self.exhibition.artist.get_discipline(lang=self.language.lang)
+            "[SELFDISCIPLINE]", self.exhibition.artist.get_discipline(lang=self.language.code)
         )
         exhibition_title = ExhibitionTitle.objects.get(
             exhibition=self.exhibition, language=self.language
         )
         sentence = sentence.replace("[SELFEXPO]", exhibition_title.text)
         other_exhibition_titles: dict = self.exhibition.generate_titles()
-        sentence = sentence.replace("[EXPO]", other_exhibition_titles[self.language.lang].text)
-        sentence, used_words = replace_text(text=sentence, lang=self.language.lang)
-        sentence = correct_text(text=sentence, lang=self.language.lang)
+        sentence = sentence.replace("[EXPO]", other_exhibition_titles[self.language.code].text)
+        sentence, used_words = replace_text(text=sentence, lang=self.language.code)
+        sentence = correct_text(text=sentence, lang=self.language.code)
         return sentence
 
     def _unique_slugify(self, value: str, max_elements: int | None = None) -> str | None:

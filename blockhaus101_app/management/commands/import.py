@@ -24,7 +24,7 @@ class Command(BaseCommand):
             input("Enter the number of rows to skip at the beginning of the CSV (default: 3): ")
             or 3
         )
-        language = Language.objects.get(lang=lang)
+        language = Language.objects.get(code=lang)
         response = httpx.get(url=csv_url)
         csv_bytestream = response.content.decode("utf-8")
         csv_reader = csv.reader(csv_bytestream.splitlines())
