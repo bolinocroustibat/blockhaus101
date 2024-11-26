@@ -46,5 +46,5 @@ py-modules = []
 dev-dependencies = [
     "googletrans-py>=4.0.0",
     "mypy>=1.11.2",
-    "ruff>=0.6.5",
+    "ruff>=0.8.0",
 ]
