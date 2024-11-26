@@ -52,7 +52,7 @@ class Data(models.Model):
         entries: models.QuerySet = cls.objects.filter(data_type__name=data_type)
         if lang:
             entries = entries.filter(
-                models.Q(language__lang=lang) | models.Q(language=None)
+                models.Q(language__code=lang) | models.Q(language=None)
             )  # we choose entries with the right language or no language
         if entries:
             return choices(entries, weights=[e.weight for e in entries])[0]

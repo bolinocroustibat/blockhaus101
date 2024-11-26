@@ -133,8 +133,6 @@ CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).
 # https://openai.com/pricing/
 OPENAI_MODEL_ID = "gpt-4o-mini"
-OPENAI_SYSTEM_PROMPT = "Bonjour, vous parlez français et vous pouvez reformuler un texte français en gradant son style et son sens, mais en l'étoffant légèrement."
-OPENAI_USER_PROMPT = "Je souhaite que vous reformuliez ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans votre réponse autre chose que le texte en lui-même. Voici le texte à reformuler: « {text} »"
 
 GETIMGAPI_PROMPT = 'Generate a photorealistic image of a contemporary {discipline} art exhibition with abstract artworks which must identifiable as {discipline} works. The exhibition name is "{exhibition_title}", so if possible, artworks can be vaguely related to that theme.  Don\'t show the artist, but show the artwork(s) or the performance(s) only, in the exhibition room.'
 

@@ -37,7 +37,7 @@ class Command(BaseCommand):
             logger.error("Destination language code doesn't exist")
             raise ValueError
 
-        dest_language = Language.objects.get(lang=options["dest_lang"])
+        dest_language = Language.objects.get(code=options["dest_lang"])
 
         data_type = DataType.objects.get(name=options["data_type"])
 

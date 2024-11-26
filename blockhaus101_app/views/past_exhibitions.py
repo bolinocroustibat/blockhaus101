@@ -14,7 +14,7 @@ from blockhaus101_app.models import (
 
 
 def past_exhibitions(request, lang: str) -> HttpResponse:
-    language = Language.objects.get(lang=lang)
+    language = Language.objects.get(code=lang)
     full_exhibs = list()
     exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by("-enddate")
     # # Get all artists with enddate before today

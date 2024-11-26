@@ -31,13 +31,13 @@ class Command(BaseCommand):
 
         logger.info(artist)
         for lg in Language.objects.all():
-            logger.info(bios[lg.lang].text)
-            logger.info(exhibition_titles[lg.lang].text)
+            logger.info(bios[lg.code].text)
+            logger.info(exhibition_titles[lg.code].text)
 
         if options["save"] or options["img"]:
             artist.save()
             for lg in Language.objects.all():
-                bios[lg.lang].save()
+                bios[lg.code].save()
             logger.info("Artist saved in DB with its biographies")
 
             if options["img"]:
@@ -45,5 +45,5 @@ class Command(BaseCommand):
 
             exhibition.save()
             for lg in Language.objects.all():
-                exhibition_titles[lg.lang].save()
+                exhibition_titles[lg.code].save()
             logger.info("Exhibition saved in DB with its titles")

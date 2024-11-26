@@ -18,7 +18,7 @@ from blockhaus101_app.models import (
 
 
 def index(request, lang: str) -> HttpResponse:
-    language = Language.objects.get(lang=lang)
+    language = Language.objects.get(code=lang)
     description = SiteSetting.objects.get(language=language).description
 
     # try to get an exhibition for current period
@@ -50,7 +50,7 @@ def index(request, lang: str) -> HttpResponse:
         exhibition.save()
         exhibition_titles: dict = exhibition.generate_titles()
         for lg in Language.objects.all():
-            exhibition_titles[lg.lang].save()
+            exhibition_titles[lg.code].save()
         exhibition.generate_image()
         exhibition.save()
         logger.debug(
@@ -62,7 +62,7 @@ def index(request, lang: str) -> HttpResponse:
         # create a new artist biography, using the exhibition title
         bios: dict[str, ArtistBiography] = artist.generate_bios(expo_titles=exhibition_titles)
         for lg in Language.objects.all():
-            bios[lg.lang].save()
+            bios[lg.code].save()
         bio = bios[lang]
         logger.debug(f'New artist biography "{bio.text}" has been created in DB')
 
@@ -74,7 +74,7 @@ def index(request, lang: str) -> HttpResponse:
         # reformulate the text using OpenAI API
         openai_api = OpenAiAPI()
         reformulated_text, price, error_msg = asyncio.run(
-            openai_api.reformulate(text=expo_text.text)
+            openai_api.reformulate(text=expo_text.text, language=language)
         )  # call the async function from the sync context
         if reformulated_text:
             logger.info(

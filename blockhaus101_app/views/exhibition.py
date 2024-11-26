@@ -17,21 +17,22 @@ def exhibition(request, slug: str) -> HttpResponse:
         expo_text = ExhibitionText.objects.get(slug=slug)
         language = expo_text.language
         description = SiteSetting.objects.get(language=language).description
-        lang: str = language.lang
         exhibition = expo_text.exhibition
         exhibition_title = ExhibitionTitle.objects.get(language, exhibition)
         artist = exhibition.artist
         biography = ArtistBiography(language, artist)
         return render(
             request,
-            f"{lang}/index.html",
+            f"{language.code}/index.html",
             {
-                "lang": lang,
+                "lang": language.code,
                 "description": description,
                 "expo_startdate": format_date(
-                    exhibition.startdate.date(), format="long", locale=lang
+                    exhibition.startdate.date(), format="long", locale=language.code
                 ),
-                "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
+                "expo_enddate": format_date(
+                    exhibition.enddate.date(), format="long", locale=language.code
+                ),
                 "artist_name": artist.name,
                 "artist_bio": biography.text,
                 "expo_title": exhibition_title.text,

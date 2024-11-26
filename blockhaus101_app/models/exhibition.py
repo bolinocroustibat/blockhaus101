@@ -33,7 +33,7 @@ class Exhibition(models.Model):
         verbose_name = "exposition"
 
     def __str__(self) -> str:
-        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__lang="fr")
+        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__code="fr")
         return f"{exhibition_title.text} ({self.pk})"
 
     def generate_titles(self) -> dict[str, ExhibitionTitle]:
@@ -46,23 +46,23 @@ class Exhibition(models.Model):
         text_fr, used_data = replace_text(text_fr, "fr")
         text_fr = correct_text(text_fr, "fr")
         exhibition_title_fr = ExhibitionTitle(
-            language=Language.objects.get(lang="fr"), exhibition=self, text=text_fr
+            language=Language.objects.get(code="fr"), exhibition=self, text=text_fr
         )
         res: dict = {"fr": exhibition_title_fr}
 
         logger.debug(f"Used data for exhibition title FR: {used_data}")
 
         # Generate titles for all other languages
-        for lg in Language.objects.all().exclude(lang="fr"):
+        for lg in Language.objects.all().exclude(code="fr"):
             title_structure = Data.objects.get(
                 language=lg,
                 translation=title_structure_fr,
             )
             text: str = title_structure.text
-            text = replace_text_translations(text=text, original_keywords=used_data, lang=lg.lang)
-            text = correct_text(text, lg.lang)
+            text = replace_text_translations(text=text, original_keywords=used_data, lang=lg.code)
+            text = correct_text(text, lg.code)
             exhibition_title = ExhibitionTitle(language=lg, exhibition=self, text=text)
-            res[lg.lang] = exhibition_title
+            res[lg.code] = exhibition_title
 
         return res
 
@@ -88,7 +88,7 @@ class Exhibition(models.Model):
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.get_discipline(lang="en")
-        exhibition_title = ExhibitionTitle.objects.get(language__lang="en", exhibition=self)
+        exhibition_title = ExhibitionTitle.objects.get(language__code="en", exhibition=self)
         img_prompt: str = GETIMGAPI_PROMPT.format(
             discipline=discipline, exhibition_title=exhibition_title.text
         )
