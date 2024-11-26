@@ -1,7 +1,10 @@
+import asyncio
+
 from django.db import models
 
 from base_data_app.models import Data, Language
 from blockhaus101.settings import GENDER_CHOICES
+from blockhaus101_app.helpers import OpenAiAPI
 from blockhaus101_app.models.artist_bio import ArtistBiography
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
@@ -34,11 +37,20 @@ class Artist(models.Model):
         """Generate bios for all languages.
         Returns a dictionary with the language code as key and the ArtistBiography object as value."""
         res: dict = {}
-        for lg in Language.objects.all():
-            expo_title = expo_titles[lg.code].text
-            bio = ArtistBiography(artist=self, language=lg)
-            bio.generate(expo_title=expo_title)
-            res[lg.code] = bio
+        lg_fr = Language.objects.get(code="fr")
+        lg_en = Language.objects.get(code="en")
+        # Generate original French biography
+        bio_fr = ArtistBiography(artist=self, language=lg_fr)
+        bio_fr.generate(expo_title=expo_titles[lg_fr.code].text)
+        bio_fr.save()
+        res[lg_fr.code] = bio_fr
+        # Translate to English
+        openai_api = OpenAiAPI()
+        bio_translated, price, error_msg = asyncio.run(
+            openai_api.translate(text=bio_fr.text, origin_language=lg_fr, dest_language=lg_en)
+        )
+        bio_en = ArtistBiography.objects.create(artist=self, language=lg_en, text=bio_translated)
+        res[lg_en.code] = bio_en
         return res
 
     @property
