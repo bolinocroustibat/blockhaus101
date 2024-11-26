@@ -1,6 +1,6 @@
 # ruff: noqa: F401
-from .getimgai_api import GetImgAiAPI
+from .api_getimgai import GetImgAiAPI
+from .api_openai import OpenAiAPI
 from .img import save_b64_img
 from .ip import get_client_ip
-from .openai_api import OpenAiAPI
 from .string import correct_text, replace_text, replace_text_translations
