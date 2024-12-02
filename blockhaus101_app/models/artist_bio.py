@@ -28,6 +28,13 @@ class ArtistBiography(models.Model):
         verbose_name_plural = "biographies d'artiste"
 
     def generate(self, expo_title: str) -> str:
+        """
+        Generate a biography for the artist in the current language.
+        Args:
+            expo_title (str): the title of the current exhibition
+        Returns:
+            str: the artist biography
+        """
         self.text_used_data: list = []
         self.text = self._generate_bio_sentence(position=1, expo_title=expo_title)
         self.text = self.text + " " + self._generate_bio_sentence(position=2, expo_title=expo_title)
