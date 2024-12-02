@@ -7,21 +7,17 @@ on:
 
 jobs:
 
-  deploy-prod:
-
-    name: Deploy to prod from ${{ github.ref_name }}/${{ github.sha }}
-
+  bump-version:
+    name: Bump version
     runs-on: ubuntu-latest
-
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install uv
         uses: astral-sh/setup-uv@v3
         with:
-          enable-cache: true # Default glob pattern when the cache is invalidated is '**/uv.lock'
+          enable-cache: true
 
       - name: Bump version in pyproject.toml and uv.lock to ${{ github.ref_name }}
         run: |
@@ -37,6 +33,11 @@ jobs:
           commit_user_email: me@adriencarpentier.com
           commit_author: Adrien Carpentier <me@adriencarpentier.com>
 
+  deploy:
+    name: Deploy to production
+    runs-on: ubuntu-latest
+    needs: bump-version
+    steps:
       - name: Execute server commands for deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -52,8 +53,13 @@ jobs:
             /usr/local/bin/uv/bin/uv run /home/www/blockhaus101/manage.py collectstatic --no-input
             sudo systemctl restart blockhaus101.service
 
+  create-sentry-release:
+    name: Create Sentry Release
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: success()
+    steps:
       - name: Create Sentry "${{ github.ref_name }}" release
-        if: success()  # Only run if previous steps succeed
         uses: getsentry/action-release@v1.7.0
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
