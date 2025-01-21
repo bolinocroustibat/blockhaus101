@@ -17,6 +17,20 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="language",
             name="name",
+            field=models.CharField(max_length=20, verbose_name="language name", null=True),
+        ),
+        migrations.RunSQL(
+            """
+            UPDATE blockhaus101_languages
+            SET name = CASE
+                WHEN code = 'fr' THEN 'French'
+                WHEN code = 'en' THEN 'English'
+            END;
+            """
+        ),
+        migrations.AlterField(
+            model_name="language",
+            name="name",
             field=models.CharField(max_length=20, verbose_name="language name"),
         ),
     ]
