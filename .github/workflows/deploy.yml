@@ -54,6 +54,8 @@ jobs:
           script_stop: true
           script: |
             cd /home/www/blockhaus101
+            git fetch
+            git reset --hard origin/main
             /usr/local/bin/uv/bin/uv sync
             /usr/local/bin/uv/bin/uv run /home/www/blockhaus101/manage.py migrate
             /usr/local/bin/uv/bin/uv run /home/www/blockhaus101/manage.py collectstatic --no-input
