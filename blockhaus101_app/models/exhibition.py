@@ -8,7 +8,7 @@ from django.db import models
 
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
-from blockhaus101.settings import GETIMGAPI_PROMPT, logger
+from blockhaus101.settings import GETIMGAPI_NEGATIVE_PROMPT, GETIMGAPI_PROMPT, logger
 from blockhaus101_app.helpers import (
     GetImgAiAPI,
     correct_text,
@@ -26,6 +26,9 @@ class Exhibition(models.Model):
     image1 = models.ImageField(
         "exhibition image 1", upload_to="exhibitions_imgs", blank=True, null=True
     )
+    image2 = models.ImageField(
+        "exhibition image 2", upload_to="exhibitions_imgs", blank=True, null=True
+    )
     created = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -42,6 +45,9 @@ class Exhibition(models.Model):
 
         # Generate original French title
         title_structure_fr = Data.choose_random(data_type="expos", lang="fr")
+        if not title_structure_fr:
+            raise ValueError("Could not find a random French title structure")
+
         text_fr: str = title_structure_fr.text
         text_fr, used_data = replace_text(text_fr, "fr")
         text_fr = correct_text(text_fr, "fr")
@@ -74,43 +80,55 @@ class Exhibition(models.Model):
                 period = 7
             logger.debug("Trying to save new exhibition...")
             try:
-                self.startdate = Exhibition.objects.latest("enddate").enddate
-                self.enddate = self.startdate + timedelta(days=period)
-                logger.debug(
-                    "At least one exhibition already present, exhibition saved according to previous"
-                )
+                latest_exhibition = Exhibition.objects.latest("enddate")
+                if latest_exhibition.enddate:
+                    self.startdate = latest_exhibition.enddate
+                    self.enddate = self.startdate + timedelta(days=period)
+                    logger.debug(
+                        "At least one exhibition already present, exhibition saved according to previous"
+                    )
+                else:
+                    raise Exception("Latest exhibition has no end date")
             except Exception:
                 self.startdate = datetime.now()
                 self.enddate = datetime.now() + timedelta(days=period)
-                logger.debug("No exhibition found, saving this new one as the first one...")
+                logger.debug(
+                    "No exhibition found or invalid dates, saving this new one as the first one..."
+                )
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.get_discipline(lang="en")
         exhibition_title = ExhibitionTitle.objects.get(language__code="en", exhibition=self)
+
         img_prompt: str = GETIMGAPI_PROMPT.format(
             discipline=discipline, exhibition_title=exhibition_title.text
         )
+
         logger.debug(img_prompt)
         res: dict | None = asyncio.run(
-            get_imgai_api.stable_diffusion_xl(prompt=img_prompt, output_format=img_format)
+            get_imgai_api.stable_diffusion_xl(
+                prompt=img_prompt,
+                negative_prompt=GETIMGAPI_NEGATIVE_PROMPT,
+                steps=50,  # More steps for higher quality
+                guidance=7.5,  # Slightly higher guidance for better prompt adherence
+                output_format=img_format,
+            )
         )
-        if res:
-            if "error" in res:
-                logger.error(f"Error while requesting image generation: {res["error"]}")
-                return None
-            else:
-                cost: float = res["cost"]
-                b64_data: str = res["image"]
-                now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                filename: str = f"{now}_{self.artist.name_slug}"
-                img_bytes: bytes = base64.b64decode(b64_data, validate=True)
-                self.image1 = ContentFile(img_bytes, name=f"{filename}.{img_format}")
-                logger.info(
-                    f'Image generated for a cost of {cost}$ as "{str(self.image1)}", not saved in DB (yet?)'
-                )
-                return self.image1
+
+        if res and "images" in res:
+            b64_data = res["images"][0]
+            now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename: str = f"{now}_{self.artist.name_slug}_1"
+            img_bytes: bytes = base64.b64decode(b64_data, validate=True)
+            image = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+
+            self.image1 = image
+
+            logger.info(f"Generated 1 image for a cost of {res['cost']}$")
+            return image
+
         return None
 
     @classmethod

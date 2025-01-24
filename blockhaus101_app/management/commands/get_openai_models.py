@@ -12,4 +12,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         openai_api = OpenAiAPI()
         models: list[str] = asyncio.run(openai_api.get_models_ids())
-        logger.info(f"IDs of available OpenAI models:\n- {"\n- ".join(models)}")
+        logger.info(f"IDs of available OpenAI models:\n- {'\n- '.join(models)}")
