@@ -134,7 +134,9 @@ CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 # https://openai.com/pricing/
 OPENAI_MODEL_ID = "gpt-4o-mini"
 
-GETIMGAPI_PROMPT = 'Generate a photorealistic image of a contemporary {discipline} art exhibition with abstract artworks which must identifiable as {discipline} works. The exhibition name is "{exhibition_title}", so if possible, artworks can be vaguely related to that theme.  Don\'t show the artist, but show the artwork(s) or the performance(s) only, in the exhibition room.'
+GETIMGAPI_PROMPT = """Photorealistic image of a high-end contemporary art gallery space showcasing {discipline} artworks. The exhibition titled "{exhibition_title}" features professional museum-quality lighting, white walls, polished concrete floors, and perfect composition. The {discipline} works are prominently displayed with careful attention to spacing and presentation. Captured with a professional camera, architectural photography style, natural gallery lighting, ultra-sharp focus, high resolution. No people visible, focus on the artworks and gallery space."""
+
+GETIMGAPI_NEGATIVE_PROMPT = """cartoon, anime, illustration, painting style, drawing, sketch, doodle, watercolor, oil painting effect, artificial looking, fake, low quality, blurry, noisy, oversaturated, overexposed, bad composition, distorted perspective, unrealistic shadows, text, watermarks, signatures, frames, borders, collage style, instagram filters, bad lighting, grainy"""
 
 # Local settings
 try:
