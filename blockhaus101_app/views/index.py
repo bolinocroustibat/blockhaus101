@@ -35,6 +35,10 @@ def index(request, lang: str) -> HttpResponse:
             f'Current exhibition: {artist.name} "{exhibition_title.text}" ({exhibition.pk})'
         )
         expo_text = ExhibitionText.objects.filter(language=language, exhibition=exhibition).last()
+        if not expo_text:
+            logger.error(
+                f"No exhibition text found for exhibition {exhibition.pk} in language {language.code}"
+            )
 
     else:
         logger.debug("There is no current exhibition.")
@@ -102,7 +106,9 @@ def index(request, lang: str) -> HttpResponse:
             "artist_name": artist.name,
             "artist_bio": bio.text,
             "expo_title": exhibition_title.text,
-            "expo_text": expo_text.text,
+            "expo_text": expo_text.text
+            if expo_text
+            else "",  # Handle None case with error already logged
             "expo_image1": exhibition.image1.url if exhibition.image1 else None,
             "artist_gender": artist.gender,
         },
