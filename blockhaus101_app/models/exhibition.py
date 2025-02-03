@@ -8,7 +8,12 @@ from django.db import models
 
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
-from blockhaus101.settings import GETIMGAPI_NEGATIVE_PROMPT, GETIMGAPI_PROMPT, logger
+from blockhaus101.settings import (
+    GETIMGAPI_FORMATS,
+    GETIMGAPI_NEGATIVE_PROMPT,
+    GETIMGAPI_PROMPT,
+    logger,
+)
 from blockhaus101_app.helpers import (
     GetImgAiAPI,
     correct_text,
@@ -36,8 +41,11 @@ class Exhibition(models.Model):
         verbose_name = "exposition"
 
     def __str__(self) -> str:
-        exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__code="fr")
-        return f"{exhibition_title.text} ({self.pk})"
+        try:
+            exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__code="fr")
+            return f"{exhibition_title.text} ({self.pk})"
+        except ExhibitionTitle.DoesNotExist:
+            return f"Exhibition {self.pk} (no title)"
 
     def generate_titles(self) -> dict[str, ExhibitionTitle]:
         """Generate titles for all languages.
@@ -98,37 +106,48 @@ class Exhibition(models.Model):
         super(Exhibition, self).save(*args, **kwargs)
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
+        logger.debug(f"Starting image generation for exhibition {self.pk}")
         get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.get_discipline(lang="en")
         exhibition_title = ExhibitionTitle.objects.get(language__code="en", exhibition=self)
 
+        specific_format = GETIMGAPI_FORMATS.get(discipline)
         img_prompt: str = GETIMGAPI_PROMPT.format(
-            discipline=discipline, exhibition_title=exhibition_title.text
+            discipline=discipline,
+            exhibition_title=exhibition_title.text,
+            specific_format=specific_format,
         )
 
-        logger.debug(img_prompt)
+        logger.debug(f"Sending image generation request with prompt: {img_prompt}")
         res: dict | None = asyncio.run(
             get_imgai_api.stable_diffusion_xl(
                 prompt=img_prompt,
                 negative_prompt=GETIMGAPI_NEGATIVE_PROMPT,
-                steps=50,  # More steps for higher quality
-                guidance=7.5,  # Slightly higher guidance for better prompt adherence
+                steps=50,
+                guidance=7.5,
                 output_format=img_format,
             )
         )
 
-        if res and "images" in res:
-            b64_data = res["images"][0]
-            now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            filename: str = f"{now}_{self.artist.name_slug}_1"
-            img_bytes: bytes = base64.b64decode(b64_data, validate=True)
-            image = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+        if res:
+            logger.debug("Image generation successful, processing response...")
+            if "error" in res:
+                logger.error(f"Error while requesting image generation: {res['error']}")
+                return None
+            else:
+                cost: float = res["cost"]
+                b64_data: str = res["image"]
+                now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                filename: str = f"{now}_{self.artist.name_slug}"
+                img_bytes: bytes = base64.b64decode(b64_data, validate=True)
+                logger.debug(f"Successfully decoded base64 data, got {len(img_bytes)} bytes")
+                self.image1 = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+                logger.info(
+                    f'Image generated for a cost of {cost}$ as "{str(self.image1)}", not saved in DB (yet?)'
+                )
+                return self.image1
 
-            self.image1 = image
-
-            logger.info(f"Generated 1 image for a cost of {res['cost']}$")
-            return image
-
+        logger.debug("Image generation failed or returned no images")
         return None
 
     @classmethod

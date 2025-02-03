@@ -134,7 +134,27 @@ CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 # https://openai.com/pricing/
 OPENAI_MODEL_ID = "gpt-4o-mini"
 
-GETIMGAPI_PROMPT = """Photorealistic image of a high-end contemporary art gallery space showcasing {discipline} artworks. The exhibition titled "{exhibition_title}" features professional museum-quality lighting, white walls, polished concrete floors, and perfect composition. The {discipline} works are prominently displayed with careful attention to spacing and presentation. Captured with a professional camera, architectural photography style, natural gallery lighting, ultra-sharp focus, high resolution. No people visible, focus on the artworks and gallery space."""
+# Main prompt - focuses on what we want
+GETIMGAPI_PROMPT = """Generate a photorealistic image of a contemporary art exhibition space. For {discipline}, show {specific_format} prominently displayed in the gallery. The exhibition name is "{exhibition_title}", so if possible the works can be vaguely related to that theme. Don't show any people, focus on the artwork(s) only."""
+
+# Dictionary to map disciplines to their specific display formats
+GETIMGAPI_FORMATS = {
+    "photography": "large format photographs mounted on walls and freestanding displays",
+    "plastic arts": "sculptural objects and three-dimensional artworks",
+    "artistic installation": "site-specific installations with mixed media elements",
+    "artistic performance": "performance art documentation through video screens and spatial arrangements",
+    "abstract art": "non-representational artworks in various media",
+    "algorithms": "digital displays and computer-generated visualizations",
+    "video": "multiple video projections and screens of different sizes",
+    "visual arts": "mixed media works combining different visual elements",
+    "sculpture": "three-dimensional sculptures and spatial arrangements",
+    "collages": "mixed-media collage works mounted on walls and in vitrines",
+    "gif-art": "digital screens displaying animated artworks",
+    "iconographic sampling": "remixed visual elements displayed through various media",
+    "social network art": "digital displays showing social media-based artworks",
+    "immersive experiences": "room-scale installations with interactive elements",
+    "painting": "paintings mounted on gallery walls",
+}
 
 GETIMGAPI_NEGATIVE_PROMPT = """cartoon, anime, illustration, painting style, drawing, sketch, doodle, watercolor, oil painting effect, artificial looking, fake, low quality, blurry, noisy, oversaturated, overexposed, bad composition, distorted perspective, unrealistic shadows, text, watermarks, signatures, frames, borders, collage style, instagram filters, bad lighting, grainy"""
 

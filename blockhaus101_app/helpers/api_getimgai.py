@@ -2,7 +2,7 @@ import json
 
 import httpx
 
-from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL
+from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL, logger
 
 
 class GetImgAiAPI:
@@ -16,14 +16,27 @@ class GetImgAiAPI:
 
     async def _get(self, endpoint: str, params: dict | None = None) -> dict | list | None:
         """Sends a GET request to the GetImgAI API."""
+        logger.debug(f"Sending GET request to {self.base_url}{endpoint}")
         async with httpx.AsyncClient() as client:
             response = await client.get(
                 f"{self.base_url}{endpoint}", headers=self.headers, params=params
             )
-        # response.raise_for_status() #TODO: uncomment this line
-        if response.status_code == 200 and response.text:
-            return json.loads(response.text)
-        return None
+            logger.debug(f"Response status code: {response.status_code}")
+            logger.debug(f"Response text: {response.text}")
+
+            if response.status_code == 401:
+                logger.error("Authentication failed - check your API key")
+                return None
+
+            try:
+                data = json.loads(response.text)
+                if "error" in data:
+                    logger.error(f"API error: {data['error']}")
+                    return None
+                return data
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse JSON response: {str(e)}")
+                return None
 
     async def _post(
         self, endpoint: str, data: dict, added_headers: dict | None, timeout: int | None = None
@@ -42,23 +55,54 @@ class GetImgAiAPI:
         return None
 
     async def get_models(
-        self, family: str | None = "text-to-image", pipeline: str | None = None
+        self, family: str | None = "stable-diffusion-xl", pipeline: str | None = "text-to-image"
     ) -> list | None:
-        """https://docs.getimg.ai/reference/getmodels
-        e.g. family="text-to-image", pipeline="stable-diffusion-xl"
-        e.g. family="text-to-image", pipeline="essential-v2"
+        """Get available models from GetImg.AI API.
+        More info on https://docs.getimg.ai/reference/getmodels
+
+        Available families:
+        - stable-diffusion-xl: High resolution (1024x1024) models
+        - stable-diffusion: Standard resolution (512x512) models
+
+        Available pipelines:
+        - text-to-image
+        - image-to-image
+        - ip-adapter
+        - inpaint (some models only)
         """
-        return await self._get(endpoint="models", params={"family": family, "pipeline": pipeline})  # type: ignore
+        return await self._get(endpoint="models", params={"family": family, "pipeline": pipeline})
 
     async def essential_v2(
         self,
         prompt: str,
         style: str = "photorealism",
         aspect_ratio: str = "1:1",
-        output_format: str = "jpeg",  # can be "jpeg" or "png"
-        response_format: str = "b64",  # can be "b64" or "url"
+        output_format: str = "jpeg",
+        response_format: str = "b64",
     ) -> dict | None:
-        """https://docs.getimg.ai/reference/postessentialv2texttoimage"""
+        """Generate images using the Essential v2 model.
+
+        A simplified API with preset styles. Good for quick results
+        but less control than SD or SDXL models.
+
+        Available styles:
+        - photorealism
+        - anime
+        - artistic
+        - illustration
+        - digital-art
+        - etc.
+
+        Args:
+            prompt: Text description of the desired image
+            style: Preset style to apply
+            aspect_ratio: "1:1", "16:9", "9:16", etc.
+            output_format: "jpeg" or "png"
+            response_format: "b64" or "url"
+
+        Returns:
+            dict with 'image' (base64 string) and 'cost', or None if failed
+        """
         added_headers = {"content-type": "application/json"}
         data = {
             "style": style,
@@ -77,20 +121,48 @@ class GetImgAiAPI:
     async def stable_diffusion_xl(
         self,
         prompt: str,
-        model: str = "stable-diffusion-xl-v1-0",
+        model: str = "realvis-xl-v4",
         negative_prompt: str | None = None,
         prompt_2: str | None = None,
         negative_prompt_2: str | None = None,
         width: int = 1024,  # can be 256 to 1536
         height: int = 1024,  # can be 256 to 1536
-        steps: int = 30,  # 1 to 100. The number of denoising steps. More steps usually can produce higher quality images, but take more time to generate.
-        guidance: float = 7.5,  # 0 to 20. Guidance scale as defined in Classifier-Free Diffusion Guidance. Higer guidance forces the model to better follow the prompt, but result in lower quality output.
-        seed: int = 0,  # 0 to 2147483647. Random seed for the model.
-        scheduler: str = "euler",  #  Scheduler used to denoise the encoded image latents.
-        output_format: str = "jpeg",  # can be "jpeg" or "png"
-        response_format: str = "b64",  # can be "b64" or "url"
+        steps: int = 30,
+        guidance: float = 7.5,
+        seed: int = 0,
+        scheduler: str = "euler",
+        output_format: str = "jpeg",
+        response_format: str = "b64",
     ) -> dict | None:
-        """https://docs.getimg.ai/reference/poststablediffusionxltexttoimage"""
+        """Generate images using Stable Diffusion XL models.
+
+        Available models:
+        - realvis-xl-v4: RealVisXL V4.0 - Specialized in photorealistic results
+        - juggernaut-xl-v10: JuggernautXL X - Good for architectural and detailed scenes
+        - reproduction-v3-31: Reproduction v3.31 - Balanced model for various styles
+        - stable-diffusion-xl-v1-0: Original SDXL - Base model with inpainting support
+
+        All models support 1024x1024 base resolution and cost $0.000075 per image.
+
+        Args:
+            prompt: Text description of the desired image
+            model: Model ID to use
+            negative_prompt: Things to avoid in the image
+            prompt_2: Secondary prompt for refinement (optional)
+            negative_prompt_2: Secondary negative prompt (optional)
+            width: Image width (256-1536)
+            height: Image height (256-1536)
+            steps: Number of denoising steps (1-100)
+            guidance: How strictly to follow the prompt (0-20)
+            seed: Random seed for reproducibility
+            scheduler: Denoising scheduler ("euler", "dpmpp_2m", etc.)
+            output_format: "jpeg" or "png"
+            response_format: "b64" or "url"
+
+        Returns:
+            dict with 'image' (base64 string) and 'cost', or None if failed
+        """
+        logger.debug("Preparing SDXL API request...")
         added_headers = {"content-type": "application/json"}
         data = {
             "model": model,
@@ -107,9 +179,21 @@ class GetImgAiAPI:
             "output_format": output_format,
             "response_format": response_format,
         }
-        return await self._post(
-            endpoint="stable-diffusion-xl/text-to-image", data=data, added_headers=added_headers
-        )  # type: ignore
+        logger.debug(f"Sending request to SDXL API with steps={steps}, guidance={guidance}")
+
+        try:
+            response = await self._post(
+                endpoint="stable-diffusion-xl/text-to-image", data=data, added_headers=added_headers
+            )
+            if response:
+                logger.debug("SDXL API request successful")
+                logger.debug(f"Response keys: {response.keys()}")
+                return response
+            logger.debug("SDXL API request failed - no response")
+            return None
+        except Exception as e:
+            logger.debug(f"SDXL API request failed with error: {str(e)}")
+            return None
 
     async def stable_diffusion(
         self,
@@ -118,16 +202,44 @@ class GetImgAiAPI:
         negative_prompt: str = "photorealism",
         prompt_2: str | None = None,
         negative_prompt_2: str | None = None,
-        width: int = 512,  # can be 256 to 1024
-        height: int = 512,  # can be 256 to 1024
-        steps: int = 25,  # 1 to 100. The number of denoising steps. More steps usually can produce higher quality images, but take more time to generate.
-        guidance: float = 7.5,  # 0 to 20. Guidance scale as defined in Classifier-Free Diffusion Guidance. Higer guidance forces the model to better follow the prompt, but result in lower quality output.
-        seed: int = 0,  # 0 to 2147483647. Random seed for the model.
-        scheduler: str = "dpmsolver++",  #  Scheduler used to denoise the encoded image latents.
-        output_format: str = "jpeg",  # can be "jpeg" or "png"
-        response_format: str = "b64",  # can be "b64" or "url"
+        width: int = 512,
+        height: int = 512,
+        steps: int = 25,
+        guidance: float = 7.5,
+        seed: int = 0,
+        scheduler: str = "dpmsolver++",
+        output_format: str = "jpeg",
+        response_format: str = "b64",
     ) -> dict | None:
-        """https://docs.getimg.ai/reference/poststablediffusionxltexttoimage"""
+        """Generate images using standard Stable Diffusion models.
+
+        Available models:
+        - stable-diffusion-v1-5: Original SD 1.5
+        - stable-diffusion-v2-1: Improved SD 2.1 (768x768)
+        - realistic-vision-v5-1: Specialized in realistic images
+        - dream-shaper-v8: All-purpose with good quality
+        - absolute-reality-v1-8-1: Focused on realistic renders
+
+        Most models support 512x512 base resolution and cost $0.000075 per image.
+
+        Args:
+            prompt: Text description of the desired image
+            model: Model ID to use
+            negative_prompt: Things to avoid in the image
+            prompt_2: Secondary prompt for refinement (optional)
+            negative_prompt_2: Secondary negative prompt (optional)
+            width: Image width (256-1024)
+            height: Image height (256-1024)
+            steps: Number of denoising steps (1-100)
+            guidance: How strictly to follow the prompt (0-20)
+            seed: Random seed for reproducibility
+            scheduler: Denoising scheduler ("euler", "dpmpp_2m", etc.)
+            output_format: "jpeg" or "png"
+            response_format: "b64" or "url"
+
+        Returns:
+            dict with 'image' (base64 string) and 'cost', or None if failed
+        """
         added_headers = {"content-type": "application/json"}
         data = {
             "model": model,
