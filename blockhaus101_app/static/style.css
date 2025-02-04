@@ -5,13 +5,13 @@ body{
 }
 
 h1 {
-	font-size: 2em;
+	font-size: 3.8em;
 	font-weight:bold;
 }
 
-h1 .big_h1 {
-	display: block;
+h2 {
 	font-size: 1.8em;
+	font-weight:bold;
 }
 
 @media (max-width: 600px) {
