@@ -133,4 +133,3 @@ venv.bak/
 db.sqlite3
 debug.log
 media/
-static/

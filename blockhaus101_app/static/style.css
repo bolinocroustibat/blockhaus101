@@ -4,17 +4,27 @@ body{
 	font-family: helvetica, sans-serif;
 	line-height: 1.6;
 	-webkit-font-smoothing: antialiased;
+	opacity: 1;
+	transition: opacity 0.3s ease;
+}
+
+body.fade-out {
+	opacity: 0;
 }
 
 h1 {
 	font-size: 3.8em;
 	font-weight:bold;
 	letter-spacing: -0.02em;
+	margin-bottom: 0.2em;
 }
 
 h2 {
 	font-size: 1.8em;
 	font-weight:bold;
+	color: #333;
+	letter-spacing: 0.02em;
+	margin-bottom: 2rem;
 }
 
 @media (max-width: 600px) {
@@ -25,12 +35,19 @@ h2 {
 		font-size: 0.8em;
 	}
 	.expo-wrapper {
-		padding-left: 12px;
+		gap: 2rem;
 		img {
-			max-width: 100%;
-			height: auto;
-			margin-top: 1.5rem;
+			margin: 0 -1rem;
+			width: calc(100% + 2rem);
+			max-width: none;
 		}
+	}
+	nav ul {
+		border-width: 0;
+		border-top-width: 1px;
+		border-bottom-width: 1px;
+		margin: 1.5rem -1rem;
+		padding: 0.75rem 1rem;
 	}
 }
 
@@ -65,32 +82,29 @@ li{
 
 nav li a {
 	position: relative;
+	transition: color 0.2s ease;
+}
+
+nav li a::after {
+	content: '';
+	position: absolute;
+	width: 100%;
+	transform: scaleX(0);
+	height: 1px;
+	bottom: -2px;
+	left: 0;
+	background-color: currentColor;
+	transform-origin: bottom right;
+	transition: transform 0.3s ease;
+}
+
+nav li a:hover::after {
+	transform: scaleX(1);
+	transform-origin: bottom left;
 }
 
 nav li a.active::after {
-	content: '';
-	position: absolute;
-	bottom: -2px;
-	left: 0;
-	width: 100%;
-	height: 1px;
-	background: currentColor;
-}
-
-nav li a:not(.active)::after {
-	content: '';
-	position: absolute;
-	bottom: -2px;
-	left: 50%;
-	width: 0;
-	height: 1px;
-	background: currentColor;
-	transition: all 0.2s ease;
-}
-
-nav li a:not(.active):hover::after {
-	width: 100%;
-	left: 0;
+	transform: scaleX(1);
 }
 
 .expo-wrapper{
@@ -107,16 +121,20 @@ nav li a:not(.active):hover::after {
 			margin-bottom: 1.25rem;
 			text-transform: uppercase;
 			font-weight: bold;
+			letter-spacing: 0.02em;
 		}
 		.expo-title {
 			font-style: italic;
 		}
 		.bio {
 			font-style:italic;
-			margin: 1.25rem 0;
+			border-left: 1px solid rgba(0,0,0,0.1);
+			padding-left: 1rem;
+			margin: 1.5rem 0;
 		}
 		.expo-text{
-			line-height: 1.6;
+			font-size: 1.05em;
+			line-height: 1.7;
 		}
 	}
 	img {
@@ -124,6 +142,7 @@ nav li a:not(.active):hover::after {
 		max-height: 600px;
 		height: auto;
 		object-fit: contain;
+		opacity: 0;
 		transition: opacity 0.3s ease;
 	}
 	@media screen and (max-width: 800px) {
@@ -132,6 +151,10 @@ nav li a:not(.active):hover::after {
 			max-height: 350px;
 		}
 	}
+}
+
+.expo-wrapper img.loaded {
+	opacity: 1;
 }
 
 .expo-wrapper a{
