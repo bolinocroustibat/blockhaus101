@@ -129,6 +129,12 @@ CAPTCHA_NOISE_FUNCTIONS: list = []
 CAPTCHA_CHALLENGE_FUNCT = custom_captcha_challenge
 
 PERIOD = 7  # in days
+LOCATIONS = [
+    ("paris", "Paris"),
+    ("copenhagen", "København"),
+    ("austin", "Austin"),
+    ("beijing", "Beijing"),
+]
 
 # A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.  # noqa 501
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).

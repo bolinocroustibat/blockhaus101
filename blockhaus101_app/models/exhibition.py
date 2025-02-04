@@ -3,6 +3,7 @@ import base64
 from datetime import datetime, timedelta
 from typing import Literal, Self
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
 
@@ -33,6 +34,9 @@ class Exhibition(models.Model):
     )
     image2 = models.ImageField(
         "exhibition image 2", upload_to="exhibitions_imgs", blank=True, null=True
+    )
+    location = models.CharField(
+        "exhibition location", max_length=32, choices=settings.LOCATIONS, blank=True, null=True
     )
     created = models.DateTimeField(auto_now=True)
 
