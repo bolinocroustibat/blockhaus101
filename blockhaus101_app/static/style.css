@@ -94,6 +94,22 @@ li{
 nav li a {
 	position: relative;
 	transition: color 0.2s ease;
+	cursor: pointer;
+	padding: 0.2rem 0.4rem;
+	margin: 0 -0.4rem;
+}
+
+nav li a.active {
+	color: #000;
+	font-weight: 500;
+	background: rgba(0, 0, 0, 0.03);
+	border-radius: 2px;
+}
+
+nav li a:hover {
+	color: #000;
+	background: rgba(0, 0, 0, 0.03);
+	border-radius: 2px;
 }
 
 nav li a::after {
@@ -109,13 +125,10 @@ nav li a::after {
 	transition: transform 0.3s ease;
 }
 
-nav li a:hover::after {
-	transform: scaleX(1);
-	transform-origin: bottom left;
-}
-
+nav li a:hover::after,
 nav li a.active::after {
 	transform: scaleX(1);
+	transform-origin: bottom left;
 }
 
 .expo-wrapper{
@@ -237,6 +250,8 @@ form {
 		border: none;
 		padding: 0.5rem 1.5rem;
 		transition: opacity 0.2s ease;
+		color: white;
+		cursor: pointer;
 
 		&:hover {
 			opacity: 0.8;
