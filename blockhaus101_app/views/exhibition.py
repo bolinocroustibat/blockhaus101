@@ -7,7 +7,6 @@ from blockhaus101_app.models import (
     ArtistBiography,
     ExhibitionText,
     ExhibitionTitle,
-    SiteSetting,
 )
 
 
@@ -16,7 +15,6 @@ def exhibition(request, slug: str) -> HttpResponse:
         # get expo + artist from database from expo slug
         expo_text = ExhibitionText.objects.get(slug=slug)
         language = expo_text.language
-        description = SiteSetting.objects.get(language=language).description
         exhibition = expo_text.exhibition
         exhibition_title = ExhibitionTitle.objects.get(language, exhibition)
         artist = exhibition.artist
@@ -26,7 +24,6 @@ def exhibition(request, slug: str) -> HttpResponse:
             f"{language.code}/index.html",
             {
                 "lang": language.code,
-                "description": description,
                 "expo_startdate": format_date(
                     exhibition.startdate.date(), format="long", locale=language.code
                 ),

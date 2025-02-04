@@ -13,13 +13,11 @@ from blockhaus101_app.models import (
     Exhibition,
     ExhibitionText,
     ExhibitionTitle,
-    SiteSetting,
 )
 
 
 def index(request, lang: str) -> HttpResponse:
     language = Language.objects.get(code=lang)
-    description = SiteSetting.objects.get(language=language).description
 
     # try to get an exhibition for current period
     exhibition = Exhibition.get_current()
@@ -100,7 +98,6 @@ def index(request, lang: str) -> HttpResponse:
         f"{lang}/index.html",
         {
             "lang": lang,
-            "description": description,
             "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang),
             "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
             "artist_name": artist.name,

@@ -12,6 +12,7 @@ from blockhaus101.settings import (
     GETIMGAPI_FORMATS,
     GETIMGAPI_NEGATIVE_PROMPT,
     GETIMGAPI_PROMPT,
+    PERIOD,
     logger,
 )
 from blockhaus101_app.helpers import (
@@ -21,7 +22,6 @@ from blockhaus101_app.helpers import (
     replace_text_translations,
 )
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
-from blockhaus101_app.models.sitesetting import SiteSetting
 
 
 class Exhibition(models.Model):
@@ -82,16 +82,12 @@ class Exhibition(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
-            try:
-                period = SiteSetting.objects.get().period
-            except Exception:
-                period = 7
             logger.debug("Trying to save new exhibition...")
             try:
                 latest_exhibition = Exhibition.objects.latest("enddate")
                 if latest_exhibition.enddate:
                     self.startdate = latest_exhibition.enddate
-                    self.enddate = self.startdate + timedelta(days=period)
+                    self.enddate = self.startdate + timedelta(days=PERIOD)
                     logger.debug(
                         "At least one exhibition already present, exhibition saved according to previous"
                     )
@@ -99,7 +95,7 @@ class Exhibition(models.Model):
                     raise Exception("Latest exhibition has no end date")
             except Exception:
                 self.startdate = datetime.now()
-                self.enddate = datetime.now() + timedelta(days=period)
+                self.enddate = datetime.now() + timedelta(days=PERIOD)
                 logger.debug(
                     "No exhibition found or invalid dates, saving this new one as the first one..."
                 )

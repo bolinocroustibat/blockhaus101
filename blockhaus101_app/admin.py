@@ -18,7 +18,7 @@ admin.AdminSite.index_title = "Admin main menu"
 @admin.register(SiteSetting)
 class SiteSettingAdmin(admin.ModelAdmin):
     model = SiteSetting
-    list_display = ("language", "period")
+    list_display = ("language",)
 
 
 class ArtistBioAdminInline(admin.TabularInline):
