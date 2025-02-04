@@ -256,3 +256,38 @@ form {
 	background: rgba(0, 0, 0, 0.1);
 	color: inherit;
 }
+
+/* Add Bootstrap-like grid classes we're using */
+.col-12 {
+    width: 100%;
+}
+
+.col-lg-8 {
+    width: 100%;
+}
+
+@media (min-width: 992px) {
+    .col-lg-8 {
+        width: 66.666667%;
+    }
+}
+
+.offset-1 {
+    margin-left: 8.333333%;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.mt-5 {
+    margin-top: 3rem;
+}
+
+.mb-5 {
+    margin-bottom: 3rem;
+}
+
+.p-0 {
+    padding: 0;
+}
