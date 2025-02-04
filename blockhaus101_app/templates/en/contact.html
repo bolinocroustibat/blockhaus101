@@ -3,7 +3,7 @@
 {% block meta %}
 <title>galerie søren bollinger - book a visit</title>
 <meta name="Description" content="" />
-<meta property="og:title" content="blockhaus 101 - book a visit" />
+<meta property="og:title" content="søren bollinger contemporary art gallery - book a visit" />
 <meta property="og:description" content="" />
 <meta property="og:image" content="" />
 {% endblock %}
@@ -12,8 +12,6 @@
 {% block content %}
 
 <div class="col-lg-8 col-12 p-0 mb-5">
-	<p>galerie søren bollinger<br />
-	75020 Paris</p>
 
 	<div class="mt-5">
 		{% if message %}
@@ -47,5 +45,16 @@
 		{% endif %}
 	</div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const images = document.querySelectorAll('.expo-wrapper img');
+    images.forEach(img => {
+        img.addEventListener('load', () => {
+            img.classList.add('loaded');
+        });
+    });
+});
+</script>
 
 {% endblock %}
