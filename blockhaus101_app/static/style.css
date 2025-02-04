@@ -35,9 +35,12 @@ h2 {
 		font-size: 0.8em;
 	}
 	.expo-wrapper {
+		flex-direction: column-reverse;
+		padding: 0 1rem;
 		gap: 2rem;
 		img {
-			margin: 0 -1rem;
+			align-self: center;
+			margin-bottom: 2rem;
 			width: calc(100% + 2rem);
 			max-width: none;
 		}
@@ -49,6 +52,9 @@ h2 {
 		margin: 1.5rem -1rem;
 		padding: 0.75rem 1rem;
 	}
+	#main-wrapper {
+		padding: 0 1rem;
+	}
 }
 
 a{
@@ -59,6 +65,11 @@ a{
 
 a:hover{
 	color:#000;
+}
+
+a:focus-visible {
+	outline: 2px solid rgba(0, 0, 0, 0.2);
+	outline-offset: 2px;
 }
 
 nav ul{
@@ -188,9 +199,60 @@ nav li a.active::after {
 }
 
 .message {
-	color: red;
+	color: #d32f2f;
+	padding: 0.75rem;
+	background: rgba(211, 47, 47, 0.1);
+	border-left: 3px solid currentColor;
+	margin: 1rem 0;
 }
 
 label[for="id_botcatcher"] {
 	display: none;
+}
+
+form {
+	max-width: 500px;
+
+	input, textarea {
+		width: 100%;
+		padding: 0.5rem;
+		margin-top: 0.25rem;
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		font-family: inherit;
+		transition: border-color 0.2s ease;
+
+		&:focus {
+			outline: none;
+			border-color: rgba(0, 0, 0, 0.3);
+		}
+	}
+
+	label {
+		font-size: 0.9em;
+		color: #555;
+	}
+
+	.btn-primary {
+		background: black;
+		border: none;
+		padding: 0.5rem 1.5rem;
+		transition: opacity 0.2s ease;
+
+		&:hover {
+			opacity: 0.8;
+		}
+	}
+}
+
+:root {
+	font-size: clamp(15px, 1.5vw, 17px);  /* Fluid base font size */
+}
+
+.expo-text-wrapper {
+	font-size: clamp(0.9rem, 1.1vw, 1.05rem);  /* Fluid text size */
+}
+
+::selection {
+	background: rgba(0, 0, 0, 0.1);
+	color: inherit;
 }
