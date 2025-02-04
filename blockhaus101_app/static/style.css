@@ -245,11 +245,11 @@ form {
 }
 
 :root {
-	font-size: clamp(15px, 1.5vw, 17px);  /* Fluid base font size */
+	font-size: clamp(14px, 1vw, 16px);  /* Reduced from 15-17px range */
 }
 
 .expo-text-wrapper {
-	font-size: clamp(0.9rem, 1.1vw, 1.05rem);  /* Fluid text size */
+	font-size: clamp(0.9rem, 0.95vw, 1rem);  /* Reduced from 0.9-1.05rem range */
 }
 
 ::selection {
