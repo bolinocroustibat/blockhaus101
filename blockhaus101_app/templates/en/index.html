@@ -24,9 +24,7 @@
 		<div class="expo-text">{{ expo_text }}</div>
 	</div>
 	{% if expo_image1 %}
-		<img src="{{ expo_image1 }}"
-			 loading="lazy"
-			 hx-on="load: this.classList.add('htmx-settling')" />
+		<img src="{{ expo_image1 }}" />
 	{% endif %}
 </div>
 

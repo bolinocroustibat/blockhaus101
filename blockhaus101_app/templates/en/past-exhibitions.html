@@ -24,9 +24,7 @@
 				<div class="text">{{ e.text }}</div>
 			</div>
 			{% if e.image1 %}
-			<img src="{{ e.image1 }}"
-				 loading="lazy"
-				 hx-on="load: this.classList.add('htmx-settling')" />
+			<img src="{{ e.image1 }}" />
 			{% endif %}
 		</div>
 		{% endfor %}
