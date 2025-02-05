@@ -28,7 +28,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
     paginator = Paginator(exhibitions, EXHIBITIONS_PER_PAGE)
     page_obj = paginator.get_page(page_number)
 
-    full_exhibs = []  # Keep the original name since templates use it
+    exhibitions_details: list[dict] = []
     for e in page_obj:
         try:
             exhibition: dict = {}
@@ -65,7 +65,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             if e.image1:
                 exhibition["image1"] = e.image1.url
 
-            full_exhibs.append(exhibition)
+            exhibitions_details.append(exhibition)
 
         except Exception as error:
             logger.error(f"Error getting past exhibition info for exhibition {e.pk}: {str(error)}")
@@ -82,7 +82,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
         template_name,
         {
             "lang": lang,
-            "full_exhibs": full_exhibs,
+            "exhibitions_details": exhibitions_details,
             "page_obj": page_obj,
         },
     )
