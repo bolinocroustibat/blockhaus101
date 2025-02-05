@@ -1,6 +1,8 @@
 from datetime import datetime
+from typing import Any
 
 from babel.dates import format_date
+from django.core.paginator import Page, Paginator
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -13,16 +15,24 @@ from blockhaus101_app.models import (
     ExhibitionTitle,
 )
 
+EXHIBITIONS_PER_PAGE = 2
+
 
 def past_exhibitions(request, lang: str) -> HttpResponse:
     language = Language.objects.get(code=lang)
-    full_exhibs = list()
+    page_number = request.GET.get("page", 1)  # Get page from query params, default to 1
+
+    # Get all past exhibitions
     exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by("-enddate")
-    # # Get all artists with enddate before today
-    # artists = Artist.objects.filter(enddate__lte=datetime.now())
-    for e in exhibitions:
+
+    # Create paginator
+    paginator: Paginator = Paginator(exhibitions, EXHIBITIONS_PER_PAGE)
+    page_obj: Page = paginator.get_page(page_number)
+
+    exhibitions_details: list[dict[str, Any]] = []
+    for e in page_obj:
         try:
-            exhibition: dict = {}
+            exhibition: dict[str, Any] = {}
             if e.startdate and e.enddate:  # Check for None
                 exhibition["startdate"] = format_date(
                     e.startdate.date(), format="long", locale=lang
@@ -56,14 +66,24 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             if e.image1:
                 exhibition["image1"] = e.image1.url
 
-            full_exhibs.append(exhibition)
+            exhibitions_details.append(exhibition)
 
         except Exception as error:
             logger.error(f"Error getting past exhibition info for exhibition {e.pk}: {str(error)}")
             continue
 
+    template_name = (
+        f"{lang}/partials/exhibition-batch.html"
+        if request.htmx
+        else f"{lang}/past-exhibitions.html"
+    )
+
     return render(
         request,
-        f"{lang}/past-exhibitions.html",
-        {"lang": lang, "full_exhibs": full_exhibs},
+        template_name,
+        {
+            "lang": lang,
+            "exhibitions_details": exhibitions_details,
+            "page_obj": page_obj,
+        },
     )
