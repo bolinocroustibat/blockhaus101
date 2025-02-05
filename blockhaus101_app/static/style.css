@@ -34,14 +34,18 @@ h2 {
 	nav {
 		font-size: 0.8em;
 	}
+	#main-wrapper {
+		padding: 0 1.5rem;
+		margin-left: 0;
+	}
 	.expo-wrapper {
 		flex-direction: column-reverse;
-		padding: 0 1rem;
+		padding: 0;
 		gap: 2rem;
 		img {
 			align-self: center;
 			margin-bottom: 2rem;
-			width: calc(100% + 2rem);
+			width: 100%;
 			max-width: none;
 		}
 	}
@@ -49,11 +53,8 @@ h2 {
 		border-width: 0;
 		border-top-width: 1px;
 		border-bottom-width: 1px;
-		margin: 1.5rem -1rem;
-		padding: 0.75rem 1rem;
-	}
-	#main-wrapper {
-		padding: 0 1rem;
+		margin: 1.5rem -1.5rem;
+		padding: 0.75rem 1.5rem;
 	}
 }
 
@@ -72,12 +73,19 @@ a:focus-visible {
 	outline-offset: 2px;
 }
 
-nav ul{
+nav ul {
 	font-size: 0.9em;
-	max-width: 680px;
+	width: 100%;          /* Full width by default */
+	max-width: 800px;     /* Match content max-width */
 	border: 1px solid black;
 	padding: 8px 12px;
 	margin: 2rem 0;
+}
+
+@media (max-width: 992px) {
+	nav ul {
+		width: 100%;
+	}
 }
 
 nav li{
@@ -137,6 +145,7 @@ nav li a.active::after {
 	border-left: 1px solid black;
 	font-family: courier;
 	gap: 3rem;
+	max-width: 800px;     /* Match nav max-width */
 	.expo-text-wrapper {
 		padding-right: 2rem;
 		max-width: 65ch;
