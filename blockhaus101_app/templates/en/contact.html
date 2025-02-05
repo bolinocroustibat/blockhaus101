@@ -11,36 +11,35 @@
 
 {% block content %}
 
-<div class="col-lg-8 col-12 p-0 mb-5">
-
-	<div class="mt-5">
+<div class="contact-form-wrapper">
+	<div class="form-section">
 		{% if message %}
 			<p class="message">{{message}}</p>
 		{% else %}
 			<p>You can book a visit to the søren bollinger gallery only by filling out this form:
-			<form role="form" action= "" method="POST">
-				<div class="mt-3">
+			<form role="form" action="" method="POST">
+				<div class="form-group">
 					{{ form_contact.name.label_tag }}
 					{{ form_contact.name }}
 				</div>
-				<div class="mt-3">
+				<div class="form-group">
 					{{ form_contact.email.label_tag }}
 					{{ form_contact.email }}
 				</div>
-				<div class="mt-3">
+				<div class="form-group">
 					{{ form_contact.phone.label_tag }}
 					{{ form_contact.phone }}
 				</div>
-				<div class="mt-3">
+				<div class="form-group">
 					{{ form_contact.text.label_tag }}
 					{{ form_contact.text }}
 				</div>
-				<div class="mt-3">
+				<div class="form-group">
 					{{ form_contact.captcha.label_tag|linebreaks }}
 					{{ form_contact.captcha|linebreaks }}
 				</div>
 				{% csrf_token %}
-				<input type="submit" class="btn btn-primary mt-3" value="Send">
+				<input type="submit" class="btn-primary" value="Send">
 			</form>
 		{% endif %}
 	</div>

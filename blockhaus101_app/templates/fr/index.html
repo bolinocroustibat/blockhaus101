@@ -12,12 +12,12 @@
 {% block }
 
 {% block content %}
-<div class="mb-4 mt-5">
+<div class="gallery-description">
 	la galerie søren bollinger expose chaque mois une nouvelle voix marginale de l'art contemporain. Uniquement sur rendez-vous.
-	<div class="mt-5">Du {{ expo_startdate }} au {{ expo_enddate }} :</div>
+	<div class="exhibition-date">Du {{ expo_startdate }} au {{ expo_enddate }} :</div>
 </div>
 
-<div class="col-lg-8 col-12 mb-5 expo-wrapper">
+<div class="exhibition-item expo-wrapper">
 	<div class="expo-text-wrapper">
 		<span class="artist">{{ artist_name }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ expo_title|capfirst }}</span>
 		<div class="bio">{{ artist_bio }}</div>
