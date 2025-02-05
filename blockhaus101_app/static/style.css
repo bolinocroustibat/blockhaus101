@@ -306,3 +306,15 @@ form {
 .p-0 {
     padding: 0;
 }
+
+.loading-indicator {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+.loading-trigger {
+    opacity: 0;  /* Hide the trigger div but keep it functional */
+    height: 20px;
+}
