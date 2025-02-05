@@ -1,6 +1,7 @@
-body{
+/* Base styles */
+body {
 	background: white;
-	color:black;
+	color: black;
 	font-family: helvetica, sans-serif;
 	line-height: 1.6;
 	-webkit-font-smoothing: antialiased;
@@ -12,18 +13,20 @@ body.fade-out {
 	opacity: 0;
 }
 
+/* Typography */
+h1, h2 {
+	font-weight: bold;
+	letter-spacing: -0.02em;
+}
+
 h1 {
 	font-size: 3.8em;
-	font-weight:bold;
-	letter-spacing: -0.02em;
 	margin-bottom: 0.2em;
 }
 
 h2 {
 	font-size: 1.8em;
-	font-weight:bold;
 	color: #333;
-	letter-spacing: 0.02em;
 	margin-bottom: 2rem;
 }
 
@@ -58,14 +61,14 @@ h2 {
 	}
 }
 
-a{
-	color:#555;
+a {
+	color: #555;
 	cursor: pointer;
 	transition: color 0.2s ease;
 }
 
-a:hover{
-	color:#000;
+a:hover {
+	color: #000;
 }
 
 a:focus-visible {
@@ -73,10 +76,10 @@ a:focus-visible {
 	outline-offset: 2px;
 }
 
+/* Navigation */
 nav ul {
 	font-size: 0.9em;
-	width: 100%;          /* Full width by default */
-	max-width: 800px;     /* Match content max-width */
+	max-width: 800px;
 	border: 1px solid black;
 	padding: 8px 12px;
 	margin: 2rem 0;
@@ -88,14 +91,14 @@ nav ul {
 	}
 }
 
-nav li{
-	list-style-type:none;
+nav li {
+	list-style-type: none;
 	display: inline;
 }
 
-li{
-	color:#777;
-	list-style-type:square;
+li {
+	color: #777;
+	list-style-type: square;
 	margin: 40px 0 40px 0;
 }
 
@@ -139,13 +142,14 @@ nav li a.active::after {
 	transform-origin: bottom left;
 }
 
-.expo-wrapper{
+/* Exhibition layout */
+.expo-wrapper {
 	display: flex;
-	padding-left: 15px;
-	border-left: 1px solid black;
-	font-family: courier;
+	max-width: 800px;
 	gap: 3rem;
-	max-width: 800px;     /* Match nav max-width */
+	border-left: 1px solid black;
+	padding-left: 15px;
+	font-family: courier;
 	.expo-text-wrapper {
 		padding-right: 2rem;
 		max-width: 65ch;
@@ -160,12 +164,12 @@ nav li a.active::after {
 			font-style: italic;
 		}
 		.bio {
-			font-style:italic;
+			font-style: italic;
 			border-left: 1px solid rgba(0,0,0,0.1);
 			padding-left: 1rem;
 			margin: 1.5rem 0;
 		}
-		.expo-text{
+		.expo-text {
 			font-size: 1.05em;
 			line-height: 1.7;
 		}
@@ -184,34 +188,34 @@ nav li a.active::after {
 	}
 }
 
-.expo-wrapper a{
-	text-decoration:none;
+.expo-wrapper a {
+	text-decoration: none;
 }
 
-.expo-wrapper a:hover{
-	text-decoration:underline;
+.expo-wrapper a:hover {
+	text-decoration: underline;
 }
 
 .expo-wrapper img:hover {
 	opacity: 0.95;
 }
 
-#share-wrapper{
-	margin-top:15px;
-	font-size:0.7em;
+#share-wrapper {
+	margin-top: 15px;
+	font-size: 0.7em;
 }
 
-#twitter-wrapper{
-	margin-top:15px;
-	font-size:0.7em;
+#twitter-wrapper {
+	margin-top: 15px;
+	font-size: 0.7em;
 }
 
 #list-link {
-	position:fixed;
+	position: fixed;
 	bottom: 30px;
-	right:20px;
-	font-size:0.4em;
-	color:#F3F3F3;
+	right: 20px;
+	font-size: 0.4em;
+	color: #F3F3F3;
 }
 
 .message {
@@ -277,47 +281,47 @@ form {
 
 /* Add Bootstrap-like grid classes we're using */
 .col-12 {
-    width: 100%;
+	width: 100%;
 }
 
 .col-lg-8 {
-    width: 100%;
+	width: 100%;
 }
 
 @media (min-width: 992px) {
-    .col-lg-8 {
-        width: 66.666667%;
-    }
+	.col-lg-8 {
+		width: 66.666667%;
+	}
 }
 
 .offset-1 {
-    margin-left: 8.333333%;
+	margin-left: 8.333333%;
 }
 
 .mt-3 {
-    margin-top: 1rem;
+	margin-top: 1rem;
 }
 
 .mt-5 {
-    margin-top: 3rem;
+	margin-top: 3rem;
 }
 
 .mb-5 {
-    margin-bottom: 3rem;
+	margin-bottom: 3rem;
 }
 
 .p-0 {
-    padding: 0;
+	padding: 0;
 }
 
 .loading-indicator {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
-    font-style: italic;
+	text-align: center;
+	padding: 2rem;
+	color: #666;
+	font-style: italic;
 }
 
 .loading-trigger {
-    opacity: 0;  /* Hide the trigger div but keep it functional */
-    height: 20px;
+	opacity: 0;  /* Hide the trigger div but keep it functional */
+	height: 20px;
 }
