@@ -38,26 +38,26 @@ h2 {
 		font-size: 0.8em;
 	}
 	#main-wrapper {
-		padding: 0 1.5rem;
-		margin-left: 0;
+		width: 100%;
+		padding: 1.75rem 1.5rem 0;
 	}
 	.expo-wrapper {
-		flex-direction: column-reverse;
+		flex-direction: column;
 		padding: 0;
+		border-left: none;
 		gap: 2rem;
-		img {
-			align-self: center;
-			margin-bottom: 2rem;
-			width: 100%;
-			max-width: none;
-		}
+	}
+	.expo-wrapper img {
+		width: 100%;
+		max-width: 100%;
+		margin-bottom: 2rem;
 	}
 	nav ul {
+		margin: 1.5rem 0;
+		padding: 0.75rem 0;
 		border-width: 0;
 		border-top-width: 1px;
 		border-bottom-width: 1px;
-		margin: 1.5rem -1.5rem;
-		padding: 0.75rem 1.5rem;
 	}
 }
 
@@ -77,12 +77,18 @@ a:focus-visible {
 }
 
 /* Navigation */
+nav {
+	margin: 2rem 0 3rem 0;
+	width: 100%;
+	box-sizing: border-box;  /* Include padding in width */
+}
+
 nav ul {
 	font-size: 0.9em;
-	max-width: 800px;
 	border: 1px solid black;
 	padding: 8px 12px;
 	margin: 2rem 0;
+	box-sizing: border-box;  /* Include padding in width */
 }
 
 @media (max-width: 992px) {
@@ -143,17 +149,25 @@ nav li a.active::after {
 }
 
 /* Exhibition layout */
+.exhibition-item {
+	width: 100%;
+	box-sizing: border-box;
+}
+
 .expo-wrapper {
 	display: flex;
-	max-width: 800px;
-	gap: 3rem;
+	gap: 2rem;
 	border-left: 1px solid black;
 	padding-left: 15px;
 	font-family: courier;
+	max-width: 100%;
+	box-sizing: border-box;
+
 	.expo-text-wrapper {
-		padding-right: 2rem;
+		min-width: 45%;
 		max-width: 65ch;
 		flex: 1;
+		padding-right: 1rem;
 		.artist {
 			margin-bottom: 1.25rem;
 			text-transform: uppercase;
@@ -174,17 +188,11 @@ nav li a.active::after {
 			line-height: 1.7;
 		}
 	}
+
 	img {
-		max-width: 500px;
-		max-height: 600px;
+		max-width: 40%;
 		height: auto;
 		object-fit: contain;
-	}
-	@media screen and (max-width: 800px) {
-		img {
-			max-width: 280px;
-			max-height: 350px;
-		}
 	}
 }
 
@@ -279,49 +287,29 @@ form {
 	color: inherit;
 }
 
-/* Add Bootstrap-like grid classes we're using */
-.col-12 {
+/* Add these new semantic classes */
+.gallery-description {
+	margin: 2rem 0 2.5rem 0;
+}
+
+.exhibition-date {
+	margin: 2.5rem 0 1.5rem 0;
+}
+
+.contact-form-wrapper {
 	width: 100%;
-}
-
-.col-lg-8 {
-	width: 100%;
-}
-
-@media (min-width: 992px) {
-	.col-lg-8 {
-		width: 66.666667%;
-	}
-}
-
-.offset-1 {
-	margin-left: 8.333333%;
-}
-
-.mt-3 {
-	margin-top: 1rem;
-}
-
-.mt-5 {
-	margin-top: 3rem;
-}
-
-.mb-5 {
 	margin-bottom: 3rem;
 }
 
-.p-0 {
-	padding: 0;
+.form-section {
+	margin-top: 2rem;
 }
 
-.loading-indicator {
-	text-align: center;
-	padding: 2rem;
-	color: #666;
-	font-style: italic;
+.form-group {
+	margin-top: 1rem;
 }
 
-.loading-trigger {
-	opacity: 0;  /* Hide the trigger div but keep it functional */
-	height: 20px;
+#main-wrapper {
+	max-width: 1000px;
+	padding: 1.75rem 8% 0;
 }
