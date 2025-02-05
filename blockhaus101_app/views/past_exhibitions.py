@@ -1,7 +1,8 @@
 from datetime import datetime
+from typing import Any
 
 from babel.dates import format_date
-from django.core.paginator import Paginator
+from django.core.paginator import Page, Paginator
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -25,13 +26,13 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
     exhibitions = Exhibition.objects.filter(enddate__lte=datetime.now()).order_by("-enddate")
 
     # Create paginator
-    paginator = Paginator(exhibitions, EXHIBITIONS_PER_PAGE)
-    page_obj = paginator.get_page(page_number)
+    paginator: Paginator = Paginator(exhibitions, EXHIBITIONS_PER_PAGE)
+    page_obj: Page = paginator.get_page(page_number)
 
-    exhibitions_details: list[dict] = []
+    exhibitions_details: list[dict[str, Any]] = []
     for e in page_obj:
         try:
-            exhibition: dict = {}
+            exhibition: dict[str, Any] = {}
             if e.startdate and e.enddate:  # Check for None
                 exhibition["startdate"] = format_date(
                     e.startdate.date(), format="long", locale=lang
