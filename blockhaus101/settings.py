@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "base_data_app",
     "blockhaus101_app",
     "captcha",
+    "django_htmx",
 ]
 
 MIDDLEWARE = [
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",
 ]
 
 ROOT_URLCONF = "blockhaus101.urls"
