@@ -177,7 +177,7 @@ nav li a.active::after {
 	}
 }
 
-.expo-wrapper img.loaded {
+.expo-wrapper img.htmx-settling {
 	opacity: 1;
 }
 
