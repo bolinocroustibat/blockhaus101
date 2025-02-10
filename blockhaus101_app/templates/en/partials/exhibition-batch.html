@@ -1,8 +1,8 @@
-{% for e in full_exhibs %}
-<div class="past-expo-date mb-4 mt-5">From {{ e.startdate }} to {{ e.enddate }}</div>
-<div class="col-lg-8 col-12 mb-5 expo-wrapper">
+{% for e in exhibitions_details %}
+<div class="exhibition-date">From {{ e.startdate }} to {{ e.enddate }}</div>
+<div class="exhibition-item expo-wrapper">
     <div class="expo-text-wrapper">
-        <span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo">{{ e.title|capfirst }}</span>
+        <span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ e.title|capfirst }}</span>
         <div class="bio">{{ e.bio }}</div>
         <div class="text">{{ e.text }}</div>
     </div>
@@ -17,6 +17,7 @@
     hx-get="{% url 'past_exhibitions' lang=lang %}?page={{ page_obj.next_page_number }}"
     hx-trigger="revealed"
     hx-swap="afterend"
+    hx-swap-oob="true"
     class="loading-trigger">
     <div class="loading-indicator">Loading...</div>
 </div>

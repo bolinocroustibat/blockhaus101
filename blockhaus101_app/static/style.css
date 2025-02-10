@@ -152,6 +152,7 @@ nav li a.active::after {
 .exhibition-item {
 	width: 100%;
 	box-sizing: border-box;
+	margin-bottom: 3rem;
 }
 
 .expo-wrapper {
@@ -312,4 +313,17 @@ form {
 #main-wrapper {
 	max-width: 1000px;
 	padding: 1.75rem 8% 0;
+}
+
+/* Loading states */
+.loading-trigger {
+	margin: 2rem 0;
+	opacity: 0;  /* Hide but keep functional */
+	height: 20px;
+}
+
+.loading-indicator {
+	text-align: center;
+	color: #666;
+	font-style: italic;
 }
