@@ -16,7 +16,7 @@
 <div
     hx-get="{% url 'past_exhibitions' lang=lang %}?page={{ page_obj.next_page_number }}"
     hx-trigger="revealed"
-    hx-swap="afterend"
+    hx-swap="outerHTML"
     class="loading-trigger">
     <div class="loading-indicator">Chargement...</div>
 </div>
