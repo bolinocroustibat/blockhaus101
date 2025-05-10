@@ -56,9 +56,9 @@ jobs:
             cd /home/www/blockhaus101
             git fetch
             git reset --hard origin/main
-            /usr/local/bin/uv/uv sync
-            /usr/local/bin/uv/uv run /home/www/blockhaus101/manage.py migrate
-            /usr/local/bin/uv/uv run /home/www/blockhaus101/manage.py collectstatic --no-input
+            /usr/local/bin/uv sync
+            /usr/local/bin/uv run /home/www/blockhaus101/manage.py migrate
+            /usr/local/bin/uv run /home/www/blockhaus101/manage.py collectstatic --no-input
             sudo systemctl restart blockhaus101.service
 
       - name: Create Sentry "${{ github.ref_name }}" release
