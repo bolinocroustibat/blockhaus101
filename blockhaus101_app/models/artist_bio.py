@@ -75,5 +75,7 @@ class ArtistBiography(models.Model):
                     self.text_used_data = chosen_data[1]
                     # only replace one occurence, we want the same keyword to be able to be replaced by other words
                     biosentence = biosentence.replace(k, chosen_word, 1)
-        biosentence = correct_text(text=biosentence, lang=self.language.code)
+        biosentence = correct_text(
+            text=biosentence, lang=self.language.code, subject_gender=self.artist.gender
+        )
         return biosentence

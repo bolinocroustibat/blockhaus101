@@ -113,6 +113,8 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
                     "iplômé ": "iplômée ",
                     "marqué ": "marquée ",
                     "obsédé ": "obsédée ",
+                    "cet artiste ": "cette artiste ",
+                    "Cet artiste ": "Cette artiste ",
                 }
             )
 

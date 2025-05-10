@@ -3,7 +3,7 @@ from openai import AsyncOpenAI
 from base_data_app.models.language import Language
 from blockhaus101.settings import (
     OPENAI_API_KEY,
-    OPENAI_MODEL_ID,
+    OPENAI_MODEL,
     logger,
 )
 
@@ -11,7 +11,7 @@ from blockhaus101.settings import (
 class OpenAiAPI:
     def __init__(self) -> None:
         self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-        self.model_id = OPENAI_MODEL_ID
+        self.model = OPENAI_MODEL
 
     async def get_models_ids(self) -> list[str]:
         """Get the list of the official names for all the available OpenAI models."""
@@ -41,7 +41,7 @@ class OpenAiAPI:
         logger.info("Requesting OpenAI...")
         try:
             response = await self.client.chat.completions.create(
-                model=self.model_id,
+                model=self.model["id"],
                 messages=messages,  # type: ignore
                 user="warning-trading",
             )
@@ -61,7 +61,7 @@ class OpenAiAPI:
                 response.usage.prompt_tokens,
                 response.usage.completion_tokens,
             )
-            logger.info(f"\nTokens used: {tokens_usage}. OpenAI request price: {price}$")
+            logger.info(f"\nTokens used: {tokens_usage}. OpenAI request price: ${price:.6f}")
         except Exception as e:
             logger.error(f"\nUnable to calculate the price of the request: {str(e)}")
 
@@ -123,7 +123,7 @@ class OpenAiAPI:
         Returns:
             float: price of the request
         """
-        price: float = (self.model.price_input_per_1M * (input_tokens / 1000000)) + (
-            self.model.price_output_per_1M * (output_tokens / 1000000)
+        price: float = (self.model["pricing"]["input_per_1M"] * (input_tokens / 1000000)) + (
+            self.model["pricing"]["output_per_1M"] * (output_tokens / 1000000)
         )
         return price

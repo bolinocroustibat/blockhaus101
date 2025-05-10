@@ -142,7 +142,13 @@ LOCATIONS = [
 # A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.  # noqa 501
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).
 # https://openai.com/pricing/
-OPENAI_MODEL_ID = "gpt-4o-mini"
+OPENAI_MODEL = {
+    "id": "gpt-4o-mini",
+    "pricing": {
+        "input_per_1M": 0.15,  # $0.15 per 1M input tokens
+        "output_per_1M": 0.60,  # $0.60 per 1M output tokens
+    },
+}
 
 # Main prompt - focuses on what we want
 GETIMGAPI_PROMPT = """Generate a photorealistic image of a contemporary art exhibition space. For {discipline}, show {specific_format} prominently displayed in the gallery. The exhibition name is "{exhibition_title}", so if possible the works can be vaguely related to that theme. Don't show any people, focus on the artwork(s) only."""
