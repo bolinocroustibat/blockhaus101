@@ -91,11 +91,11 @@ class OpenAiAPI:
         messages = [
             {
                 "role": "system",
-                "content": "Bonjour, vous parlez français et vous pouvez reformuler un texte français en gradant son style et son sens, mais en l'étoffant légèrement.",
+                "content": "Tu parles français et tu peux reformuler un texte français en gradant son style et son sens, mais en l'étoffant légèrement.",
             },
             {
                 "role": "user",
-                "content": f"Je souhaite que vous reformuliez ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans votre réponse autre chose que le texte en lui-même. Voici le texte à reformuler: « {text} »",
+                "content": f"Je souhaite que tu reformules ce texte en français en gardant son sens, ses informations exactes principales. Son style doit converser le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans ta réponse autre chose que le texte en lui-même. Voici le texte à reformuler: « {text} »",
             },
         ]
         result_text, price, error_msg = await self._process_openai_request(messages)
