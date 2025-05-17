@@ -4,7 +4,13 @@ from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.models import Artist, ArtistBiography, Exhibition, ExhibitionTitle
+from blockhaus101_app.models import (
+    Artist,
+    ArtistBiography,
+    Exhibition,
+    ExhibitionText,
+    ExhibitionTitle,
+)
 
 
 class Command(BaseCommand):
@@ -48,6 +54,11 @@ class Command(BaseCommand):
             exhibition.save()
             for lg in Language.objects.all():
                 exhibition_titles[lg.code].save()
+                # Generate and save exhibition text after saving exhibition and titles
+                expo_text = ExhibitionText(language=lg, exhibition=exhibition)
+                expo_text.generate()
+                logger.info(expo_text.text)
+                expo_text.save()
             logger.info(
-                f"Exhibition saved in DB with its titles. Dates: {exhibition.startdate} to {exhibition.enddate}"
+                f"Exhibition saved in DB with its titles and texts. Dates: {exhibition.startdate} to {exhibition.enddate}"
             )
