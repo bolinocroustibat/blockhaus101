@@ -32,7 +32,6 @@ class Command(BaseCommand):
         bios: dict[str, ArtistBiography] = artist.generate_bios(expo_titles=exhibition_titles)
 
         logger.info(artist)
-        logger.info(f"Exhibition dates: {exhibition.startdate} to {exhibition.enddate}")
         for lg in Language.objects.all():
             logger.info(bios[lg.code].text)
             logger.info(exhibition_titles[lg.code].text)
@@ -49,4 +48,6 @@ class Command(BaseCommand):
             exhibition.save()
             for lg in Language.objects.all():
                 exhibition_titles[lg.code].save()
-            logger.info("Exhibition saved in DB with its titles")
+            logger.info(
+                f"Exhibition saved in DB with its titles. Dates: {exhibition.startdate} to {exhibition.enddate}"
+            )
