@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.core.management.base import BaseCommand
 
 from base_data_app.models import Language
@@ -22,7 +24,7 @@ class Command(BaseCommand):
             help="Save into the database",
         )
 
-    def handle(self, *args, **options):
+    def handle(self, *args: Any, **options: Any) -> None:
         artist = Artist()
         artist.generate()
         exhibition = Exhibition(artist=artist)
@@ -30,6 +32,7 @@ class Command(BaseCommand):
         bios: dict[str, ArtistBiography] = artist.generate_bios(expo_titles=exhibition_titles)
 
         logger.info(artist)
+        logger.info(f"Exhibition dates: {exhibition.startdate} to {exhibition.enddate}")
         for lg in Language.objects.all():
             logger.info(bios[lg.code].text)
             logger.info(exhibition_titles[lg.code].text)
