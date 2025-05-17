@@ -80,14 +80,14 @@ def index(request, lang: str) -> HttpResponse:
         )  # call the async function from the sync context
         if reformulated_text:
             logger.info(
-                f"Text has been reformulated by OpenAI:\n{reformulated_text}\nCost: {price}$"
+                f"Text has been reformulated by OpenAI {openai_api.model['id']}:\n{reformulated_text}\nCost: {price}$"
             )
             expo_text = ExhibitionText(
                 language=language,
                 exhibition=exhibition,
                 ip=get_client_ip(request),
                 text=reformulated_text,
-                ai_model=openai_api.model_id,
+                ai_model=openai_api.model["id"],
             )
         if error_msg:
             logger.error(f"Error while reformulating text: {error_msg}")

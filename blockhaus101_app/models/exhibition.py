@@ -10,9 +10,8 @@ from django.db import models
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
 from blockhaus101.settings import (
-    GETIMGAPI_FORMATS,
     GETIMGAPI_NEGATIVE_PROMPT,
-    GETIMGAPI_PROMPT,
+    GETIMGAPI_PROMPTS,
     PERIOD,
     logger,
 )
@@ -111,11 +110,11 @@ class Exhibition(models.Model):
         discipline: str = self.artist.get_discipline(lang="en")
         exhibition_title = ExhibitionTitle.objects.get(language__code="en", exhibition=self)
 
-        specific_format = GETIMGAPI_FORMATS.get(discipline)
-        img_prompt: str = GETIMGAPI_PROMPT.format(
+        specific_prompt = GETIMGAPI_PROMPTS.get(discipline)
+        img_prompt: str = specific_prompt.format(
+            artist_gender={"f": "female", "m": "male"}[self.artist.gender],
             discipline=discipline,
             exhibition_title=exhibition_title.text,
-            specific_format=specific_format,
         )
 
         logger.debug(f"Sending image generation request with prompt: {img_prompt}")

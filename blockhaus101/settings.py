@@ -149,26 +149,23 @@ OPENAI_MODEL = {
     },
 }
 
-# Main prompt - focuses on what we want
-GETIMGAPI_PROMPT = """Generate a photorealistic image of a contemporary art exhibition space. For {discipline}, show {specific_format} prominently displayed in the gallery. The exhibition name is "{exhibition_title}", so if possible the works can be vaguely related to that theme. Don't show any people, focus on the artwork(s) only."""
-
-# Dictionary to map disciplines to their specific display formats
-GETIMGAPI_FORMATS = {
-    "photography": "large format photographs mounted on walls and freestanding displays",
-    "plastic arts": "sculptural objects and three-dimensional artworks",
-    "artistic installation": "site-specific installations with mixed media elements",
-    "artistic performance": "performance art documentation through video screens and spatial arrangements",
-    "abstract art": "non-representational artworks in various media",
-    "algorithms": "digital displays and computer-generated visualizations",
-    "video": "multiple video projections and screens of different sizes",
-    "visual arts": "mixed media works combining different visual elements",
-    "sculpture": "three-dimensional sculptures and spatial arrangements",
-    "collages": "mixed-media collage works mounted on walls and in vitrines",
-    "gif-art": "digital screens displaying animated artworks",
-    "iconographic sampling": "remixed visual elements displayed through various media",
-    "social network art": "digital displays showing social media-based artworks",
-    "immersive experiences": "room-scale installations with interactive elements",
-    "painting": "paintings mounted on gallery walls",
+# Img prompts to map disciplines to their specific display formats
+GETIMGAPI_PROMPTS = {
+    "photography": "Generate a photorealistic image of a photography exhibition space. Show large format photographs mounted on walls and freestanding displays. The theme of the photographs is {exhibition_title}, but don't use it if it is too abstract.",
+    "plastic arts": "Generate a photorealistic image of a plastic arts exhibition space. Show sculptural objects and three-dimensional artworks. The theme of the artworks is {exhibition_title}, but don't use it if it is too abstract.",
+    "artistic installation": "Generate a photorealistic image of an art installation exhibition space, with a spatial arrangement of a site-specific installation with mixed media elements. The theme of the installation is {exhibition_title}, but don't use it if it is too abstract.",
+    "artistic performances": "Generate a photorealistic image of a a single {artist_gender} human (the performer) in a weird relaxing position surrounded by weird everyday objects, in a dedicated room with no other artworks, nothing on the walls. The theme of the performance is {exhibition_title}, but don't use it if it is too abstract.",
+    "abstract art": "Generate a photorealistic image of an art exhibition space, with non-representational painting artworks spread on the walls. The theme of the artworks is {exhibition_title}, but don't use it if it is too abstract.",
+    "algorithms": "Generate a photorealistic image of an art exhibition space with artworks of computer-generated visualizations. The theme of the artworks is {exhibition_title}, but don't use it if it is too abstract.",
+    "video": "Generate a photorealistic image of a dedicated dark room with a single projection of an abstract or figurative video.",
+    "visual arts": "Generate a photorealistic image of an art exhibition space with mixed media works combining different visual elements on diplay. The theme of the artworks is {exhibition_title}, but don't use it if it is too abstract.",
+    "sculpture": "Generate a photorealistic image of a sculpture exhibition space with only three-dimensional sculptures and spatial arrangements. The theme of the artworks is {exhibition_title}, but don't use it if it is too abstract.",
+    "collages": "Generate a photorealistic image of an art sculpture exhibition space with mixed-media collage works mounted on walls and in vitrines.",
+    "gif-art": "Generate a photorealistic image of a exhibition space with digital screens displaying animated GIFs.",
+    "iconographic sampling": "Generate a photorealistic image of an art exhibition space with remixed visual elements displayed through various media.",
+    "social network art": "Generate a photorealistic image of an art exhibition space with artworks made with famous memes and typical social networks contents.",
+    "immersive experiences": "Generate a photorealistic image of an art exhibition space with room-scale installations with interactive elements",
+    "painting": "Generate a photorealistic image of an art exhibition space with paintings mounted on gallery walls.",
 }
 
 GETIMGAPI_NEGATIVE_PROMPT = """cartoon, anime, illustration, painting style, drawing, sketch, doodle, watercolor, oil painting effect, artificial looking, fake, low quality, blurry, noisy, oversaturated, overexposed, bad composition, distorted perspective, unrealistic shadows, text, watermarks, signatures, frames, borders, collage style, instagram filters, bad lighting, grainy"""
