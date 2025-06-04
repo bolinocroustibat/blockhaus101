@@ -1,38 +1,36 @@
 import logging
+import os
 import tomllib
-from pathlib import Path
 
 import sentry_sdk
+from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from blockhaus101.captcha import custom_captcha_challenge
 
-# Define BASE_DIR as the directory containing the settings.py file
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# Define SITE_ROOT as the root directory of your project
-SITE_ROOT = BASE_DIR.parent
+# Load environment variables from .env file
+load_dotenv()
 
 # where the static files will go when doing a collectstatic if debug=false
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT = "/app/static"
 STATIC_URL = "/static/"
 # where the media (and notably the Blockhaus101 generated images) will go
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = "/app/media"
 MEDIA_URL = "/media/"
 
 # TWEEPY
 # The consumer keys can be found on your application's Details
 # page located at https://dev.twitter.com/apps (under "OAuth settings")
-TWITTER_CONSUMER_KEY = "NY2nHNNVMEMYarF3dnnVHmHnK"
-TWITTER_CONSUMER_SECRET = "ID89Z7VOYc0SpSnRLc24iWCffbrrkU6yCdzSgCQfzhDVEuO4de"
+TWITTER_CONSUMER_KEY = os.getenv("TWITTER_CONSUMER_KEY", "")
+TWITTER_CONSUMER_SECRET = os.getenv("TWITTER_CONSUMER_SECRET", "")
 # The access tokens can be found on your applications's Details
 # page located at https://dev.twitter.com/apps (located
 # under "Your access token")
-TWITTER_ACCESS_TOKEN = "845743348908478466-7QcSj9koknxYAaOrGk03N9ix8xcmJs1"
-TWITTER_ACCESS_TOKEN_SECRET = "6XdmNzhpJH5BzDQpknhC0romDuoFKyAqORT7mwJN8CpWd"
+TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN", "")
+TWITTER_ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET", "")
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "+%umqk%=)x=%_l3+++*a28wjom@99zeykg$1*z+1&u$v1=_pys"
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # Django debug toolbar authorized IPs
 INTERNAL_IPS = ("127.0.0.1",)
@@ -170,14 +168,90 @@ GETIMGAPI_PROMPTS = {
 
 GETIMGAPI_NEGATIVE_PROMPT = """cartoon, anime, illustration, painting style, drawing, sketch, doodle, watercolor, oil painting effect, artificial looking, fake, low quality, blurry, noisy, oversaturated, overexposed, bad composition, distorted perspective, unrealistic shadows, text, watermarks, signatures, frames, borders, collage style, instagram filters, bad lighting, grainy"""
 
-# Local settings
+# Environment settings
+ENVIRONMENT = os.getenv("ENVIRONMENT", "unknown")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+# Database settings
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POSTGRES_DB", "blockhaus101_django"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),  # Use 'db' as default for Docker
+        "PORT": os.getenv("POSTGRES_PORT", "5432"),
+    }
+}
+
+# Locale settings
 try:
-    from .local_settings import *  # noqa
-except Exception as e:
-    print(e)
-    print("Note: local_settings.py not present or non valid. Using default settings.")
-    ENVIRONMENT = "unknown"
-    LOGGING_LEVEL = "DEBUG"
+    import locale
+
+    locale.setlocale(locale.LC_TIME, "en_US")
+except locale.Error:
+    # Fallback if locale is not available
+    pass
+
+# Allowed hosts
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+
+# Email settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+
+# Logging
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
+
+# API Keys
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+GETIMGAI_API_URL = "https://api.getimg.ai/v1/"
+GETIMGAI_API_KEY = os.getenv("GETIMGAI_API_KEY", "")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "colored": {
+            "()": "colorlog.ColoredFormatter",
+            "format": "%(log_color)s[%(levelname)s] %(asctime)s %(name)s: %(message)s",
+            "log_colors": {
+                "DEBUG": "cyan",
+                "INFO": "green",
+                "WARNING": "yellow",
+                "ERROR": "red",
+                "CRITICAL": "bold_red",
+            },
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "colored",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "admin-auth-logger": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        "{}-auth".format(__name__): {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propogate": False,
+        },
+        "blockhaus101": {"handlers": ["console"], "level": LOGGING_LEVEL, "propagate": False},
+    },
+}
 
 logger = logging.getLogger("blockhaus101")
 
@@ -187,7 +261,7 @@ APP_NAME: str = pyproject["project"]["name"]
 VERSION: str = pyproject["project"]["version"]
 if ENVIRONMENT in ["staging", "production"]:
     sentry_sdk.init(
-        dsn="https://38a42a04381f4e0dbb2c1f4f2229bb69@o352691.ingest.sentry.io/4503999464865792",
+        dsn=os.getenv("SENTRY_DSN", ""),
         integrations=[DjangoIntegration()],
         release=f"{APP_NAME}@{VERSION}",
         environment=ENVIRONMENT,
