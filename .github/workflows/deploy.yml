@@ -103,14 +103,14 @@ jobs:
 
             # Pull the new Docker images
             docker compose pull
-            # Restart services (entrypoint.sh will handle migrations and static files)
+            # Restart services
             docker compose down
             docker compose up -d
             # Logout for security
             docker logout
 
             # Verify service is running
-            sleep 10  # Give the service time to start
+            sleep 3  # Give the service time to start
             docker compose ps --format json | grep -q "running" || exit 1
 
       - name: Create Sentry release
