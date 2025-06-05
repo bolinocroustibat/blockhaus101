@@ -1,5 +1,5 @@
-# Use Python 3.13 as base image
-FROM python:3.13-slim
+# Use Python 3.13-alpine as base image
+FROM python:3.13-alpine
 # Copy latest uv binary from official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
@@ -17,11 +17,10 @@ WORKDIR /app
 # Sync the project, asserting the lockfile is up to date
 RUN uv sync --locked
 
-# Make entrypoint executable
-RUN chmod +x entrypoint.sh
-
 # Document that the container listens on internal port 8000
 EXPOSE 8000
 
-# Set entrypoint
-ENTRYPOINT ["./entrypoint.sh"]
+# Run migrations, collect static files, and start the server
+CMD uv run manage.py migrate && \
+    uv run manage.py collectstatic --noinput && \
+    exec uv run gunicorn blockhaus101.asgi:application -w 4 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:8000"
