@@ -122,4 +122,4 @@ jobs:
           SENTRY_PROJECT: "blockhaus101"
         with:
           environment: production
-          version: ${{ github.ref_name }}
+          release: ${{ github.ref_name }}
