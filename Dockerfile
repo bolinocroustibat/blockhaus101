@@ -20,11 +20,8 @@ RUN uv sync --locked
 # Make entrypoint executable
 RUN chmod +x entrypoint.sh
 
-# Port configuration:
-# ARG defines the build-time PORT env var with a default value of 8000 (not available to running container)
-# EXPOSE documents which port the application uses (purely informational)
-ARG PORT=8000
-EXPOSE ${PORT}
+# Document that the container listens on internal port 8000
+EXPOSE 8000
 
 # Set entrypoint
 ENTRYPOINT ["./entrypoint.sh"]
