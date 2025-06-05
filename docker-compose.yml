@@ -1,0 +1,51 @@
+services:
+  app:
+    image: ${DOCKERHUB_USERNAME}/blockhaus101:${TAG:-latest}
+    build: .
+    depends_on:
+      - db
+    volumes:
+      - static_volume:/app/static
+    ports:
+      - "${PORT:-8000}:${PORT:-8000}"
+    environment:
+      # Django core settings
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DEBUG=${DEBUG}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - LOGGING_LEVEL=${LOGGING_LEVEL}
+
+      # Email settings
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+
+      # External services
+      ## OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      ## GetImgAI
+      - GETIMGAI_API_KEY=${GETIMGAI_API_KEY}
+      ## Twitter API
+      - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
+      - TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
+      - TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN}
+      - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+      ## Sentry
+      - SENTRY_DSN=${SENTRY_DSN}
+
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=blockhaus101_django
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+# Volume definitions
+volumes:
+  postgres_data:
+  static_volume:
