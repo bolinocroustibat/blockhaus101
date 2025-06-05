@@ -42,7 +42,7 @@ services:
 
   db:
     container_name: blockhaus101-db
-    image: postgres:17
+    image: postgres:17-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
