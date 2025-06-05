@@ -7,7 +7,7 @@ services:
     volumes:
       - static_volume:/app/static
     ports:
-      - "${PORT:-8000}:${PORT:-8000}"
+      - "${APP_PORT:-8000}:8000"
     environment:
       # Django core settings
       - ENVIRONMENT=${ENVIRONMENT}
@@ -39,7 +39,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "${DB_PORT:-5432}:5432"
     environment:
       - POSTGRES_DB=blockhaus101_django
       - POSTGRES_USER=postgres

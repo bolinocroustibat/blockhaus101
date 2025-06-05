@@ -18,4 +18,4 @@ uv run python manage.py collectstatic --noinput
 
 # Start server
 echo "Starting server..."
-exec uv run gunicorn blockhaus101.asgi:application -w 4 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:${PORT:-8000}"
+exec uv run gunicorn blockhaus101.asgi:application -w 4 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:8000"
