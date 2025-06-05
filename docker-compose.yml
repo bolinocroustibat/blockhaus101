@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: blockhaus101-app
     image: ${DOCKERHUB_USERNAME}/blockhaus101:${TAG:-latest}
     build: .
     depends_on:
@@ -35,6 +36,7 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
 
   db:
+    container_name: blockhaus101-db
     image: postgres:17
     volumes:
       - postgres_data:/var/lib/postgresql/data
