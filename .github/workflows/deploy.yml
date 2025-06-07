@@ -74,7 +74,7 @@ jobs:
         run: ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: Execute server commands for deploy
-        uses: appleboy/ssh-action@v1.2.0
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -109,7 +109,11 @@ jobs:
 
             # Verify service is running
             sleep 3  # Give the service time to start
-            docker compose ps --format json | grep -q "running" || exit 1
+            if ! docker compose ps --format json | grep -q "running"; then
+              echo "Service failed to start properly"
+              docker compose logs
+              exit 1
+            fi
 
       - name: Create Sentry release
         if: success()  # Only create Sentry release if deployment succeeded
