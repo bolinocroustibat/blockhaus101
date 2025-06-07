@@ -1,7 +1,7 @@
 services:
   app:
     container_name: blockhaus101-app
-    image: ${DOCKERHUB_USERNAME}/blockhaus101:${TAG:-latest}
+    image: ghcr.io/${GITHUB_REPOSITORY}:${TAG:-latest}
     build: .
     depends_on:
       - db
