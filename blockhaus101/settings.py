@@ -29,6 +29,9 @@ TWITTER_CONSUMER_SECRET = os.getenv("TWITTER_CONSUMER_SECRET", "")
 TWITTER_ACCESS_TOKEN = os.getenv("TWITTER_ACCESS_TOKEN", "")
 TWITTER_ACCESS_TOKEN_SECRET = os.getenv("TWITTER_ACCESS_TOKEN_SECRET", "")
 
+# Environment settings
+ENVIRONMENT = os.getenv("ENVIRONMENT", "unknown")
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
@@ -168,10 +171,6 @@ GETIMGAPI_PROMPTS = {
 
 GETIMGAPI_NEGATIVE_PROMPT = """cartoon, anime, illustration, painting style, drawing, sketch, doodle, watercolor, oil painting effect, artificial looking, fake, low quality, blurry, noisy, oversaturated, overexposed, bad composition, distorted perspective, unrealistic shadows, text, watermarks, signatures, frames, borders, collage style, instagram filters, bad lighting, grainy"""
 
-# Environment settings
-ENVIRONMENT = os.getenv("ENVIRONMENT", "unknown")
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-
 # Database settings
 DATABASES = {
     "default": {
@@ -203,14 +202,13 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 
-# Logging
-LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "DEBUG")
-
 # API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GETIMGAI_API_URL = "https://api.getimg.ai/v1/"
 GETIMGAI_API_KEY = os.getenv("GETIMGAI_API_KEY", "")
 
+# Logging
+LOGGING_LEVEL = "DEBUG" if DEBUG else "INFO"
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": True,

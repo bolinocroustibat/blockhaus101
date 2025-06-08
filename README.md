@@ -14,66 +14,51 @@ uv sync
 uv run ruff check --fix && ruff format
 ```
 
-### Set a local settings file
+### Set the env vars in a .env file
 
-In `blockhaus101/local_settings.py`:
+Create a `.env` file in the root directory with the following variables:
 
-Needed:
-- `DATABASES`
-- `LOGGING`
-- `ALLOWED_HOSTS`
-...among other stuff
+```bash
+# App settings
+ENVIRONMENT=local
+APP_PORT=8000
+DB_PORT=5433
 
+# Django core settings
+DEBUG=False
+DJANGO_SECRET_KEY="your-secret-key-here"
+ALLOWED_HOSTS=*
+
+# Database settings
+POSTGRES_DB=blockhaus101_django # Name of the DB
+
+# Email settings
+EMAIL_HOST=your-smtp-host
+EMAIL_HOST_USER=your-email@example.com
+EMAIL_HOST_PASSWORD=your-email-password
+
+# External services
+## OpenAI
+OPENAI_API_KEY=your-openai-api-key
+
+## GetImgAI
+GETIMGAI_API_KEY=your-getimgai-api-key
+
+## Twitter API
+TWITTER_CONSUMER_KEY=your-twitter-consumer-key
+TWITTER_CONSUMER_SECRET=your-twitter-consumer-secret
+TWITTER_ACCESS_TOKEN=your-twitter-access-token
+TWITTER_ACCESS_TOKEN_SECRET=your-twitter-access-token-secret
+
+## Sentry
+SENTRY_DSN=your-sentry-dsn
 ```
-# For a PostgreSQL database
-DATABASES = {
-	"default": {
-		"ENGINE": "django.db.backends.postgresql",
-		"NAME": "blockhaus101_django",
-		"USER": "postgres",
-		"PASSWORD": "",
-		"HOST": "localhost",  # Or an IP Address that your DB is hosted on. DO NOT USE "127.0.0.1" but "localhost"
-		"PORT": "5432",
-	}
-}
-ALLOWED_HOSTS = ["*"]
-LOGGING = {
-	"version": 1,
-	"disable_existing_loggers": False,
-	"formatters": {
-		"colored": {
-			"()": "colorlog.ColoredFormatter",
-			"format": "%(log_color)s[%(levelname)s]%(reset)s %(asctime)s %(name)s %(message)s",
-			"log_colors": {
-				"DEBUG": "cyan",
-				"INFO": "green",
-				"WARNING": "yellow",
-				"ERROR": "red",
-				"CRITICAL": "bold_red",
-			},
-		},
-	},
-	"handlers": {
-		"console": {"class": "logging.StreamHandler", "formatter": "colored",},
-	},
-	"loggers": {
-		"django": {"handlers": ["console"], "level": "INFO", "propogate": False,},
-		"admin-auth-logger": {
-			"handlers": ["console"],
-			"level": "DEBUG",
-			"propogate": False,
-		},
-		"{}-auth".format(__name__): {
-			"handlers": ["console"],
-			"level": "DEBUG",
-			"propogate": False,
-		},
-		"blockhaus101": {"handlers": ["console"], "level": "DEBUG", "propogate": False},
-	},
-}
-import logging
-logger = logging.getLogger("blockhaus101")
-```
+
+You can get these values from:
+- OpenAI API key: https://platform.openai.com/api-keys
+- GetImgAI API key: https://getimg.ai/
+- Twitter API keys: https://developer.twitter.com/en/portal/dashboard
+- Sentry DSN: Your Sentry project settings
 
 ### Run
 
@@ -130,7 +115,7 @@ To restart the service after any change in the service and/or project:
 
 File `/etc/nginx/sites-available/blockhaus101.com`:
 
-````
+```
 server {
 	server_name blockhaus101.com;
 	return 301 $scheme://www.blockhaus101.com$request_uri;

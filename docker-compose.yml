@@ -15,7 +15,6 @@ services:
       - DEBUG=${DEBUG}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-      - LOGGING_LEVEL=${LOGGING_LEVEL}
 
       # Database settings
       - POSTGRES_DB=${POSTGRES_DB}
