@@ -1,7 +1,7 @@
 services:
   app:
     container_name: blockhaus101-app
-    image: ghcr.io/${GITHUB_REPOSITORY}:${TAG:-latest}
+    image: ghcr.io/bolinocroustibat/blockhaus101:${TAG:-latest}
     build: .
     depends_on:
       - db
