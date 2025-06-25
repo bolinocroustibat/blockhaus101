@@ -18,6 +18,11 @@ STATIC_URL = "/static/"
 MEDIA_ROOT = "/app/media"
 MEDIA_URL = "/media/"
 
+# Additional static file directories (for serving images from media as static files)
+STATICFILES_DIRS = [
+    "/app/media",
+]
+
 # TWEEPY
 # The consumer keys can be found on your application's Details
 # page located at https://dev.twitter.com/apps (under "OAuth settings")
