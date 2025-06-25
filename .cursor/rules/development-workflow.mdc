@@ -1,0 +1,116 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Development Workflow & Tools
+
+## Package Management
+This project uses **[uv](mdc:pyproject.toml)** instead of pip for faster dependency management.
+
+### Common Commands
+```bash
+# Install dependencies
+uv sync
+
+# Add a new dependency
+uv add package-name
+
+# Add a dev dependency
+uv add --dev package-name
+
+# Run commands with uv
+uv run python manage.py migrate
+uv run python manage.py runserver
+```
+
+## Code Quality Tools
+
+### Ruff (Linting & Formatting)
+- **Configuration**: [pyproject.toml](mdc:pyproject.toml) under `[tool.ruff]`
+- **Commands**:
+  ```bash
+  # Check and fix linting issues
+  uv run ruff check --fix
+
+  # Format code
+  uv run ruff format .
+
+  # Run both
+  uv run ruff check --fix && ruff format .
+  ```
+
+### MyPy (Type Checking)
+- **Configuration**: [pyproject.toml](mdc:pyproject.toml) under `[tool.mypy]`
+- **Command**: `uv run mypy .`
+
+### Pre-commit Hooks
+- **Configuration**: [.pre-commit-config.yaml](mdc:.pre-commit-config.yaml)
+- **Setup**: `pre-commit install`
+
+## Environment Configuration
+
+### Local Development
+1. Create a `.env` file in the root directory
+2. Copy environment variables from [README.md](mdc:README.md)
+3. Set `DEBUG=True` and `ENVIRONMENT=local`
+
+### Environment Variables
+Key variables defined in [settings.py](mdc:blockhaus101/settings.py):
+- `ENVIRONMENT` - Current environment (local/staging/production)
+- `DEBUG` - Django debug mode
+- `DJANGO_SECRET_KEY` - Django secret key
+- `POSTGRES_*` - Database configuration
+- `EMAIL_*` - Email settings
+- `OPENAI_API_KEY` - OpenAI API access
+- `GETIMGAI_API_KEY` - GetImgAI API access
+- `TWITTER_*` - Twitter API credentials
+- `SENTRY_DSN` - Sentry error tracking
+
+## Database Management
+
+### Migrations
+```bash
+# Create migrations
+uv run python manage.py makemigrations
+
+# Apply migrations
+uv run python manage.py migrate
+
+# Show migration status
+uv run python manage.py showmigrations
+```
+
+### Management Commands
+- `generate_exhibition` - Create new exhibitions
+- `generate_expo_img` - Generate exhibition images
+- `generate_tweet` - Create social media content
+- `get_openai_models` - List available AI models
+
+## Docker Development
+
+### Local Docker Setup
+```bash
+# Start services
+docker compose up -d
+
+# View logs
+docker compose logs -f app
+
+# Stop services
+docker compose down
+```
+
+### Environment Variables for Docker
+- `APP_PORT` - External port for the Django app (default: 8000)
+- `DB_PORT` - External port for PostgreSQL (default: 5432)
+- `TAG` - Docker image tag (default: latest)
+
+## Testing
+- **Test files**: [blockhaus101_app/tests/](mdc:blockhaus101_app/tests)
+- **Run tests**: `uv run python manage.py test`
+
+## Deployment
+- **CI/CD**: [GitHub Actions workflow](mdc:.github/workflows/deploy.yml)
+- **Production**: Containerized deployment with Docker Compose
+- **Static files**: Served by Django in containers, Nginx in production
