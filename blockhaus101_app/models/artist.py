@@ -1,4 +1,5 @@
 import asyncio
+import unicodedata
 
 from django.db import models
 
@@ -54,7 +55,13 @@ class Artist(models.Model):
 
     @property
     def name_slug(self) -> str:
-        return self.name.replace(" ", "-").lower()
+        """Convert name to a filesystem-safe slug by normalizing special characters."""
+        # Normalize Unicode characters (e.g., ç -> c)
+        normalized = unicodedata.normalize("NFKD", self.name)
+        # Remove diacritics (accents, etc.)
+        ascii_name = "".join(c for c in normalized if not unicodedata.combining(c))
+        # Replace spaces with hyphens and convert to lowercase
+        return ascii_name.replace(" ", "-").lower()
 
     def get_discipline(self, lang: str | None = None) -> str:
         if lang:

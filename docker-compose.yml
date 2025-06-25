@@ -6,7 +6,8 @@ services:
     depends_on:
       - db
     volumes:
-      - static_volume:/app/static
+      - /home/www/blockhaus101/static:/app/static
+      - /home/www/blockhaus101/media:/app/media
     ports:
       - "${APP_PORT:-8000}:8000"
     environment:
@@ -52,4 +53,3 @@ services:
 # Volume definitions
 volumes:
   postgres_data:
-  static_volume:
