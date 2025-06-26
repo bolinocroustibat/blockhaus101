@@ -111,6 +111,9 @@ class Exhibition(models.Model):
         exhibition_title = ExhibitionTitle.objects.get(language__code="en", exhibition=self)
 
         specific_prompt = GETIMGAPI_PROMPTS.get(discipline)
+        if not specific_prompt:
+            logger.error(f"No specific prompt found for discipline {discipline}")
+            return None
         img_prompt: str = specific_prompt.format(
             artist_gender={"f": "female", "m": "male"}[self.artist.gender],
             discipline=discipline,
