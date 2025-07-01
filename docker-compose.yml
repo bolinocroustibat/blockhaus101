@@ -16,15 +16,12 @@ services:
       - DEBUG=${DEBUG}
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-
       # Database settings
       - POSTGRES_DB=${POSTGRES_DB}
-
       # Email settings
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-
       # External services
       ## OpenAI
       - OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -37,6 +34,7 @@ services:
       - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
       ## Sentry
       - SENTRY_DSN=${SENTRY_DSN}
+    restart: unless-stopped
 
   db:
     container_name: blockhaus101-db
@@ -49,6 +47,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    restart: unless-stopped
 
 # Volume definitions
 volumes:
