@@ -24,15 +24,21 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
         raise ValueError("Invalid tweet type")
     language = Language.objects.get(code=lang)
     tweet_structure = Data.choose_random(data_type=tweet_type, lang=lang)
+    if not tweet_structure:
+        raise ValueError(
+            f"Could not find a random tweet structure for type '{tweet_type}' in language '{lang}'"
+        )
     tweet = tweet_structure.text
     tweet = tweet.replace("[SELF]", artist.name)
     tweet = tweet.replace("[SELFDISCIPLINE]", artist.get_discipline(lang=lang))
-    tweet = tweet.replace("[EXPO]", ExhibitionTitle.objects.get(language, exhibition).text)
-    if "[EXPOSTARTDATE]" in tweet:
-        expo_startdate: str = format_date(exhibition.startdate, format="medium", locale=lang)
+    tweet = tweet.replace(
+        "[EXPO]", ExhibitionTitle.objects.get(language=language, exhibition=exhibition).text
+    )
+    if "[EXPOSTARTDATE]" in tweet and exhibition.startdate:
+        expo_startdate: str = format_date(exhibition.startdate.date(), format="medium", locale=lang)
         tweet = tweet.replace("[EXPOSTARTDATE]", expo_startdate)
-    if "[EXPOENDDATE]" in tweet:
-        expo_enddate: str = format_date(exhibition.enddate, format="medium", locale=lang)
+    if "[EXPOENDDATE]" in tweet and exhibition.enddate:
+        expo_enddate: str = format_date(exhibition.enddate.date(), format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
     tweet, used_words = replace_text(tweet, lang)
     return correct_text(text=tweet, lang=lang)
