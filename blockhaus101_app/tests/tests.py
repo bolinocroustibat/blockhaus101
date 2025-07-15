@@ -15,14 +15,14 @@ class TestGenerateContent(TestCase):
         if current_exhibition:
             self.exhibition = current_exhibition
             self.artist = Artist.objects.filter(artist_exhibition=self.exhibition)[0]
-            logger.info(f'Current exhibition: {self.artist.name} "{self.exhibition.text}"')
+            logger.info(f'Current exhibition: {self.artist.name} "{self.exhibition}"')
         else:
             logger.info("There is no current exhibition.")
         self.artist = Artist()
         logger.info(f'New artist "{self.artist.name}" generated')
         self.exhibition.artist = self.artist
         self.exhibition = Exhibition(artist=self.artist)
-        logger.info(f'New exhibition "{self.exhibition.text}" generated')
+        logger.info(f'New exhibition "{self.exhibition}" generated')
 
     def test_generate_tweet(self):
         tweet1 = generate_tweet(

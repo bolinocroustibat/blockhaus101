@@ -76,7 +76,7 @@ def index(request, lang: str) -> HttpResponse:
         # reformulate the text using OpenAI API
         openai_api = OpenAiAPI()
         reformulated_text, price, error_msg = asyncio.run(
-            openai_api.reformulate(text=expo_text.text, language=language)
+            openai_api.reformulate(text=str(expo_text.text), language=language)
         )  # call the async function from the sync context
         if reformulated_text:
             logger.info(
@@ -98,8 +98,12 @@ def index(request, lang: str) -> HttpResponse:
         f"{lang}/index.html",
         {
             "lang": lang,
-            "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang),
-            "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang),
+            "expo_startdate": format_date(exhibition.startdate.date(), format="long", locale=lang)
+            if exhibition.startdate
+            else "",
+            "expo_enddate": format_date(exhibition.enddate.date(), format="long", locale=lang)
+            if exhibition.enddate
+            else "",
             "artist_name": artist.name,
             "artist_bio": bio.text,
             "expo_title": exhibition_title.text,

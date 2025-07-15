@@ -20,6 +20,9 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         # try to get the exhibition for current period
         exhibition = Exhibition.get_current()
+        if not exhibition:
+            logger.error("No current exhibition found")
+            return
         artist = Artist.objects.filter(exhibitions=exhibition)[0]
         logger.info(f'Current exhibition: {artist.name} "{exhibition}"')
         tweet = generate_tweet(
