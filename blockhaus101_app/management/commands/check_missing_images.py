@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os
+from pathlib import Path
 
 from django.core.management.base import BaseCommand
 
@@ -28,12 +28,12 @@ class Command(BaseCommand):
 
         for ex in Exhibition.objects.filter(image1__isnull=False).exclude(image1=""):
             total_with_images += 1
-            filename = os.path.basename(str(ex.image1))
-            static_path = f"/app/static/exhibitions_imgs/{filename}"
-            media_path = f"/app/media/exhibitions_imgs/{filename}"
+            filename = Path(str(ex.image1)).name
+            static_path = Path("/app/static/exhibitions_imgs") / filename
+            media_path = Path("/app/media/exhibitions_imgs") / filename
 
             # Check if file exists in container
-            if os.path.exists(static_path) or os.path.exists(media_path):
+            if Path(static_path).exists or Path(media_path).exists:
                 found_in_container += 1
                 if verbose:
                     print(f"  ✓ {ex.id}: {ex} - {filename}")

@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 import httpx
@@ -38,21 +39,20 @@ class GetImgAiAPI:
                 logger.error(f"Failed to parse JSON response: {str(e)}")
                 return None
 
-    async def _post(
-        self, endpoint: str, data: dict, added_headers: dict | None, timeout: int | None = None
-    ) -> dict | None:
+    async def _post(self, endpoint: str, data: dict, added_headers: dict | None) -> dict | None:
         """Sends a POST request to the GetImgAI API."""
-        headers = self.headers
-        if added_headers:
-            headers.update(added_headers)
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                f"{self.base_url}{endpoint}", headers=headers, json=data, timeout=timeout
-            )
-        # response.raise_for_status() # TODO: uncomment this line
-        if response.status_code and response.text:
-            return json.loads(response.text)
-        return None
+        async with asyncio.timeout(30):  # Default timeout to 30 seconds
+            headers = self.headers
+            if added_headers:
+                headers.update(added_headers)
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}{endpoint}", headers=headers, json=data
+                )
+            # response.raise_for_status() # TODO: uncomment this line
+            if response.status_code and response.text:
+                return json.loads(response.text)
+            return None
 
     async def get_models(
         self, family: str | None = "stable-diffusion-xl", pipeline: str | None = "text-to-image"
@@ -114,7 +114,6 @@ class GetImgAiAPI:
         return await self._post(
             endpoint="essential-v2/text-to-image",
             data=data,
-            timeout=60,
             added_headers=added_headers,
         )  # type: ignore
 
