@@ -38,7 +38,7 @@ ignore_missing_imports = true
 
 [tool.ruff]
 line-length = 100
-lint = { extend-select = ["I"] }
+lint = { extend-select = ["ASYNC", "I", "PTH"] }
 
 # Necessary to avoid issues when installing when using `pip install .`
 [tool.setuptools]
@@ -47,6 +47,5 @@ py-modules = []
 [tool.uv]
 dev-dependencies = [
     "googletrans-py>=4.0.0",
-    "mypy>=1.11.2",
-    "ruff>=0.8.0",
+    "ruff>=0.12.11",
 ]

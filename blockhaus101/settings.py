@@ -1,6 +1,7 @@
 import logging
 import os
 import tomllib
+from pathlib import Path
 
 import sentry_sdk
 from dotenv import load_dotenv
@@ -258,7 +259,7 @@ LOGGING = {
 
 logger = logging.getLogger("blockhaus101")
 
-with open("pyproject.toml", "rb") as f:
+with Path("pyproject.toml").open("wb") as f:
     pyproject: dict = tomllib.load(f)
 APP_NAME: str = pyproject["project"]["name"]
 VERSION: str = pyproject["project"]["version"]
