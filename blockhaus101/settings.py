@@ -259,10 +259,15 @@ LOGGING = {
 
 logger = logging.getLogger("blockhaus101")
 
-with Path("pyproject.toml").open("wb") as f:
-    pyproject: dict = tomllib.load(f)
-APP_NAME: str = pyproject["project"]["name"]
-VERSION: str = pyproject["project"]["version"]
+try:
+    with Path("pyproject.toml").open("rb") as f:
+        pyproject: dict = tomllib.load(f)
+    APP_NAME: str = pyproject["project"]["name"]
+    VERSION: str = pyproject["project"]["version"]
+except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError) as e:
+    logger.warning(f"Could not load pyproject.toml: {e}. Using fallback values.")
+    APP_NAME: str = "blockhaus101"
+    VERSION: str = "unknown"
 if ENVIRONMENT in ["staging", "production"]:
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN", ""),
