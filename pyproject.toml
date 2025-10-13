@@ -19,7 +19,7 @@ dependencies = [
     "tweepy<4.0.0,>=3.8.0",
     "uvicorn>=0.35.0",
 ]
-requires-python = ">=3.12,<3.14"
+requires-python = ">=3.12,<3.15"
 license = { text = "MIT" }
 readme = "README.md"
 
