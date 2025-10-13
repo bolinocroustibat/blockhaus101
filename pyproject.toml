@@ -21,6 +21,13 @@ dependencies = [
 ]
 requires-python = ">=3.12,<3.14"
 license = { text = "MIT" }
+readme = "README.md"
+
+[project.optional-dependencies]
+dev = [
+    "googletrans-py>=4.0.0",
+    "ruff>=0.12.11",
+]
 
 [project.urls]
 homepage = "https://www.blockhaus101.com"
@@ -43,9 +50,3 @@ lint = { extend-select = ["ASYNC", "I", "PTH"] }
 # Necessary to avoid issues when installing when using `pip install .`
 [tool.setuptools]
 py-modules = []
-
-[tool.uv]
-dev-dependencies = [
-    "googletrans-py>=4.0.0",
-    "ruff>=0.12.11",
-]
