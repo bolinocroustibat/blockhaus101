@@ -103,7 +103,7 @@ docker compose down
 
 ### Environment Variables for Docker
 - `APP_PORT` - External port for the Django app (default: 8000)
-- `DB_PORT` - External port for PostgreSQL (default: 5432)
+- `POSTGRES_PORT` - External port for PostgreSQL (default: 5432)
 - `TAG` - Docker image tag (default: latest)
 
 ## Testing

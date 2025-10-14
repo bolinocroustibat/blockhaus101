@@ -22,7 +22,7 @@ Create a `.env` file in the root directory with the following variables:
 # App settings
 ENVIRONMENT=local
 APP_PORT=8000
-DB_PORT=5433
+POSTGRES_PORT=5433
 
 # Django core settings
 DEBUG=False

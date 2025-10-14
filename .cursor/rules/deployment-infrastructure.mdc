@@ -20,14 +20,14 @@ alwaysApply: false
 
 2. **Database Service** (`blockhaus101-db`)
    - **Image**: `postgres:17`
-   - **Port**: `${DB_PORT:-5432}:5432`
+   - **Port**: `${POSTGRES_PORT:-5432}:5432`
    - **Volumes**: `postgres_data:/var/lib/postgresql/data`
 
 ### Environment Variables
 Key Docker environment variables:
 - `TAG` - Docker image tag (default: latest)
 - `APP_PORT` - External app port (default: 8000)
-- `DB_PORT` - External database port (default: 5432)
+- `POSTGRES_PORT` - External database port (default: 5432)
 - `ENVIRONMENT` - Deployment environment
 - `DEBUG` - Django debug mode
 
@@ -135,7 +135,7 @@ gunicorn blockhaus101.asgi:application -w 40 -k uvicorn.workers.UvicornWorker --
 ## Troubleshooting
 
 ### Common Issues
-1. **Port Conflicts**: Use different `APP_PORT`/`DB_PORT` values
+1. **Port Conflicts**: Use different `APP_PORT`/`POSTGRES_PORT` values
 2. **Database Connection**: Verify PostgreSQL service is running
 3. **Static Files**: Check volume mounts and permissions
 4. **API Failures**: Verify environment variables are set correctly
