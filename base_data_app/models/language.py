@@ -2,7 +2,10 @@ from django.db import models
 
 
 class Language(models.Model):
-    LANGUAGE_CHOICES = ("en", "fr")
+    LANGUAGE_CHOICES = [
+        ("en", "English"),
+        ("fr", "Français"),
+    ]
     code = models.CharField("language code", max_length=2, choices=LANGUAGE_CHOICES, default="fr")
     name = models.CharField("language name", max_length=20)
 
