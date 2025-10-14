@@ -4,7 +4,7 @@ import unicodedata
 from django.db import models
 
 from base_data_app.models import Data, Language
-from blockhaus101.settings import GENDER_CHOICES
+from blockhaus101.settings import GENDER_CHOICES, logger
 from blockhaus101_app.helpers import OpenAiAPI
 from blockhaus101_app.models.artist_bio import ArtistBiography
 from blockhaus101_app.models.exhibition_title import ExhibitionTitle
@@ -57,6 +57,11 @@ class Artist(models.Model):
                 text=str(bio_fr.text or ""), origin_language=lg_fr, dest_language=lg_en
             )
         )
+        # Ensure we have a valid translation
+        if not bio_translated or bio_translated.strip() == "":
+            logger.error("Translation failed for artist biography. Using French text as fallback.")
+            bio_translated = str(bio_fr.text or "")
+
         bio_en = ArtistBiography(artist=self, language=lg_en, text=bio_translated)
         res[lg_en.code] = bio_en
         return res
