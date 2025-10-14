@@ -1,5 +1,5 @@
-# Use Python 3.13-slim as base image (alpine is smaller, but longer to build and less compatible)
-FROM python:3.13-slim
+# Use Python 3.14-slim as base image (alpine is smaller, but longer to build and less compatible)
+FROM python:3.14-slim
 # Copy latest uv binary from official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
