@@ -18,6 +18,8 @@ services:
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       # Database settings
       - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432  # Internal container port (not the host-mapped port)
       # Email settings
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
