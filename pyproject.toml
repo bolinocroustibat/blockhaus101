@@ -6,17 +6,17 @@ authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
     "babel<3.0.0,>=2.10.3",
     "colorlog>=6.9.0",
-    "Django<6.0.0,>=5.2.6",
-    "django-debug-toolbar<5.0.0,>=4.0.0",
-    "django-htmx>=1.23.2",
+    "Django<7.0.0,>=5.2.6",
+    "django-debug-toolbar<7.0.0,>=4.0.0",
+    "django-htmx>=1.27.0",
     "django-simple-captcha<1.0.0,>=0.5.17",
-    "gunicorn<24.0.0,>=23.0.0",
+    "gunicorn<25.0.0,>=23.0.0",
     "httpx>=0.28.0",
     "openai>=1.107.0",
     "psycopg[binary]<4.0.0,>=3.1.8",
-    "python-dotenv>=1.0.1",
+    "python-dotenv>=1.2.1",
     "sentry-sdk<3.0.0,>=2.0.0",
-    "tweepy<4.0.0,>=3.8.0",
+    "tweepy<5.0.0,>=3.8.0",
     "uvicorn>=0.35.0",
 ]
 requires-python = ">=3.12,<3.15"
