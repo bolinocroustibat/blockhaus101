@@ -51,6 +51,45 @@ services:
       - SENTRY_DSN=${SENTRY_DSN}
     restart: unless-stopped
 
+  cron:
+    container_name: blockhaus101-cron
+    image: ghcr.io/bolinocroustibat/blockhaus101:${TAG:-latest}
+    build: .
+    command: ["/app/cron/entrypoint.sh"]
+    depends_on:
+      - db
+    # No ports: cron only runs scheduled tasks, it does not listen for incoming connections
+    volumes:
+      - /home/www/blockhaus101/static:/app/static
+      - /home/www/blockhaus101/media:/app/media
+    environment:
+      # Django core settings
+      - ENVIRONMENT=${ENVIRONMENT}
+      - DEBUG=${DEBUG}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      # Database settings
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432  # Internal container port (not the host-mapped port)
+      # Email settings
+      - EMAIL_HOST=${EMAIL_HOST}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      # External services
+      ## OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      ## GetImgAI
+      - GETIMGAI_API_KEY=${GETIMGAI_API_KEY}
+      ## Twitter API
+      - TWITTER_CONSUMER_KEY=${TWITTER_CONSUMER_KEY}
+      - TWITTER_CONSUMER_SECRET=${TWITTER_CONSUMER_SECRET}
+      - TWITTER_ACCESS_TOKEN=${TWITTER_ACCESS_TOKEN}
+      - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
+      ## Sentry
+      - SENTRY_DSN=${SENTRY_DSN}
+    restart: unless-stopped
+
 # Volume definitions
 volumes:
   postgres_data:
