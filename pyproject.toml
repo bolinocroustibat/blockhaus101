@@ -23,25 +23,28 @@ requires-python = ">=3.12,<3.15"
 license = { text = "MIT" }
 readme = "README.md"
 
-[project.optional-dependencies]
-dev = [
-    "googletrans-py>=4.0.0",
-    "ruff>=0.12.11",
-]
-
 [project.urls]
 homepage = "https://www.blockhaus101.com"
 
-[tool.mypy]
-[[tool.mypy.overrides]]
-module = [
-    "captcha.fields",
-    "debug_toolbar.*",
-    "django.*",
-    "openai.*",
-    "tweepy.*",
+[dependency-groups]
+dev = [
+    "django-stubs>=5.2.0",
+    "googletrans-py>=4.0.0",
+    "ruff>=0.12.11",
+    "ty>=0.0.16",
 ]
-ignore_missing_imports = true
+
+[tool.ty]
+[tool.ty.environment]
+python-version = "3.14"
+[tool.ty.analysis]
+allowed-unresolved-imports = [
+    "captcha.**",
+    "debug_toolbar.**",
+    "django.**",
+    "openai.**",
+    "tweepy.**",
+]
 
 [tool.ruff]
 line-length = 100
