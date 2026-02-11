@@ -17,6 +17,11 @@ WORKDIR /app
 # Sync the project, asserting the lockfile is up to date
 RUN uv sync --locked
 
+# Install cron for scheduled tasks
+RUN apt-get update && apt-get install -y --no-install-recommends cron && rm -rf /var/lib/apt/lists/*
+
+RUN chmod +x /app/cron/entrypoint.sh
+
 # Document that the container listens on internal port 8000
 EXPOSE 8000
 
