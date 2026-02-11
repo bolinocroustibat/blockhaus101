@@ -201,6 +201,10 @@ except locale.Error:
 # Allowed hosts
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
+# CSRF trusted origins (required for HTTPS since Django 4.0)
+_csrf_origins = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CSRF_TRUSTED_ORIGINS: list[str] = [o.strip() for o in _csrf_origins.split(",") if o.strip()]
+
 # Email settings
 EMAIL_USE_TLS = True
 EMAIL_HOST = os.getenv("EMAIL_HOST", "")
