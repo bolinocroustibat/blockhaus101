@@ -28,6 +28,7 @@ POSTGRES_PORT=5433
 DEBUG=False
 DJANGO_SECRET_KEY="your-secret-key-here"
 ALLOWED_HOSTS=*
+CSRF_TRUSTED_ORIGINS=https://your-domain.com
 
 # Database settings
 POSTGRES_DB=blockhaus101_django
