@@ -10,6 +10,11 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   app:
@@ -17,7 +22,8 @@ services:
     image: ghcr.io/bolinocroustibat/blockhaus101:${TAG:-latest}
     build: .
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - /home/www/blockhaus101/static:/app/static
       - /home/www/blockhaus101/media:/app/media
@@ -50,6 +56,12 @@ services:
       - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
       ## Sentry
       - SENTRY_DSN=${SENTRY_DSN}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/fr/')\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   cron:
@@ -58,7 +70,8 @@ services:
     build: .
     command: ["/app/cron/entrypoint.sh"]
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     # No ports: cron only runs scheduled tasks, it does not listen for incoming connections
     volumes:
       - /home/www/blockhaus101/static:/app/static
