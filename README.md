@@ -1,20 +1,20 @@
 # Blockhaus 101
 
-## How to run locally
+## 🖥️ How to run locally
 
-### Set up the Python environment
+### ⚙️ Set up the Python environment
 
 ```bash
 uv sync
 ```
 
-### Lint and format the code
+### 🧹 Lint and format the code
 
 ```bash
-uv run ruff check --fix && ruff format
+uv run ruff check --fix . && uv run ruff format .
 ```
 
-### Set the env vars in a .env file
+### 🔑 Set the env vars in a .env file
 
 Create a `.env` file in the root directory with the following variables:
 
@@ -30,7 +30,9 @@ DJANGO_SECRET_KEY="your-secret-key-here"
 ALLOWED_HOSTS=*
 
 # Database settings
-POSTGRES_DB=blockhaus101_django # Name of the DB
+POSTGRES_DB=blockhaus101_django
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
 
 # Email settings
 EMAIL_HOST=your-smtp-host
@@ -60,15 +62,21 @@ You can get these values from:
 - Twitter API keys: https://developer.twitter.com/en/portal/dashboard
 - Sentry DSN: Your Sentry project settings
 
-### Run
+### ▶️ Run
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
-## How to run on a server
+## 🐳 How to run with Docker
 
-### Deploy on production as ASGI with Uvicorn
+```bash
+docker compose up -d
+```
+
+## 🚀 How to deploy on a server
+
+### 🌐 Deploy on production as ASGI with Uvicorn
 
 See `https://www.valentinog.com/blog/uvicorn-django/` for more info.
 
