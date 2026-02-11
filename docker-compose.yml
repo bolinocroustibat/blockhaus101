@@ -1,4 +1,17 @@
 services:
+  db:
+    container_name: blockhaus101-db
+    image: pgautoupgrade/pgautoupgrade:18-trixie
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+
   app:
     container_name: blockhaus101-app
     image: ghcr.io/bolinocroustibat/blockhaus101:${TAG:-latest}
@@ -36,19 +49,6 @@ services:
       - TWITTER_ACCESS_TOKEN_SECRET=${TWITTER_ACCESS_TOKEN_SECRET}
       ## Sentry
       - SENTRY_DSN=${SENTRY_DSN}
-    restart: unless-stopped
-
-  db:
-    container_name: blockhaus101-db
-    image: pgautoupgrade/pgautoupgrade:18-trixie
-    volumes:
-      - postgres_data:/var/lib/postgresql
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
     restart: unless-stopped
 
 # Volume definitions
