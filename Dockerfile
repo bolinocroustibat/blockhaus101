@@ -12,13 +12,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 # Copy the project into the image
 ADD . /app
 
-# Set work directory and install dependencies in a new environment
+# Set work directory
 WORKDIR /app
-# Sync the project, asserting the lockfile is up to date
-RUN uv sync --locked
 
 # Install cron for scheduled tasks
 RUN apt-get update && apt-get install -y --no-install-recommends cron && rm -rf /var/lib/apt/lists/*
+
+# Accept version from CI build-arg so setuptools-scm doesn't need git at build time
+ARG SETUPTOOLS_SCM_PRETEND_VERSION
+ENV SETUPTOOLS_SCM_PRETEND_VERSION=${SETUPTOOLS_SCM_PRETEND_VERSION}
+
+# Sync the project, asserting the lockfile is up to date
+RUN uv sync --locked
 
 RUN chmod +x /app/cron/entrypoint.sh
 
