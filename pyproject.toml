@@ -1,6 +1,10 @@
+[build-system]
+requires = ["setuptools>=82", "setuptools-scm[toml]>=9"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "blockhaus101"
-version = "1.17.2"
+dynamic = ["version"]
 description = "blockhaus 101 expose chaque semaine une nouvelle voix marginale de l’art contemporain. Uniquement sur rendez-vous."
 authors = [{ name = "Adrien Carpentier", email = "me@adriencarpentier.com" }]
 dependencies = [
@@ -31,6 +35,7 @@ dev = [
     "django-stubs>=5.2.0",
     "googletrans-py>=4.0.0",
     "ruff>=0.12.11",
+    "setuptools-scm[toml]>=9",
     "ty>=0.0.16",
 ]
 
@@ -53,3 +58,6 @@ lint = { extend-select = ["ASYNC", "I", "PTH"] }
 # Necessary to avoid issues when installing when using `pip install .`
 [tool.setuptools]
 py-modules = []
+
+[tool.setuptools_scm]
+# Derive version from Git tags (e.g. v1.16.24 or 1.16.24)
