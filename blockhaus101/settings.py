@@ -1,7 +1,6 @@
+import importlib.metadata
 import logging
 import os
-import tomllib
-from pathlib import Path
 
 import sentry_sdk
 from dotenv import load_dotenv
@@ -263,15 +262,14 @@ LOGGING = {
 
 logger = logging.getLogger("blockhaus101")
 
+# App name and version from installed package metadata (set at build/install time from pyproject.toml).
 try:
-    with Path("pyproject.toml").open("rb") as f:
-        pyproject: dict = tomllib.load(f)
-    APP_NAME: str = pyproject["project"]["name"]
-    VERSION: str = pyproject["project"]["version"]
-except (FileNotFoundError, KeyError, tomllib.TOMLDecodeError) as e:
-    logger.warning(f"Could not load pyproject.toml: {e}. Using fallback values.")
-    APP_NAME: str = "blockhaus101"
-    VERSION: str = "unknown"
+    _meta = importlib.metadata.metadata("blockhaus101")
+    APP_NAME: str = _meta["Name"]
+    VERSION: str = _meta["Version"]
+except importlib.metadata.PackageNotFoundError:
+    APP_NAME = "blockhaus101"
+    VERSION = "unknown"
 if ENVIRONMENT in ["staging", "production"]:
     sentry_sdk.init(
         dsn=os.getenv("SENTRY_DSN", ""),
