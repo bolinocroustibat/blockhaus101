@@ -126,8 +126,8 @@ venv.bak/
 # Ruff
 .ruff_cache/
 
-# mypy
-.mypy_cache/
+# ty (Astral type checker)
+.ty_cache/
 
 # project specific
 db.sqlite3
