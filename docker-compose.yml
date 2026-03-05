@@ -1,7 +1,7 @@
 services:
   db:
     container_name: blockhaus101-db
-    image: pgautoupgrade/pgautoupgrade:18-trixie
+    image: postgres:18
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     environment:
