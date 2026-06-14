@@ -33,4 +33,4 @@ EXPOSE 8000
 # Run migrations, collect static files, and start the server
 CMD uv run manage.py migrate && \
     uv run manage.py collectstatic --noinput && \
-    exec uv run gunicorn blockhaus101.asgi:application -w 4 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:8000"
+    exec uv run gunicorn blockhaus101.asgi:application -w 1 -k uvicorn.workers.UvicornWorker --bind "0.0.0.0:8000"
