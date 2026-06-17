@@ -1,7 +1,7 @@
 import asyncio
 import json
 
-import httpx
+import niquests
 
 from blockhaus101.settings import GETIMGAI_API_KEY, GETIMGAI_API_URL, logger
 
@@ -18,7 +18,7 @@ class GetImgAiAPI:
     async def _get(self, endpoint: str, params: dict | None = None) -> dict | list | None:
         """Sends a GET request to the GetImgAI API."""
         logger.debug(f"Sending GET request to {self.base_url}{endpoint}")
-        async with httpx.AsyncClient() as client:
+        async with niquests.AsyncSession() as client:
             response = await client.get(
                 f"{self.base_url}{endpoint}", headers=self.headers, params=params
             )
@@ -45,7 +45,7 @@ class GetImgAiAPI:
             headers = self.headers
             if added_headers:
                 headers.update(added_headers)
-            async with httpx.AsyncClient() as client:
+            async with niquests.AsyncSession() as client:
                 response = await client.post(
                     f"{self.base_url}{endpoint}", headers=headers, json=data
                 )

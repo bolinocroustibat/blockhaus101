@@ -52,7 +52,7 @@ Language is **NOT** handled via Django's i18n framework. Instead:
 
 ### Async/sync bridge
 
-API clients (`AsyncOpenAI`, `httpx.AsyncClient`) are **async**, but all callers (views, models, commands) are **sync**. Always wrap with `asyncio.run()`:
+API clients (`AsyncOpenAI`, `niquests.AsyncSession`) are **async**, but all callers (views, models, commands) are **sync**. Always wrap with `asyncio.run()`:
 ```python
 result = asyncio.run(api.some_async_method(...))
 ```
