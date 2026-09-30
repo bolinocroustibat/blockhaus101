@@ -24,6 +24,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ulimits:
+      core: 0
     volumes:
       - /home/www/blockhaus101/static:/app/static
       - /home/www/blockhaus101/media:/app/media
@@ -72,6 +74,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    ulimits:
+      core: 0
     # No ports: cron only runs scheduled tasks, it does not listen for incoming connections
     volumes:
       - /home/www/blockhaus101/static:/app/static
