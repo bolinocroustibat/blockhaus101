@@ -14,8 +14,10 @@ h1, h2 {
 }
 
 h1 {
-	font-size: 3.8em;
+	font-size: clamp(1.15rem, 5.6vw, 3.8rem);
+	line-height: 1.05;
 	margin-bottom: 0.2em;
+	overflow-wrap: break-word;
 }
 
 h2 {
@@ -25,11 +27,8 @@ h2 {
 }
 
 @media (max-width: 600px) {
-	h1 {
-		font-size: calc(2em + 2vw);
-	}
-	nav {
-		font-size: 0.8em;
+	h2 {
+		font-size: 1.2rem;
 	}
 	#main-wrapper {
 		width: 100%;
@@ -326,6 +325,8 @@ form {
 }
 
 #main-wrapper {
+	box-sizing: border-box;
+	width: 100%;
 	max-width: 1000px;
 	padding: 1.75rem 8% 0;
 }
