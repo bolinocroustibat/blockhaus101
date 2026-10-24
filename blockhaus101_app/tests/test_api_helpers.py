@@ -10,6 +10,10 @@ from django.test import SimpleTestCase
 from openai import OpenAIError
 
 from base_data_app.models.language import Language
+from blockhaus101.image_model_pricing import (
+    GETIMGAI_IMAGE_MODELS_PRICING,
+    OPENAI_IMAGE_MODELS_PRICING,
+)
 from blockhaus101.settings import GETIMGAI_API_URL, GETIMGAI_IMAGE_MODEL, OPENAI_IMAGE_MODEL
 from blockhaus101_app.helpers import GetImgAiAPI, OpenAiAPI
 
@@ -239,3 +243,13 @@ class TestOpenAiAPI(SimpleTestCase):
         api = OpenAiAPI()
         # 1M input + 1M output tokens at the configured rates
         self.assertAlmostEqual(api.calculate_request_price(1_000_000, 1_000_000), 0.75)
+
+
+class ImageModelPricingCatalogTests(SimpleTestCase):
+    def test_active_models_have_catalog_pricing(self) -> None:
+        openai_id = OPENAI_IMAGE_MODEL["id"]
+        getimg_id = GETIMGAI_IMAGE_MODEL["id"]
+        self.assertIn(openai_id, OPENAI_IMAGE_MODELS_PRICING)
+        self.assertIn(getimg_id, GETIMGAI_IMAGE_MODELS_PRICING)
+        self.assertEqual(OPENAI_IMAGE_MODEL["pricing"], OPENAI_IMAGE_MODELS_PRICING[openai_id])
+        self.assertEqual(GETIMGAI_IMAGE_MODEL["pricing"], GETIMGAI_IMAGE_MODELS_PRICING[getimg_id])
