@@ -104,6 +104,30 @@ class TestPastExhibitions(TestCase):
         self.assertContains(response, "Recent Artist")
         self.assertNotContains(response, "<!DOCTYPE html>")
 
+    def test_next_page_is_one_link_replaced_in_place(self) -> None:
+        self._past("Recent Artist", days_ago=1)
+        self._past("Middle Artist", days_ago=3)
+        self._past("Old Artist", days_ago=5)
+
+        page = self.client.get("/fr/past-exhibitions/")
+        partial = self.client.get("/fr/past-exhibitions/", HTTP_HX_REQUEST="true")
+        last_page = self.client.get("/fr/past-exhibitions/?page=2")
+
+        for response in (page, partial):
+            html = response.content.decode()
+            self.assertIn('href="?page=2"', html)
+            self.assertIn('hx-get="?page=2"', html)
+            self.assertIn('hx-swap="outerHTML"', html)
+            self.assertIn("Chargement...", html)
+            self.assertRegex(html, r'<a\b[^>]*class="loading-trigger"')
+            self.assertNotIn('hx-swap="afterend"', html)
+            self.assertNotIn("loading-indicator", html)
+            self.assertEqual(html.count("loading-trigger"), 1)
+
+        last_html = last_page.content.decode()
+        self.assertNotIn("loading-trigger", last_html)
+        self.assertNotIn('hx-swap="afterend"', last_html)
+
 
 class TestContact(TestCase):
     def test_shows_the_form(self) -> None:
