@@ -5,12 +5,6 @@ body {
 	font-family: helvetica, sans-serif;
 	line-height: 1.6;
 	-webkit-font-smoothing: antialiased;
-	opacity: 1;
-	transition: opacity 0.3s ease;
-}
-
-body.fade-out {
-	opacity: 0;
 }
 
 /* Typography */
@@ -229,24 +223,6 @@ nav li a.active::after {
 		width: 100%;
 		margin-bottom: 2rem;
 	}
-}
-
-#share-wrapper {
-	margin-top: 15px;
-	font-size: 0.7em;
-}
-
-#twitter-wrapper {
-	margin-top: 15px;
-	font-size: 0.7em;
-}
-
-#list-link {
-	position: fixed;
-	bottom: 30px;
-	right: 20px;
-	font-size: 0.4em;
-	color: #F3F3F3;
 }
 
 .message {
