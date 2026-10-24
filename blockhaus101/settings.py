@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "debug_toolbar",
     "base_data_app",
     "blockhaus101_app",
     "captcha",
@@ -72,9 +71,12 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
 ]
+
+if DEBUG:
+    INSTALLED_APPS.append("debug_toolbar")
+    MIDDLEWARE.insert(-1, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 ROOT_URLCONF = "blockhaus101.urls"
 
@@ -117,11 +119,10 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = "fr-FR"
 TIME_ZONE = "Europe/Paris"
 USE_I18N = True
-USE_L10N = True
 USE_TZ = False
 
 MAIL_ERROR_MESSAGE = {
-    "en": "An error occured while sending your message. Please try again later.",
+    "en": "An error occurred while sending your message. Please try again later.",
     "fr": "Erreur lors de l'envoi du message. Veuillez nous contacter ultérieurement.",
 }
 MAIL_INVALID_MESSAGE = {
@@ -271,7 +272,7 @@ LOGGING = {
         f"{__name__}-auth": {
             "handlers": ["console"],
             "level": "INFO",
-            "propogate": False,
+            "propagate": False,
         },
         "blockhaus101": {"handlers": ["console"], "level": LOGGING_LEVEL, "propagate": False},
     },
