@@ -73,6 +73,10 @@ nav {
 }
 
 nav ul {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	row-gap: 0.45rem;
 	font-size: 0.9em;
 	border: 1px solid black;
 	padding: 8px 12px;
@@ -88,7 +92,14 @@ nav ul {
 
 nav li {
 	list-style-type: none;
-	display: inline;
+	margin: 0;
+}
+
+nav li:not(:last-child)::after {
+	content: "|";
+	margin: 0 0.75rem;
+	color: #777;
+	font-weight: 400;
 }
 
 li {

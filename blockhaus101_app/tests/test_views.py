@@ -155,6 +155,14 @@ class TestContact(TestCase):
 
 
 class TestDocumentLanguage(TestCase):
+    def test_navigation_items_have_no_loose_separators(self) -> None:
+        for path in ("/fr/contact/", "/en/contact/"):
+            with self.subTest(path=path):
+                response = self.client.get(path)
+
+                self.assertNotContains(response, "&nbsp;&nbsp;|&nbsp;&nbsp;")
+                self.assertEqual(response.content.decode().count("<nav>"), 1)
+
     def test_english_pages_are_marked_english(self) -> None:
         response = self.client.get("/en/contact/")
 

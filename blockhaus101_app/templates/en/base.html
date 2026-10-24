@@ -55,11 +55,9 @@
 				<li>
 					<a href="{% url 'index' lang='en' %}" class="{% if request.resolver_match.url_name == "index" %}active{% endif %}">this month</a>
 				</li>
-				&nbsp;&nbsp;|&nbsp;&nbsp;
 				<li>
 					<a href="{% url 'past_exhibitions' lang='en' %}" class="{% if request.resolver_match.url_name == "past_exhibitions" %}active{% endif %}">past exhibitions</a>
 				</li>
-				&nbsp;&nbsp;|&nbsp;&nbsp;
 				<li>
 					<a href="{% url 'contact' lang='en' %}" class="{% if request.resolver_match.url_name == "contact" %}active{% endif %}">visits</a>
 				</li>
