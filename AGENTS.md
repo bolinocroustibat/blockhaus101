@@ -122,7 +122,7 @@ Run with: `uv run python manage.py <command_name>`.
 - `delete_exhibitions` – delete exhibitions after a given date (uses `transaction.atomic()`).
 - `check_missing_images` – verify image files exist on disk.
 - `import` – import base data from Google Sheets CSV.
-- `sync_remote_db` – copy `REMOTE_DATABASE_URL` onto `DATABASE_URL` (`--to-remote` does the opposite, `--yes` skips typing the database name). Refuses to run unless `ENVIRONMENT=local`.
+- `sync_remote_db` – copy `REMOTE_DATABASE_URL` onto `DATABASE_URL` and download exhibition images (`--to-remote` copies the other way and does not upload images, `--yes` skips typing the database name). Refuses to run unless `ENVIRONMENT=local`.
 - `generate_translations` (base_data_app) – translate Data entries via Google Translate.
 
 ### Practices

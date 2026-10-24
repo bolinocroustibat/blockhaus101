@@ -16,11 +16,15 @@ from pathlib import Path
 from typing import Any, BinaryIO, Protocol
 from urllib.parse import parse_qsl, unquote, urlparse
 
+import niquests
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.db import connections
 
 from blockhaus101.settings import logger
+from blockhaus101_app.models import Exhibition
+
+REMOTE_SITE_URL = "https://www.blockhaus101.com"
 
 _DB_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
 _RESERVED_DATABASES = frozenset({"postgres", "template0", "template1"})
@@ -217,9 +221,10 @@ def replace_database(
     with tempfile.TemporaryDirectory() as tmp:
         dump_path = Path(tmp) / "remote.dump"
         with dump_path.open("wb") as dump_file:
+            # Omit --file. pg_dump treats "-f -" as a file named "-", not stdout.
             run(
                 "pg_dump",
-                ["--format=custom", "--no-owner", "--no-privileges", "-f", "-"],
+                ["--format=custom", "--no-owner", "--no-privileges"],
                 source,
                 stdout=dump_file,
             )
@@ -363,6 +368,81 @@ def _connection_env(target: DatabaseTarget) -> dict[str, str]:
     return env
 
 
+@dataclass(frozen=True)
+class ImageDownload:
+    downloaded: int
+    skipped: int
+    failed: int
+
+
+def exhibition_image_names() -> list[str]:
+    names: list[str] = []
+    seen: set[str] = set()
+    exhibitions = Exhibition.objects.all().only("image1", "image2")
+    for exhibition in exhibitions:
+        for field_name in ("image1", "image2"):
+            image = getattr(exhibition, field_name)
+            if not image or not image.name or image.name in seen:
+                continue
+            seen.add(image.name)
+            names.append(image.name)
+    return names
+
+
+def media_file_url(base_url: str, media_url: str, name: str) -> str:
+    prefix = media_url if media_url.endswith("/") else f"{media_url}/"
+    if not prefix.startswith("/"):
+        prefix = f"/{prefix}"
+    return f"{base_url.rstrip('/')}{prefix}{name.lstrip('/')}"
+
+
+def fetch_url(url: str) -> bytes | None:
+    try:
+        response = niquests.get(url, timeout=60)
+        response.raise_for_status()
+    except niquests.RequestException as exc:
+        logger.error("Could not download %s: %s", url, exc)
+        return None
+    content = response.content
+    if not content:
+        logger.error("Could not download %s: empty response", url)
+        return None
+    return content
+
+
+def download_images(
+    names: list[str],
+    *,
+    base_url: str,
+    media_root: Path,
+    media_url: str,
+    fetch: Callable[[str], bytes | None],
+) -> ImageDownload:
+    """Save exhibition image files under the local media folder."""
+    root = media_root.resolve()
+    root.mkdir(parents=True, exist_ok=True)
+    downloaded = 0
+    skipped = 0
+    failed = 0
+    for name in names:
+        destination = (root / name).resolve()
+        if not destination.is_relative_to(root):
+            logger.error("Refusing to save an image outside the media folder: %s", name)
+            failed += 1
+            continue
+        if destination.is_file() and destination.stat().st_size > 0:
+            skipped += 1
+            continue
+        content = fetch(media_file_url(base_url, media_url, name))
+        if not content:
+            failed += 1
+            continue
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(content)
+        downloaded += 1
+    return ImageDownload(downloaded=downloaded, skipped=skipped, failed=failed)
+
+
 def _scrub(data: bytes | str | None, secret: str) -> str:
     if data is None:
         text = ""
@@ -421,18 +501,20 @@ class Command(BaseCommand):
             summary = (
                 "This deletes the remote database and replaces it with a copy of the local one."
             )
+            images_note = "Exhibition images are not copied to the remote server."
             deleted = "remote"
         else:
             summary = (
                 "This deletes the local database and replaces it with a copy of the remote one."
             )
+            images_note = f"Exhibition images will be downloaded from {REMOTE_SITE_URL}."
             deleted = "local"
         self.stdout.write(
             self.style.WARNING(
                 f"\n{summary}\n"
                 f"  From: {source.label()}\n"
                 f"  Onto: {destination.label()}\n"
-                "Exhibition images are not copied.\n"
+                f"{images_note}\n"
             )
         )
         if not options["yes"]:
@@ -470,6 +552,34 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(warning))
         self.stdout.write(
             self.style.SUCCESS(f"{destination.label()} now matches {source.label()}.")
+        )
+        if to_remote:
+            return
+        self._download_images()
+
+    def _download_images(self) -> None:
+        self.stdout.write(f"Downloading exhibition images from {REMOTE_SITE_URL}.")
+        try:
+            result = download_images(
+                exhibition_image_names(),
+                base_url=REMOTE_SITE_URL,
+                media_root=Path(settings.MEDIA_ROOT),
+                media_url=settings.MEDIA_URL,
+                fetch=fetch_url,
+            )
+        except OSError as exc:
+            logger.error("Could not save exhibition images: %s", exc)
+            self.stdout.write(
+                self.style.WARNING(
+                    f"The database was replaced, but exhibition images could not be saved: {exc}"
+                )
+            )
+            return
+        self.stdout.write(
+            "Exhibition images: "
+            f"{result.downloaded} downloaded, "
+            f"{result.skipped} already present, "
+            f"{result.failed} failed."
         )
 
     def _confirm(self, destination: DatabaseTarget, deleted: str) -> None:

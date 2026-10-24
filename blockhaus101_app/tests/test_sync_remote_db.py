@@ -5,6 +5,8 @@ These tests never open a database connection. The copy itself is scripted.
 
 import os
 import subprocess
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import BinaryIO
 from unittest.mock import MagicMock, patch
 
@@ -17,7 +19,9 @@ from blockhaus101_app.management.commands.sync_remote_db import (
     PgCommandFailed,
     SyncRefused,
     assert_sync_is_safe,
+    download_images,
     load_sync_targets,
+    media_file_url,
     parse_database_url,
     pg_invocation,
     replace_database,
@@ -39,6 +43,7 @@ class RecordingRunner:
         destination_exists: bool = True,
     ) -> None:
         self.calls: list[tuple[str, str, str, str]] = []
+        self.dump_args: list[str] = []
         self.restored = b""
         self.fail_sql = fail_sql
         self.fail_tool = fail_tool
@@ -55,6 +60,8 @@ class RecordingRunner:
     ) -> str:
         sql = args[-1] if tool == "psql" else ""
         self.calls.append((tool, target.host, target.name, sql))
+        if tool == "pg_dump":
+            self.dump_args = args
         if sql == f"SELECT 1 FROM pg_database WHERE datname = '{LOCAL_NAME}'":
             return "1" if self.destination_exists else ""
         if self.fail_tool is not None and tool == self.fail_tool:
@@ -166,6 +173,7 @@ class TestReplaceLocalWithRemote(SimpleTestCase):
         self.assertEqual(runner.restored, b"PGDMP")
         tools = [call[0] for call in runner.calls]
         self.assertEqual(tools[0], "pg_dump")
+        self.assertNotIn("-f", runner.dump_args)
         self.assertEqual(runner.calls[0][1:], ("192.0.2.10", LOCAL_NAME, ""))
         sqls = [call[3] for call in runner.calls if call[0] == "psql"]
         self.assertEqual(runner.calls[1][2], "postgres")
@@ -307,6 +315,89 @@ class TestPgTools(SimpleTestCase):
         self.assertIn("********", str(caught.exception))
 
 
+class TestDownloadImages(SimpleTestCase):
+    def test_saves_a_remote_image_under_the_media_folder(self) -> None:
+        def fetch(url: str) -> bytes | None:
+            self.assertEqual(
+                url,
+                "https://www.blockhaus101.com/media/exhibitions_imgs/one.jpg",
+            )
+            return b"image-bytes"
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result = download_images(
+                ["exhibitions_imgs/one.jpg"],
+                base_url="https://www.blockhaus101.com",
+                media_root=root,
+                media_url="/media/",
+                fetch=fetch,
+            )
+            saved = root / "exhibitions_imgs" / "one.jpg"
+            self.assertEqual(saved.read_bytes(), b"image-bytes")
+
+        self.assertEqual(result.downloaded, 1)
+        self.assertEqual(result.skipped, 0)
+        self.assertEqual(result.failed, 0)
+
+    def test_skips_an_image_that_is_already_present(self) -> None:
+        def fetch(_url: str) -> bytes | None:
+            raise AssertionError("existing image should not be downloaded")
+
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            existing = root / "exhibitions_imgs" / "one.jpg"
+            existing.parent.mkdir()
+            existing.write_bytes(b"already-there")
+            result = download_images(
+                ["exhibitions_imgs/one.jpg"],
+                base_url="https://www.blockhaus101.com",
+                media_root=root,
+                media_url="/media/",
+                fetch=fetch,
+            )
+            self.assertEqual(existing.read_bytes(), b"already-there")
+
+        self.assertEqual(result.skipped, 1)
+
+    def test_counts_a_failed_download(self) -> None:
+        with TemporaryDirectory() as tmp:
+            result = download_images(
+                ["exhibitions_imgs/missing.jpg"],
+                base_url="https://www.blockhaus101.com",
+                media_root=Path(tmp),
+                media_url="/media/",
+                fetch=lambda _url: None,
+            )
+
+        self.assertEqual(result.failed, 1)
+        self.assertEqual(result.downloaded, 0)
+
+    def test_refuses_a_path_outside_the_media_folder(self) -> None:
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result = download_images(
+                ["../outside.jpg"],
+                base_url="https://www.blockhaus101.com",
+                media_root=root,
+                media_url="/media/",
+                fetch=lambda _url: b"nope",
+            )
+            self.assertFalse((root.parent / "outside.jpg").exists())
+
+        self.assertEqual(result.failed, 1)
+
+    def test_builds_the_public_image_url(self) -> None:
+        self.assertEqual(
+            media_file_url(
+                "https://www.blockhaus101.com",
+                "/media/",
+                "exhibitions_imgs/one.jpg",
+            ),
+            "https://www.blockhaus101.com/media/exhibitions_imgs/one.jpg",
+        )
+
+
 @override_settings(ENVIRONMENT="local")
 class TestSyncRemoteDbCommand(SimpleTestCase):
     def test_yes_copies_the_remote_database_onto_the_local_one(self) -> None:
@@ -316,6 +407,7 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
         source, destination = replace.call_args.args[:2]
         self.assertEqual(source.host, "192.0.2.10")
         self.assertEqual(destination.host, "127.0.0.1")
+        self.images.assert_called_once()
 
     def test_to_remote_copies_the_local_database_onto_the_remote_one(self) -> None:
         replace = self._run("--to-remote", "--yes")
@@ -324,6 +416,7 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
         source, destination = replace.call_args.args[:2]
         self.assertEqual(source.host, "127.0.0.1")
         self.assertEqual(destination.host, "192.0.2.10")
+        self.images.assert_not_called()
 
     def test_confirmation_must_match_the_database_name(self) -> None:
         with self.assertRaisesMessage(CommandError, "not changed"):
@@ -369,7 +462,11 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
                 "blockhaus101_app.management.commands.sync_remote_db.replace_database",
                 return_value=None,
             ) as replace,
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.Command._download_images",
+            ) as images,
             patch("builtins.input", return_value="" if input_value is None else input_value),
         ):
+            self.images = images
             call_command("sync_remote_db", *args)
         return replace

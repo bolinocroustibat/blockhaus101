@@ -39,7 +39,7 @@ uv run python manage.py sync_remote_db
 uv run python manage.py sync_remote_db --to-remote
 ```
 
-The first command deletes the local database and replaces it with the remote one. `--to-remote` does the opposite and deletes the remote database. It runs only when `ENVIRONMENT=local`. You will be asked to type the name of the database that will be deleted. Exhibition images are not copied.
+The first command deletes the local database and replaces it with the remote one, then downloads exhibition images from the public site into the local media folder. `--to-remote` does the opposite and deletes the remote database. Image files are not uploaded. It runs only when `ENVIRONMENT=local`. You will be asked to type the name of the database that will be deleted.
 
 ### ▶️ Run
 

@@ -19,13 +19,14 @@ load_dotenv()
 # where the static files will go when doing a collectstatic if debug=false
 STATIC_ROOT = "/app/static"
 STATIC_URL = "/static/"
-# where the media (and notably the Blockhaus101 generated images) will go
-MEDIA_ROOT = "/app/media"
+# where the media (and notably the Blockhaus101 generated images) will go.
+# Docker keeps the default. A local run can set MEDIA_ROOT to a writable folder.
+MEDIA_ROOT = os.getenv("MEDIA_ROOT", "/app/media")
 MEDIA_URL = "/media/"
 
 # Additional static file directories (for serving images from media as static files)
 STATICFILES_DIRS = [
-    "/app/media",
+    MEDIA_ROOT,
 ]
 
 # TWEEPY
