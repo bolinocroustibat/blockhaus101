@@ -22,13 +22,24 @@ Copy the example file and fill in your own values:
 cp .env.example .env
 ```
 
-Django reads **`DATABASE_URL`** only. **`POSTGRES_PORT`** sets the host port Docker publishes for Postgres (default `5432`; use e.g. `5433` if `5432` is already in use). Keep the port in `DATABASE_URL` in sync with `POSTGRES_PORT` for a local app against Compose. For a remote database, point `DATABASE_URL` at that host (often via an SSH tunnel to `127.0.0.1` on your laptop).
+The site reads **`DATABASE_URL`**. **`POSTGRES_PORT`** sets the host port Docker publishes for Postgres (default `5432`; use e.g. `5433` if `5432` is already in use). Keep the port in `DATABASE_URL` in sync with `POSTGRES_PORT` for a local app against Compose. For a remote database, point `DATABASE_URL` at that host (often via an SSH tunnel to `127.0.0.1` on your laptop).
 
 You can get these values from:
 - OpenAI API key: https://platform.openai.com/api-keys
 - GetImgAI API key: https://getimg.ai/
 - Twitter API keys: https://developer.twitter.com/en/portal/dashboard
 - Sentry DSN: Your Sentry project settings
+
+### Copy one database onto the other
+
+`DATABASE_URL` is the local database. `REMOTE_DATABASE_URL` is the other one.
+
+```bash
+uv run python manage.py sync_remote_db
+uv run python manage.py sync_remote_db --to-remote
+```
+
+The first command deletes the local database and replaces it with the remote one. `--to-remote` does the opposite and deletes the remote database. It runs only when `ENVIRONMENT=local`. You will be asked to type the name of the database that will be deleted. Exhibition images are not copied.
 
 ### ▶️ Run
 
