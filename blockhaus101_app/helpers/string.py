@@ -120,12 +120,15 @@ def correct_text(text: str, lang: str, subject_gender: Literal["f", "m"] | None 
 
     else:
         logger.error(f"Language not supported: {lang}")
+        return capitalize_text(text)
 
     text = _strtr(text, corrections)
     return capitalize_text(text)
 
 
 def capitalize_text(text: str) -> str:
+    if not text:
+        return text
     if text[0] == '"':  # if the first char is a double quote
         return '"' + text[1].upper() + text[2:]  # capitalize second letter
     else:

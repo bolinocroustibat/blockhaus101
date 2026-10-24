@@ -45,6 +45,13 @@ class TestCorrectText(SimpleTestCase):
             "Cette artiste expose",
         )
 
+    def test_returns_empty_string_unchanged(self) -> None:
+        self.assertEqual(correct_text("", "en"), "")
+        self.assertEqual(correct_text("   ", "fr"), "")
+
+    def test_unknown_language_still_capitalizes(self) -> None:
+        self.assertEqual(correct_text("hello world", "de"), "Hello world")
+
 
 class TestReplaceText(TestCase):
     def test_leaves_text_unchanged_when_there_is_no_keyword(self) -> None:
