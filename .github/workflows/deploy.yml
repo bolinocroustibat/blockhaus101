@@ -6,8 +6,13 @@ on:
       - '*'
 
 jobs:
+  test:
+    name: Run tests
+    uses: ./.github/workflows/test.yml
+
   deploy:
     name: Deploy ${{ github.ref_name }} to prod
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo

@@ -9,7 +9,7 @@ Blockhaus 101 is an **AI-powered contemporary art exhibition generator**. It aut
 - **Stack**: Python 3.14 preferred, 3.12+ minimum (uv), Django 5.1+, PostgreSQL, Docker, HTMX. OpenAI for text, OpenAI or GetImgAI for images (`IMAGE_PROVIDER`), Twitter API for posting, Sentry for monitoring.
 - **Apps**: `blockhaus101_app` (exhibitions, artists, public views), `base_data_app` (translations, AI config), `blockhaus101` (settings).
 - **Key config**: **`.env`** is the most important (all env vars: DB, API keys, etc.). It is gitignored so the LLM cannot read it. To know which env vars exist, read **`.env.example`**. Other config: `pyproject.toml`, `blockhaus101/settings.py`, `docker-compose.yml`.
-- **Tests**: Unit tests in `blockhaus101_app/tests/`. Run after each modification with `uv run python manage.py test`. CI runs the same command on pushes to `main` (`.github/workflows/test.yml`).
+- **Tests**: Unit tests in `blockhaus101_app/tests/`. Run after each modification with `uv run python manage.py test`. CI runs the same command on pushes to `main` and again before a tag deploy (`.github/workflows/test.yml`).
 
 ## Conventions
 
