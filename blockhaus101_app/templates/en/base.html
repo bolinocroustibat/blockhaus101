@@ -1,7 +1,8 @@
+{% load site %}
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 
 <head>
 
@@ -9,10 +10,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	{% block meta %}
 	{% endblock %}
-	<meta property="og:url" content="{{ request.get_full_path }}" />
+	<link rel="canonical" href="{% absolute_uri %}" />
+	<link rel="alternate" hreflang="fr" href="{% language_url 'fr' %}" />
+	<link rel="alternate" hreflang="en" href="{% language_url 'en' %}" />
+	<link rel="alternate" hreflang="x-default" href="{% language_url 'fr' %}" />
+	<meta property="og:url" content="{% absolute_uri %}" />
 	<meta property="og:site_name" content="søren bollinger contemporary art gallery" />
 	<meta property="og:type" content="website" />
-	<meta property="og:locale" content="en_EN">
+	<meta property="og:locale" content="en_US" />
+	<meta property="og:locale:alternate" content="fr_FR" />
 
 	<link rel="icon" type="image/png" href="{% static 'favicons/favicon-16x16.png' %}" sizes="16x16" />
 	<link rel="icon" type="image/png" href="{% static 'favicons/favicon-32x32.png' %}" sizes="32x32" />

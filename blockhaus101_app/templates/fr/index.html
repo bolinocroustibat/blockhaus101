@@ -1,12 +1,16 @@
 {% extends "fr/base.html" %}
+{% load site %}
 {% load static %}
 
 {% block meta %}
 <title>galerie søren bollinger - {{ artist_name }} - {{ expo_title|capfirst }}</title>
-<meta name="Description" content="{{ expo_text }}" />
+<meta name="description" content="{{ expo_text }}" />
 <meta property="og:title" content="galerie søren bollinger - {{ artist_name }} - {{ expo_title|capfirst }}" />
 <meta property="og:description" content="{{ expo_text }}" />
-<meta property="og:image" content="" />
+{% if expo_image1 %}
+<meta property="og:image" content="{% absolute_uri expo_image1 %}" />
+<meta property="og:image:alt" content="{{ artist_name }} — {{ expo_title|capfirst }}" />
+{% endif %}
 {% endblock %}
 
 {% block }

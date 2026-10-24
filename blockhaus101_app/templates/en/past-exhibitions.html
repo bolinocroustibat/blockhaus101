@@ -1,11 +1,15 @@
 {% extends "en/base.html" %}
+{% load site %}
 
 {% block meta %}
 <title>galerie søren bollinger - past exhibitions</title>
-<meta name="Description" content="" />
+<meta name="description" content="Past exhibitions at the søren bollinger gallery." />
 <meta property="og:title" content="galerie søren bollinger - past exhibitions" />
-<meta property="og:description" content="" />
-<meta property="og:image" content="" />
+<meta property="og:description" content="Past exhibitions at the søren bollinger gallery." />
+{% if exhibitions_details.0.image1 %}
+<meta property="og:image" content="{% absolute_uri exhibitions_details.0.image1 %}" />
+<meta property="og:image:alt" content="{{ exhibitions_details.0.name }} — {{ exhibitions_details.0.title|capfirst }}" />
+{% endif %}
 {% endblock %}
 
 

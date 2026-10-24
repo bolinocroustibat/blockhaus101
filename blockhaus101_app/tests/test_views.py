@@ -117,3 +117,93 @@ class TestContact(TestCase):
         self.assertEqual(response.status_code, 200)
         shown = response.content.decode().replace("&#x27;", "'")
         self.assertIn(MAIL_INVALID_MESSAGE["fr"], shown)
+
+
+class TestDocumentLanguage(TestCase):
+    def test_english_pages_are_marked_english(self) -> None:
+        response = self.client.get("/en/contact/")
+
+        self.assertContains(response, '<html lang="en">')
+        self.assertContains(
+            response,
+            'rel="canonical" href="http://testserver/en/contact/"',
+        )
+        self.assertContains(response, 'property="og:url" content="http://testserver/en/contact/"')
+        self.assertContains(response, 'property="og:locale" content="en_US"')
+        self.assertContains(
+            response,
+            'hreflang="fr" href="http://testserver/fr/contact/"',
+        )
+        self.assertContains(
+            response,
+            'hreflang="en" href="http://testserver/en/contact/"',
+        )
+        self.assertContains(
+            response,
+            'hreflang="x-default" href="http://testserver/fr/contact/"',
+        )
+        self.assertContains(
+            response,
+            "Visits to the søren bollinger gallery, by appointment only.",
+        )
+        self.assertNotContains(response, 'property="og:image" content=""')
+
+    def test_french_archive_describes_the_page(self) -> None:
+        make_language("fr", "French")
+
+        response = self.client.get("/fr/past-exhibitions/")
+
+        self.assertContains(response, '<html lang="fr">')
+        self.assertContains(response, "Expositions précédentes de la galerie søren bollinger.")
+        self.assertNotContains(response, 'name="description" content=""')
+
+    def test_language_alternates_keep_the_page_query(self) -> None:
+        french = make_language("fr", "French")
+        now = datetime.now()
+        for days_ago in (1, 3, 5):
+            artist = make_artist(name=f"Artist {days_ago}", language=french)
+            end = now - timedelta(days=days_ago)
+            make_exhibition(
+                artist,
+                startdate=end - timedelta(days=7),
+                enddate=end,
+            )
+
+        response = self.client.get("/fr/past-exhibitions/?page=2")
+
+        self.assertContains(
+            response,
+            'rel="canonical" href="http://testserver/fr/past-exhibitions/?page=2"',
+        )
+        self.assertContains(
+            response,
+            'hreflang="en" href="http://testserver/en/past-exhibitions/?page=2"',
+        )
+
+    def test_current_show_shares_its_image(self) -> None:
+        french = make_language("fr", "French")
+        now = datetime.now()
+        artist = make_artist(name="Ada Lovelace", language=french)
+        exhibition = make_exhibition(
+            artist,
+            startdate=now - timedelta(days=1),
+            enddate=now + timedelta(days=6),
+        )
+        exhibition.image1 = "exhibitions_imgs/show.jpg"
+        exhibition.save()
+        ExhibitionTitle.objects.create(
+            language=french, exhibition=exhibition, text="oiseaux de verre"
+        )
+        ArtistBiography.objects.create(language=french, artist=artist, text="Née à Paris.")
+        ExhibitionText.objects.create(
+            language=french, exhibition=exhibition, text="Une salle blanche."
+        )
+
+        response = self.client.get("/fr/")
+
+        image = "http://testserver/media/exhibitions_imgs/show.jpg"
+        self.assertContains(response, f'property="og:image" content="{image}"')
+        self.assertContains(
+            response, 'property="og:image:alt" content="Ada Lovelace — Oiseaux de verre"'
+        )
+        self.assertContains(response, 'property="og:description" content="Une salle blanche."')
