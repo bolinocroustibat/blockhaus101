@@ -41,7 +41,7 @@ def contact(request, lang: str) -> HttpResponse:
                 )
                 form = FormContact()
             except Exception as e:
-                logger.error(f"Error while sending email: {str(e)}")
+                logger.error(f"Error while sending email: {e!s}")
                 message = MAIL_ERROR_MESSAGE[lang]
             else:
                 logger.info("Contact email sent!")

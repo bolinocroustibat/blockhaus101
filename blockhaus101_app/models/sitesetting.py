@@ -26,4 +26,4 @@ class SiteSetting(models.Model):
         verbose_name_plural = "réglages du site"
 
     def __str__(self) -> str:
-        return "Settings {}".format(self.language)
+        return f"Settings {self.language}"

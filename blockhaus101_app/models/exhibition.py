@@ -102,7 +102,7 @@ class Exhibition(models.Model):
                 logger.debug(
                     "No exhibition found or invalid dates, saving this new one as the first one..."
                 )
-        super(Exhibition, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         logger.debug(f"Starting image generation for exhibition {self.pk}")
@@ -145,7 +145,7 @@ class Exhibition(models.Model):
                 logger.debug(f"Successfully decoded base64 data, got {len(img_bytes)} bytes")
                 self.image1 = ContentFile(img_bytes, name=f"{filename}.{img_format}")
                 logger.info(
-                    f'Image generated for a cost of {cost}$ as "{str(self.image1)}", not saved in DB (yet?)'
+                    f'Image generated for a cost of {cost}$ as "{self.image1!s}", not saved in DB (yet?)'
                 )
                 return self.image1
 

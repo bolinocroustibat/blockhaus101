@@ -65,7 +65,7 @@ class ExhibitionText(models.Model):
         slug: str | None = self._unique_slugify(value=slug_string, max_elements=10)
         if slug:
             self.slug = slug
-            super(ExhibitionText, self).save(*args, **kwargs)
+            super().save(*args, **kwargs)
 
     def _create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(
@@ -111,7 +111,7 @@ class ExhibitionText(models.Model):
             # Find a unique slug. If one matches, add '-2' to the end and try again
             # (then '-3', etc).
             next = 2
-            while not slug or queryset.filter(**{"slug": slug}):
+            while not slug or queryset.filter(slug=slug):
                 slug = original_slug
                 end = f"-{next}"
                 if slug_len and len(slug) + len(end) > slug_len:

@@ -78,4 +78,4 @@ class Command(BaseCommand):
                 "Invalid date format. Please use YYYY-MM-DD format (e.g., 2024-03-20)"
             )
         except Exception as e:
-            raise CommandError(f"An error occurred: {str(e)}")
+            raise CommandError(f"An error occurred: {e!s}")

@@ -36,7 +36,7 @@ class GetImgAiAPI:
                     return None
                 return data
             except json.JSONDecodeError as e:
-                logger.error(f"Failed to parse JSON response: {str(e)}")
+                logger.error(f"Failed to parse JSON response: {e!s}")
                 return None
 
     async def _post(self, endpoint: str, data: dict, added_headers: dict | None) -> dict | None:
@@ -191,7 +191,7 @@ class GetImgAiAPI:
             logger.debug("SDXL API request failed - no response")
             return None
         except Exception as e:
-            logger.debug(f"SDXL API request failed with error: {str(e)}")
+            logger.debug(f"SDXL API request failed with error: {e!s}")
             return None
 
     async def stable_diffusion(

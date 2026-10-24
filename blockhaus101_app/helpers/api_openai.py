@@ -19,7 +19,7 @@ class OpenAiAPI:
             models = await self.client.models.list()
             return [m.id for m in models.data]
         except Exception as e:
-            logger.error(f"Unable to get the list of OpenAI models: {str(e)}")
+            logger.error(f"Unable to get the list of OpenAI models: {e!s}")
             return []
 
     async def _process_openai_request(
@@ -46,12 +46,12 @@ class OpenAiAPI:
                 user="warning-trading",
             )
         except Exception as e:
-            error_msg = f"Erreur lors de la requête OpenAI : {str(e)}"
+            error_msg = f"Erreur lors de la requête OpenAI : {e!s}"
             logger.error(error_msg)
             return result_text, price, error_msg
 
         if response.choices[0].finish_reason == "length":
-            error_msg = "Le texte est trop long pour ce modèle, veuillez utiliser un autre modèle dans les réglages."  # noqa: E501
+            error_msg = "Le texte est trop long pour ce modèle, veuillez utiliser un autre modèle dans les réglages."
             logger.error(error_msg)
             return result_text, price, error_msg
 
@@ -63,7 +63,7 @@ class OpenAiAPI:
             )
             logger.info(f"\nTokens used: {tokens_usage}. OpenAI request price: ${price:.6f}")
         except Exception as e:
-            logger.error(f"\nUnable to calculate the price of the request: {str(e)}")
+            logger.error(f"\nUnable to calculate the price of the request: {e!s}")
 
         result_text = response.choices[0].message.content
         return result_text, price, error_msg

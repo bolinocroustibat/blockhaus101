@@ -69,7 +69,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             exhibitions_details.append(exhibition)
 
         except Exception as error:
-            logger.error(f"Error getting past exhibition info for exhibition {e.pk}: {str(error)}")
+            logger.error(f"Error getting past exhibition info for exhibition {e.pk}: {error!s}")
             continue
 
     template_name = (
