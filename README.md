@@ -22,6 +22,8 @@ Copy the example file and fill in your own values:
 cp .env.example .env
 ```
 
+Django reads **`DATABASE_URL`** only. **`POSTGRES_PORT`** sets the host port Docker publishes for Postgres (default `5432`; use e.g. `5433` if `5432` is already in use). Keep the port in `DATABASE_URL` in sync with `POSTGRES_PORT` for a local app against Compose. For a remote database, point `DATABASE_URL` at that host (often via an SSH tunnel to `127.0.0.1` on your laptop).
+
 You can get these values from:
 - OpenAI API key: https://platform.openai.com/api-keys
 - GetImgAI API key: https://getimg.ai/

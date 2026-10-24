@@ -1,3 +1,4 @@
+# db init credentials and app DATABASE_URL must match DATABASE_URL in .env.example (host/port differ).
 services:
   db:
     container_name: blockhaus101-db
@@ -5,13 +6,13 @@ services:
     ports:
       - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER:-postgres}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=blockhaus101_django
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d blockhaus101_django"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -38,10 +39,8 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS}
-      # Database settings
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432  # Internal container port (not the host-mapped port)
+      # Internal Docker network (not the host DATABASE_URL from .env)
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/blockhaus101_django
       # Email settings
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
@@ -87,10 +86,8 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - CSRF_TRUSTED_ORIGINS=${CSRF_TRUSTED_ORIGINS}
-      # Database settings
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432  # Internal container port (not the host-mapped port)
+      # Internal Docker network (not the host DATABASE_URL from .env)
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/blockhaus101_django
       # Email settings
       - EMAIL_HOST=${EMAIL_HOST}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}

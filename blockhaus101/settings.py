@@ -2,6 +2,7 @@ import importlib.metadata
 import logging
 import os
 
+import dj_database_url
 import sentry_sdk
 from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
@@ -144,7 +145,7 @@ LOCATIONS = [
     ("beijing", "Beijing"),
 ]
 
-# A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.  # noqa 501
+# A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).
 # https://openai.com/pricing/
 OPENAI_MODEL = {
@@ -177,16 +178,7 @@ GETIMGAPI_PROMPTS = {
 GETIMGAPI_NEGATIVE_PROMPT = """cartoon, anime, illustration, painting style, drawing, sketch, doodle, watercolor, oil painting effect, artificial looking, fake, low quality, blurry, noisy, oversaturated, overexposed, bad composition, distorted perspective, unrealistic shadows, text, watermarks, signatures, frames, borders, collage style, instagram filters, bad lighting, grainy"""
 
 # Database settings
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB", "blockhaus101_django"),
-        "USER": os.getenv("POSTGRES_USER", "postgres"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-        "HOST": os.getenv("POSTGRES_HOST", "db"),  # Use 'db' as default for Docker
-        "PORT": os.getenv("POSTGRES_PORT", "5432"),
-    }
-}
+DATABASES = {"default": dj_database_url.config(env="DATABASE_URL")}
 
 # Locale settings
 try:
@@ -251,7 +243,7 @@ LOGGING = {
             "level": "INFO",
             "propagate": False,
         },
-        "{}-auth".format(__name__): {
+        f"{__name__}-auth": {
             "handlers": ["console"],
             "level": "INFO",
             "propogate": False,
