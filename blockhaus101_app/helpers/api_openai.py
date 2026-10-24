@@ -3,6 +3,7 @@ from openai import AsyncOpenAI, OpenAIError
 from base_data_app.models.language import Language
 from blockhaus101.settings import (
     OPENAI_API_KEY,
+    OPENAI_IMAGE_MODEL,
     OPENAI_MODEL,
     logger,
 )
@@ -12,6 +13,7 @@ class OpenAiAPI:
     def __init__(self) -> None:
         self.client = AsyncOpenAI(api_key=OPENAI_API_KEY)
         self.model = OPENAI_MODEL
+        self.image_model = OPENAI_IMAGE_MODEL
 
     async def get_models_ids(self) -> list[str]:
         """Get the list of the official names for all the available OpenAI models."""
@@ -67,6 +69,37 @@ class OpenAiAPI:
 
         result_text = response.choices[0].message.content
         return result_text, price, error_msg
+
+    async def generate_image(
+        self, prompt: str, output_format: str = "jpeg"
+    ) -> tuple[str | None, float | None, str | None]:
+        """Generate an image from a text prompt using OpenAI Images."""
+        b64_data: str | None = None
+        price: float | None = None
+        error_msg: str | None = None
+
+        logger.info("Requesting OpenAI image generation...")
+        try:
+            response = await self.client.images.generate(
+                model=self.image_model["id"],
+                prompt=prompt,
+                size=self.image_model["size"],
+                quality=self.image_model["quality"],
+                output_format=output_format,  # type: ignore[arg-type]
+            )
+        except OpenAIError as e:
+            error_msg = f"Error during OpenAI image request: {e!s}"
+            logger.error(error_msg)
+            return b64_data, price, error_msg
+
+        if not response.data or not response.data[0].b64_json:
+            error_msg = "OpenAI image request returned no image data"
+            logger.error(error_msg)
+            return b64_data, price, error_msg
+
+        b64_data = response.data[0].b64_json
+        logger.info("OpenAI image generation successful")
+        return b64_data, price, error_msg
 
     async def translate(
         self, text: str, origin_language: Language, dest_language: Language

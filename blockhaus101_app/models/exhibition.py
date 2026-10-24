@@ -3,6 +3,7 @@ import base64
 from datetime import datetime, timedelta
 from typing import Literal, Self
 
+import niquests
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
@@ -10,13 +11,14 @@ from django.db import models
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
 from blockhaus101.settings import (
-    GETIMGAPI_NEGATIVE_PROMPT,
     GETIMGAPI_PROMPTS,
+    IMAGE_PROVIDER,
     PERIOD,
     logger,
 )
 from blockhaus101_app.helpers import (
     GetImgAiAPI,
+    OpenAiAPI,
     correct_text,
     replace_text,
     replace_text_translations,
@@ -107,7 +109,6 @@ class Exhibition(models.Model):
 
     def generate_image(self, img_format: Literal["png", "jpeg"] = "jpeg") -> ContentFile | None:
         logger.debug(f"Starting image generation for exhibition {self.pk}")
-        get_imgai_api = GetImgAiAPI()
         discipline: str = self.artist.get_discipline(lang="en")
         exhibition_title = ExhibitionTitle.objects.get(language__code="en", exhibition=self)
 
@@ -120,39 +121,54 @@ class Exhibition(models.Model):
             discipline=discipline,
             exhibition_title=exhibition_title.text,
         )
+        img_prompt = f"{img_prompt} Photorealistic photo, no text, watermarks, or frames."
 
-        logger.debug(f"Sending image generation request with prompt: {img_prompt}")
-        res: dict | None = asyncio.run(
-            get_imgai_api.stable_diffusion_xl(
-                prompt=img_prompt,
-                negative_prompt=GETIMGAPI_NEGATIVE_PROMPT,
-                steps=50,
-                guidance=7.5,
-                output_format=img_format,
-            )
+        logger.debug(
+            f"Sending image generation request via {IMAGE_PROVIDER} with prompt: {img_prompt}"
         )
+        img_bytes, cost = self._request_image_bytes(img_prompt, img_format)
+        if not img_bytes:
+            logger.debug("Image generation failed or returned no images")
+            return None
 
-        if res:
-            logger.debug("Image generation successful, processing response...")
-            if "error" in res:
-                logger.error(f"Error while requesting image generation: {res['error']}")
-                return None
-            else:
-                cost: float = res["cost"]
-                b64_data: str = res["image"]
-                now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                filename: str = f"{now}_{self.artist.name_slug}"
-                img_bytes: bytes = base64.b64decode(b64_data, validate=True)
-                logger.debug(f"Successfully decoded base64 data, got {len(img_bytes)} bytes")
-                content_file = ContentFile(img_bytes, name=f"{filename}.{img_format}")
-                self.image1 = content_file
-                logger.info(
-                    f'Image generated for a cost of {cost}$ as "{self.image1!s}", not saved in DB (yet?)'
-                )
-                return content_file
+        now: str = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename: str = f"{now}_{self.artist.name_slug}"
+        content_file = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+        self.image1 = content_file
+        cost_label = f"{cost}$" if cost is not None else "unknown"
+        logger.info(
+            f'Image generated for a cost of {cost_label} as "{self.image1!s}", not saved in DB (yet?)'
+        )
+        return content_file
 
-        logger.debug("Image generation failed or returned no images")
-        return None
+    def _request_image_bytes(
+        self, img_prompt: str, img_format: Literal["png", "jpeg"]
+    ) -> tuple[bytes | None, float | None]:
+        if IMAGE_PROVIDER == "openai":
+            b64_data, price, error_msg = asyncio.run(
+                OpenAiAPI().generate_image(prompt=img_prompt, output_format=img_format)
+            )
+            if error_msg or not b64_data:
+                return None, None
+            return base64.b64decode(b64_data, validate=True), price
+
+        res: dict | None = asyncio.run(
+            GetImgAiAPI().generate_image(prompt=img_prompt, output_format=img_format)
+        )
+        if not res or not res.get("url"):
+            return None, None
+
+        try:
+            response = niquests.get(res["url"], timeout=30)
+        except niquests.RequestException as e:
+            logger.error(f"Failed to download GetImg image: {e!s}")
+            return None, None
+
+        if response.status_code != 200 or not response.content:
+            logger.error(f"Failed to download GetImg image: HTTP {response.status_code}")
+            return None, None
+
+        return response.content, res.get("cost")
 
     @classmethod
     def get_current(cls) -> Self | None:

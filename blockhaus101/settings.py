@@ -157,6 +157,22 @@ OPENAI_MODEL: dict = {
     },
 }
 
+OPENAI_IMAGE_MODEL: dict = {
+    "id": "gpt-image-1",
+    "size": "1024x1024",
+    "quality": "medium",
+}
+
+GETIMGAI_IMAGE_MODEL: dict = {
+    "id": "seedream-5-lite",
+    "aspect_ratio": "1:1",
+    "output_format": "jpeg",
+}
+
+_IMAGE_PROVIDERS = {"openai", "getimg"}
+_image_provider = os.getenv("IMAGE_PROVIDER", "getimg").strip().lower()
+IMAGE_PROVIDER = _image_provider if _image_provider in _IMAGE_PROVIDERS else "getimg"
+
 # Img prompts to map disciplines to their specific display formats
 GETIMGAPI_PROMPTS = {
     "photography": "Generate a photorealistic image of a photography exhibition space. Show large format photographs mounted on walls and freestanding displays. The theme of the photographs is {exhibition_title}, but don't use it if it is too abstract.",
@@ -206,7 +222,7 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 
 # API Keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-GETIMGAI_API_URL = "https://api.getimg.ai/v1/"
+GETIMGAI_API_URL = "https://api.getimg.ai"
 GETIMGAI_API_KEY = os.getenv("GETIMGAI_API_KEY", "")
 
 # Logging

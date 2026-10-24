@@ -46,6 +46,8 @@ services:
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
       # External services
+      ## Image generation
+      - IMAGE_PROVIDER=${IMAGE_PROVIDER}
       ## OpenAI
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       ## GetImgAI
@@ -93,6 +95,8 @@ services:
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
       # External services
+      ## Image generation
+      - IMAGE_PROVIDER=${IMAGE_PROVIDER}
       ## OpenAI
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       ## GetImgAI
