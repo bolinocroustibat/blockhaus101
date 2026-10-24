@@ -110,11 +110,22 @@ class OpenAiAPI:
         messages = [
             {
                 "role": "system",
-                "content": f"You are a translation engine, able to translate a text from {origin_language.name} to {dest_language.name}.",
+                "content": (
+                    f"You translate {origin_language.name} into {dest_language.name}. "
+                    "Keep the original meaning and the pretentious contemporary-art gallery style: "
+                    "slightly overwrought, theoretical, and self-serious. "
+                    f"Write natural, correct {dest_language.name}. Translate titles and quoted work names too. "
+                    "Return only the translated text."
+                ),
             },
             {
                 "role": "user",
-                "content": f"Translate the following text from {origin_language.name} to {dest_language.name}. Please return only the translated text, without any other sign, comment or explanation:\n{text}",
+                "content": (
+                    f"Translate this {origin_language.name} text into {dest_language.name}. "
+                    "Keep its pretentious art-world tone and exact information. "
+                    "Do not add commentary.\n\n"
+                    f"{text}"
+                ),
             },
         ]
         return await self._process_openai_request(messages)
@@ -130,7 +141,7 @@ class OpenAiAPI:
             },
             {
                 "role": "user",
-                "content": f"Je souhaite que tu reformules ce texte en français en gardant son sens, ses informations exactes principales. Son style doit conserver le style original, c'est à dire celui d'un texte artistique un peu prétentieux, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans ta réponse autre chose que le texte en lui-même. Voici le texte à reformuler: « {text} »",
+                "content": f"Reformule ce texte en français en gardant son sens, ses informations exactes principales. Son style doit conserver le style original, c'est à dire celui d'un texte prétentieux de galerie d'art contemporain, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans ta réponse autre chose que le texte en lui-même. Voici le texte à reformuler: « {text} »",
             },
         ]
         result_text, price, error_msg = await self._process_openai_request(messages)

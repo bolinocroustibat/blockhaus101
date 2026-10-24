@@ -233,6 +233,8 @@ class TestOpenAiAPI(SimpleTestCase):
         assert await_args is not None
         messages = await_args.args[0]
         self.assertIn("French", messages[0]["content"])
+        self.assertIn("English", messages[0]["content"])
+        self.assertIn("pretentious", messages[0]["content"])
         self.assertIn("English", messages[1]["content"])
         self.assertIn("Bonjour", messages[1]["content"])
 
