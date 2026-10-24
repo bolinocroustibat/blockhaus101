@@ -137,6 +137,12 @@ nav li a.active::after {
 	transform-origin: bottom left;
 }
 
+@media (prefers-reduced-motion: reduce) {
+	nav li a::after {
+		transition: none;
+	}
+}
+
 /* Exhibition layout */
 .exhibition-item {
 	width: 100%;
