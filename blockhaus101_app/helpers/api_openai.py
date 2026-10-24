@@ -1,4 +1,4 @@
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, OpenAIError
 
 from base_data_app.models.language import Language
 from blockhaus101.settings import (
@@ -18,7 +18,7 @@ class OpenAiAPI:
         try:
             models = await self.client.models.list()
             return [m.id for m in models.data]
-        except Exception as e:
+        except OpenAIError as e:
             logger.error(f"Unable to get the list of OpenAI models: {e!s}")
             return []
 
@@ -45,7 +45,7 @@ class OpenAiAPI:
                 messages=messages,  # type: ignore
                 user="warning-trading",
             )
-        except Exception as e:
+        except OpenAIError as e:
             error_msg = f"Erreur lors de la requête OpenAI : {e!s}"
             logger.error(error_msg)
             return result_text, price, error_msg
@@ -62,7 +62,7 @@ class OpenAiAPI:
                 response.usage.completion_tokens,
             )
             logger.info(f"\nTokens used: {tokens_usage}. OpenAI request price: ${price:.6f}")
-        except Exception as e:
+        except (AttributeError, KeyError, TypeError) as e:
             logger.error(f"\nUnable to calculate the price of the request: {e!s}")
 
         result_text = response.choices[0].message.content

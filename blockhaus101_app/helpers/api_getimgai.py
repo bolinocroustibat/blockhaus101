@@ -190,7 +190,7 @@ class GetImgAiAPI:
                 return response
             logger.debug("SDXL API request failed - no response")
             return None
-        except Exception as e:
+        except (niquests.RequestException, TimeoutError, json.JSONDecodeError) as e:
             logger.debug(f"SDXL API request failed with error: {e!s}")
             return None
 

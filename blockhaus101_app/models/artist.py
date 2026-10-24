@@ -52,7 +52,7 @@ class Artist(models.Model):
         res[lg_fr.code] = bio_fr
         # Translate to English
         openai_api = OpenAiAPI()
-        bio_translated, price, error_msg = asyncio.run(
+        bio_translated, _price, _error_msg = asyncio.run(
             openai_api.translate(
                 text=str(bio_fr.text or ""), origin_language=lg_fr, dest_language=lg_en
             )
@@ -80,9 +80,11 @@ class Artist(models.Model):
         if not self.discipline:
             return ""
         if lang:
-            if self.discipline.translation:
-                if self.discipline.translation.language == Language.objects.get(code=lang):
-                    return self.discipline.translation.text
+            if (
+                self.discipline.translation
+                and self.discipline.translation.language == Language.objects.get(code=lang)
+            ):
+                return self.discipline.translation.text
             translated_discipline = Data.objects.filter(
                 data_type__name="DISCIPLINE", language__code=lang, translation=self.discipline
             ).first()

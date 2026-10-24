@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from babel.dates import format_date
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import Page, Paginator
 from django.http import HttpResponse
 from django.shortcuts import render
@@ -68,7 +69,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
 
             exhibitions_details.append(exhibition)
 
-        except Exception as error:
+        except (AttributeError, ObjectDoesNotExist, ValueError) as error:
             logger.error(f"Error getting past exhibition info for exhibition {e.pk}: {error!s}")
             continue
 

@@ -1,4 +1,6 @@
-from django.core.mail import send_mail
+from smtplib import SMTPException
+
+from django.core.mail import BadHeaderError, send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
 
@@ -40,7 +42,7 @@ def contact(request, lang: str) -> HttpResponse:
                     + form.cleaned_data["text"],
                 )
                 form = FormContact()
-            except Exception as e:
+            except (SMTPException, BadHeaderError, OSError) as e:
                 logger.error(f"Error while sending email: {e!s}")
                 message = MAIL_ERROR_MESSAGE[lang]
             else:

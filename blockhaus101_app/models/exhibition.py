@@ -88,15 +88,16 @@ class Exhibition(models.Model):
             logger.debug("Trying to save new exhibition...")
             try:
                 latest_exhibition = Exhibition.objects.latest("enddate")
-                if latest_exhibition.enddate:
-                    self.startdate = latest_exhibition.enddate
-                    self.enddate = self.startdate + timedelta(days=PERIOD)
-                    logger.debug(
-                        "At least one exhibition already present, exhibition saved according to previous"
-                    )
-                else:
-                    raise Exception("Latest exhibition has no end date")
-            except Exception:
+            except Exhibition.DoesNotExist:
+                latest_exhibition = None
+
+            if latest_exhibition and latest_exhibition.enddate:
+                self.startdate = latest_exhibition.enddate
+                self.enddate = self.startdate + timedelta(days=PERIOD)
+                logger.debug(
+                    "At least one exhibition already present, exhibition saved according to previous"
+                )
+            else:
                 self.startdate = datetime.now()
                 self.enddate = datetime.now() + timedelta(days=PERIOD)
                 logger.debug(

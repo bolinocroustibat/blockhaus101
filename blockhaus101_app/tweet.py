@@ -40,7 +40,7 @@ def generate_tweet(lang: str, artist: Artist, exhibition: Exhibition, tweet_type
     if "[EXPOENDDATE]" in tweet and exhibition.enddate:
         expo_enddate: str = format_date(exhibition.enddate.date(), format="medium", locale=lang)
         tweet = tweet.replace("[EXPOENDDATE]", expo_enddate)
-    tweet, used_words = replace_text(tweet, lang)
+    tweet, _used_words = replace_text(tweet, lang)
     return correct_text(text=tweet, lang=lang)
 
 
@@ -55,9 +55,9 @@ def send_tweet(tweet: str) -> None:
             # If the application settings are set for "Read and Write" then this line should tweet out the message to your account's timeline. The "Read and Write" setting is on https://dev.twitter.com/apps
             api.update_status(status=tweet)
             logger.info(f'sent to Twitter account "{twitter_account_name}"')
-        except Exception as e:
+        except tweepy.TweepyException as e:
             logger.error(
                 f'Error while trying to send tweet to "{twitter_account_name}" account: {e}'
             )
-    except Exception as e:
+    except tweepy.TweepyException as e:
         logger.error(f"Error while connecting to Twitter account: {e}")

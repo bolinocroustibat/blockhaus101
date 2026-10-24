@@ -31,8 +31,8 @@ class ArtistAdmin(admin.ModelAdmin):
     model = Artist
     list_display = ("name", "gender", "discipline", "created", "id")
     list_filter = ("gender",)
-    search_fields = ["name", "discipline", "gender"]
-    inlines = [ArtistBioAdminInline]
+    search_fields = ("name", "discipline", "gender")
+    inlines = (ArtistBioAdminInline,)
 
 
 class ExhibitionTitleAdminInline(admin.TabularInline):
@@ -52,8 +52,8 @@ class ExhibitionAdmin(admin.ModelAdmin):
     model = Exhibition
     list_display = ("get_fr_title", "startdate", "enddate", "created", "id")
     list_filter = ("artist__name",)
-    search_fields = ["get_fr_title", "get_en_title", "artist__name"]
-    inlines = [ExhibitionTitleAdminInline, ExhibitionTextAdminInline]
+    search_fields = ("get_fr_title", "get_en_title", "artist__name")
+    inlines = (ExhibitionTitleAdminInline, ExhibitionTextAdminInline)
 
     def get_fr_title(self, obj):
         return obj.titles.filter(language__code="fr").first().text

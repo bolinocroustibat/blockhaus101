@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.db import DatabaseError, transaction
 
 from blockhaus101_app.models.artist import Artist
 from blockhaus101_app.models.artist_bio import ArtistBiography
@@ -77,5 +77,5 @@ class Command(BaseCommand):
             raise CommandError(
                 "Invalid date format. Please use YYYY-MM-DD format (e.g., 2024-03-20)"
             )
-        except Exception as e:
+        except DatabaseError as e:
             raise CommandError(f"An error occurred: {e!s}")

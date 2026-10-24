@@ -54,7 +54,13 @@ allowed-unresolved-imports = [
 
 [tool.ruff]
 line-length = 100
-lint = { extend-select = ["ASYNC", "I", "PTH"] }
+
+[tool.ruff.lint]
+extend-select = ["ASYNC", "I", "PTH"]
+
+[tool.ruff.lint.per-file-ignores]
+# Django migrations use class-level list defaults (`dependencies`, `operations`).
+"**/migrations/*.py" = ["RUF012"]
 
 # Necessary to avoid issues when installing when using `pip install .`
 [tool.setuptools]

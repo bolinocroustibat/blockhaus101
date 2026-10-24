@@ -10,7 +10,7 @@ admin.site.unregister(Group)
 class DataTypeAdmin(admin.ModelAdmin):
     model = DataType
     list_display = ("name", "created", "id")
-    search_fields = ["name"]
+    search_fields = ("name",)
 
 
 @admin.register(Data)
@@ -31,4 +31,4 @@ class DataAdmin(admin.ModelAdmin):
         "language",
         "data_type",
     )
-    search_fields = ["text", "data_type__name"]
+    search_fields = ("text", "data_type__name")

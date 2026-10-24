@@ -42,7 +42,7 @@ class Data(models.Model):
 
     class Meta:
         db_table = "blockhaus101_data"
-        ordering = ["position"]
+        ordering = ("position",)
 
     @classmethod
     def choose_random(cls, data_type: str, lang: str | None = None) -> Self | None:

@@ -10,4 +10,4 @@ class DataType(models.Model):
 
     class Meta:
         db_table = "blockhaus101_datatype"
-        ordering = ["name"]
+        ordering = ("name",)
