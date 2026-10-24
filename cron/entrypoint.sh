@@ -12,10 +12,10 @@ SHELL=/bin/bash
 PATH=/usr/local/bin:/usr/bin:/bin
 
 # Le mardi à 14h52
-52 14 * * 2 root . /tmp/cronenv && cd /app && uv run manage.py generate_tweet --type tweet1 >> /proc/1/fd/1 2>&1
+52 14 * * 2 root . /tmp/cronenv && cd /app && uv run manage.py generate_tweet --type tweets1 >> /proc/1/fd/1 2>&1
 
 # Le vendredi à 14h03
-3 14 * * 5 root . /tmp/cronenv && cd /app && uv run manage.py generate_tweet --type tweet2 >> /proc/1/fd/1 2>&1
+3 14 * * 5 root . /tmp/cronenv && cd /app && uv run manage.py generate_tweet --type tweets2 >> /proc/1/fd/1 2>&1
 CRONTAB
 
 chmod 0644 /etc/cron.d/blockhaus101
