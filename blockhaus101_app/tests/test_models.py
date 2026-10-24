@@ -165,6 +165,34 @@ class TestExhibitionString(TestCase):
         self.assertEqual(str(exhibition), f"Exhibition {exhibition.pk} (no title)")
 
 
+class TestExhibitionPageUrl(TestCase):
+    def setUp(self) -> None:
+        self.french = make_language("fr", "French")
+        self.english = make_language("en", "English")
+        self.artist = make_artist(name="Ada Lovelace")
+        self.exhibition = make_exhibition(
+            self.artist,
+            startdate=datetime(2024, 1, 1),
+            enddate=datetime(2024, 1, 8),
+        )
+        ExhibitionTitle.objects.create(
+            language=self.french, exhibition=self.exhibition, text="oiseaux de verre"
+        )
+
+    def test_uses_another_language_slug_when_needed(self) -> None:
+        ExhibitionText.objects.create(
+            language=self.french, exhibition=self.exhibition, text="Une salle blanche."
+        )
+
+        self.assertEqual(
+            self.exhibition.page_url("en"),
+            "/en/ada-lovelace-oiseaux-de-verre/",
+        )
+
+    def test_returns_none_when_there_is_no_slug(self) -> None:
+        self.assertIsNone(self.exhibition.page_url("fr"))
+
+
 class TestExhibitionTextSlug(TestCase):
     def setUp(self) -> None:
         self.french = make_language("fr", "French")
@@ -205,6 +233,17 @@ class TestExhibitionTextSlug(TestCase):
 
         self.assertIsNone(extra.pk)
         self.assertEqual(ExhibitionText.objects.count(), 10)
+
+    def test_keeps_the_slug_when_saved_again(self) -> None:
+        text = self._save_text("A short text")
+        self.title.text = "New title"
+        self.title.save()
+        text.text = "Changed"
+        text.save()
+        text.refresh_from_db()
+
+        self.assertEqual(text.slug, "ada-lovelace-glass-birds")
+        self.assertEqual(text.text, "Changed")
 
 
 class TestDataSelection(TestCase):

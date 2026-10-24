@@ -1,9 +1,21 @@
+{% if url %}
+<a class="exhibition-date exhibition-page-link" href="{{ url }}">{{ date_line }}</a>
+{% else %}
 <div class="exhibition-date">{{ date_line }}</div>
+{% endif %}
 <div class="exhibition-item expo-wrapper">
+	{% if url %}
+	<a class="expo-text-wrapper exhibition-page-link" href="{{ url }}">
+	{% else %}
 	<div class="expo-text-wrapper">
+	{% endif %}
 		<span class="artist">{{ artist }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ title|capfirst }}</span>
 		<div class="bio">{{ bio }}</div>
 		<div class="expo-text">{{ text }}</div>
+	{% if url %}
+	</a>
+	{% else %}
 	</div>
+	{% endif %}
 	{% include "partials/exhibition-image.html" with url=image_url artist=artist title=title width=image_width height=image_height lazy=lazy %}
 </div>

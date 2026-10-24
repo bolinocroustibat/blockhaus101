@@ -115,5 +115,6 @@ def index(request, lang: str) -> HttpResponse:
             "expo_image_width": image_width,
             "expo_image_height": image_height,
             "artist_gender": artist.gender,
+            "expo_url": exhibition.page_url(lang),
         },
     )

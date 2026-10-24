@@ -7,6 +7,7 @@ import niquests
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db import models
+from django.urls import reverse
 
 from base_data_app.models.data import Data
 from base_data_app.models.language import Language
@@ -171,6 +172,31 @@ class Exhibition(models.Model):
             return None, None
 
         return response.content, res.get("cost")
+
+    def slugs_by_language(self) -> dict[str, str]:
+        """Latest non-empty slug for each language."""
+        from blockhaus101_app.models.exhibition_text import ExhibitionText
+
+        slugs: dict[str, str] = {}
+        texts = (
+            ExhibitionText.objects.filter(exhibition=self)
+            .exclude(slug__isnull=True)
+            .exclude(slug="")
+            .select_related("language")
+            .order_by("pk")
+        )
+        for text in texts:
+            if text.slug:
+                slugs[text.language.code] = text.slug
+        return slugs
+
+    def page_url(self, lang: str) -> str | None:
+        """Public path in lang. Another language's slug is used when lang has none."""
+        slugs = self.slugs_by_language()
+        slug = slugs.get(lang) or next(iter(slugs.values()), None)
+        if not slug:
+            return None
+        return reverse("exhibition", kwargs={"lang": lang, "slug": slug})
 
     @classmethod
     def get_current(cls) -> Self | None:

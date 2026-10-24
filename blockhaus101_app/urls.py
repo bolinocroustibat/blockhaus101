@@ -29,4 +29,9 @@ urlpatterns = [
         name="past_exhibitions",
     ),
     re_path(r"^(?P<lang>fr|en)/contact/$", views.contact, name="contact"),
+    re_path(
+        r"^(?P<lang>fr|en)/(?P<slug>[-a-z0-9]+)/$",
+        views.exhibition,
+        name="exhibition",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

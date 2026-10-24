@@ -22,6 +22,11 @@ def language_url(context: template.Context, lang: str) -> str:
         return request.build_absolute_uri()
     kwargs = dict(match.kwargs)
     kwargs["lang"] = lang
+    alternate_slugs = context.get("alternate_slugs")
+    if alternate_slugs and "slug" in kwargs:
+        slug = alternate_slugs.get(lang)
+        if slug:
+            kwargs["slug"] = slug
     url = reverse(match.url_name, args=match.args, kwargs=kwargs)
     query = request.META.get("QUERY_STRING", "")
     if query:

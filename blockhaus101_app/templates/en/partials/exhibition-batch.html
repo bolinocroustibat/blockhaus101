@@ -1,6 +1,6 @@
 {% for e in exhibitions_details %}
 {% with date_line="From "|add:e.startdate|add:" to "|add:e.enddate %}
-{% include "partials/exhibition-card.html" with date_line=date_line artist=e.name title=e.title bio=e.bio text=e.text image_url=e.image1 image_width=e.image_width image_height=e.image_height lazy=True %}
+{% include "partials/exhibition-card.html" with date_line=date_line artist=e.name title=e.title bio=e.bio text=e.text image_url=e.image1 image_width=e.image_width image_height=e.image_height lazy=True url=e.url %}
 {% endwith %}
 {% endfor %}
 

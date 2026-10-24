@@ -19,7 +19,7 @@
 </div>
 
 {% with date_line="From "|add:expo_startdate|add:" to "|add:expo_enddate|add:":" %}
-{% include "partials/exhibition-card.html" with date_line=date_line artist=artist_name title=expo_title bio=artist_bio text=expo_text image_url=expo_image1 image_width=expo_image_width image_height=expo_image_height lazy=False %}
+{% include "partials/exhibition-card.html" with date_line=date_line artist=artist_name title=expo_title bio=artist_bio text=expo_text image_url=expo_image1 image_width=expo_image_width image_height=expo_image_height lazy=False url=expo_url %}
 {% endwith %}
 
 {% endblock %}

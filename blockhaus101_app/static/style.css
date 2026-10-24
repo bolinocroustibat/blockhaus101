@@ -228,6 +228,16 @@ nav li a.active::after {
 	text-decoration: none;
 }
 
+a.exhibition-page-link,
+a.exhibition-page-link:hover {
+	color: inherit;
+	text-decoration: none;
+}
+
+a.exhibition-date.exhibition-page-link {
+	display: block;
+}
+
 .expo-image:hover img {
 	opacity: 0.95;
 }

@@ -57,15 +57,18 @@ class ExhibitionText(models.Model):
         logger.debug(f"Used words for exhibition text: {self.used_words}")
 
     def save(self, *args, **kwargs) -> None:
-        exhibition_title = ExhibitionTitle.objects.get(
-            exhibition=self.exhibition, language=self.language
-        )
-        slug_string = f"{self.exhibition.artist.name}-{exhibition_title.text}"
-        # if this slug exists for others, add a number at the end of the slug attribute of the instance:
-        slug: str | None = self._unique_slugify(value=slug_string, max_elements=10)
-        if slug:
+        if not self.slug:
+            exhibition_title = ExhibitionTitle.objects.get(
+                exhibition=self.exhibition, language=self.language
+            )
+            slug: str | None = self._unique_slugify(
+                value=f"{self.exhibition.artist.name}-{exhibition_title.text}",
+                max_elements=10,
+            )
+            if not slug:
+                return
             self.slug = slug
-            super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def _create_expo_sentence(self, position: int) -> str:
         structures = Data.objects.filter(

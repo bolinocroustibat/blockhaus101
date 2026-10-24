@@ -291,6 +291,126 @@ def _jpeg(width: int, height: int) -> SimpleUploadedFile:
     return SimpleUploadedFile("show.jpg", buffer.getvalue(), content_type="image/jpeg")
 
 
+class TestExhibitionPage(TestCase):
+    def setUp(self) -> None:
+        self.french = make_language("fr", "French")
+        self.english = make_language("en", "English")
+        self.now = datetime.now()
+        self.artist = make_artist(name="Ada Lovelace", language=self.french)
+        self.exhibition = make_exhibition(
+            self.artist,
+            startdate=self.now - timedelta(days=1),
+            enddate=self.now + timedelta(days=6),
+        )
+        ExhibitionTitle.objects.create(
+            language=self.french, exhibition=self.exhibition, text="oiseaux de verre"
+        )
+        ExhibitionTitle.objects.create(
+            language=self.english, exhibition=self.exhibition, text="glass birds"
+        )
+        ArtistBiography.objects.create(
+            language=self.french, artist=self.artist, text="Née à Paris."
+        )
+        ArtistBiography.objects.create(
+            language=self.english, artist=self.artist, text="Born in Paris."
+        )
+        self.french_text = ExhibitionText.objects.create(
+            language=self.french,
+            exhibition=self.exhibition,
+            text="Une salle blanche.",
+        )
+        self.english_text = ExhibitionText.objects.create(
+            language=self.english,
+            exhibition=self.exhibition,
+            text="A white room.",
+        )
+
+    def test_french_slug_shows_the_exhibition(self) -> None:
+        response = self.client.get("/fr/ada-lovelace-oiseaux-de-verre/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ada Lovelace")
+        self.assertContains(response, "Oiseaux de verre")
+        self.assertContains(response, "Une salle blanche.")
+        self.assertContains(
+            response,
+            'hreflang="en" href="http://testserver/en/ada-lovelace-glass-birds/"',
+        )
+        self.assertContains(
+            response,
+            'hreflang="fr" href="http://testserver/fr/ada-lovelace-oiseaux-de-verre/"',
+        )
+
+    def test_unknown_slug_is_not_found(self) -> None:
+        response = self.client.get("/fr/unknown-show/")
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_other_language_slug_redirects_to_the_matching_text(self) -> None:
+        response = self.client.get("/en/ada-lovelace-oiseaux-de-verre/")
+
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response["Location"], "/en/ada-lovelace-glass-birds/")
+
+    def test_other_language_slug_shows_the_page_without_a_translation(self) -> None:
+        self.english_text.delete()
+
+        response = self.client.get("/en/ada-lovelace-oiseaux-de-verre/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Ada Lovelace")
+        self.assertContains(response, "Glass birds")
+        self.assertContains(response, "Born in Paris.")
+        self.assertNotContains(response, "A white room.")
+
+    def test_homepage_card_links_to_the_exhibition(self) -> None:
+        response = self.client.get("/fr/")
+        html = response.content.decode()
+
+        self.assertIn('href="/fr/ada-lovelace-oiseaux-de-verre/"', html)
+        self.assertIn("Ada Lovelace", html)
+        self.assertIn("Oiseaux de verre", html)
+        self.assertIn("Une salle blanche.", html)
+        self.assertIn('class="exhibition-date exhibition-page-link"', html)
+        self.assertIn('class="expo-text-wrapper exhibition-page-link"', html)
+
+    def test_archive_card_links_to_the_exhibition(self) -> None:
+        past_end = self.now - timedelta(days=1)
+        self.exhibition.startdate = past_end - timedelta(days=7)
+        self.exhibition.enddate = past_end
+        self.exhibition.save()
+
+        response = self.client.get("/fr/past-exhibitions/")
+        html = response.content.decode()
+
+        self.assertIn('href="/fr/ada-lovelace-oiseaux-de-verre/"', html)
+        self.assertIn("Ada Lovelace", html)
+        self.assertIn("Oiseaux de verre", html)
+        self.assertIn("Une salle blanche.", html)
+        self.assertIn('class="exhibition-date exhibition-page-link"', html)
+        self.assertIn('class="expo-text-wrapper exhibition-page-link"', html)
+
+    def test_english_cards_link_when_only_a_french_text_exists(self) -> None:
+        self.english_text.delete()
+
+        home = self.client.get("/en/").content.decode()
+        self.assertIn('href="/en/ada-lovelace-oiseaux-de-verre/"', home)
+        self.assertIn("Ada Lovelace", home)
+        self.assertIn("Glass birds", home)
+        self.assertIn('class="exhibition-date exhibition-page-link"', home)
+
+        past_end = self.now - timedelta(days=1)
+        self.exhibition.startdate = past_end - timedelta(days=7)
+        self.exhibition.enddate = past_end
+        self.exhibition.save()
+
+        archive = self.client.get("/en/past-exhibitions/").content.decode()
+        self.assertIn('href="/en/ada-lovelace-oiseaux-de-verre/"', archive)
+        self.assertIn("Ada Lovelace", archive)
+        self.assertIn("Glass birds", archive)
+        self.assertIn('class="exhibition-date exhibition-page-link"', archive)
+
+
 class TestExhibitionImages(TestCase):
     def test_current_show_image_reserves_its_ratio(self) -> None:
         french = make_language("fr", "French")

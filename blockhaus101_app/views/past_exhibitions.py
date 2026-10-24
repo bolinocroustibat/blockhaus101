@@ -62,6 +62,7 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
             # Get the latest text
             expo_text = ExhibitionText.objects.filter(language=language, exhibition=e).last()
             exhibition["text"] = expo_text.text if expo_text else ""
+            exhibition["url"] = e.page_url(lang)
 
             # Image
             exhibition["image1"] = None
