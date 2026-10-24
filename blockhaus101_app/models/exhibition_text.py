@@ -83,8 +83,7 @@ class ExhibitionText(models.Model):
             exhibition=self.exhibition, language=self.language
         )
         sentence = sentence.replace("[SELFEXPO]", exhibition_title.text)
-        other_exhibition_titles: dict = self.exhibition.generate_titles()
-        sentence = sentence.replace("[EXPO]", other_exhibition_titles[self.language.code].text)
+        sentence = sentence.replace("[EXPO]", self.exhibition.random_title_text(self.language.code))
         sentence, _used_words = replace_text(text=sentence, lang=self.language.code)
         sentence = correct_text(text=sentence, lang=self.language.code)
         return sentence

@@ -7,7 +7,6 @@ from base_data_app.models import Data, Language
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers import correct_text
 from blockhaus101_app.models.exhibition import Exhibition
-from blockhaus101_app.models.exhibition_title import ExhibitionTitle
 
 
 class ArtistBiography(models.Model):
@@ -60,9 +59,9 @@ class ArtistBiography(models.Model):
         for k in keywords:
             if k == "[EXPO]":
                 exhibition = Exhibition(artist=self.artist)
-                new_expo_titles: dict[str, ExhibitionTitle] = exhibition.generate_titles()
-                new_expo_title = new_expo_titles[self.language.code].text
-                biosentence = biosentence.replace("[EXPO]", new_expo_title, 1)
+                biosentence = biosentence.replace(
+                    "[EXPO]", exhibition.random_title_text(self.language.code), 1
+                )
             else:
                 word_type = k.replace("[", "").replace("]", "")
                 chosen_data = Data.choose_random_excluding(

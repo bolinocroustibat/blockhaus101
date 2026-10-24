@@ -1,7 +1,7 @@
 """Unit tests for model helpers that do not call external services."""
 
 from datetime import datetime, timedelta
-from unittest.mock import patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from django.test import SimpleTestCase, TestCase
 
@@ -163,6 +163,46 @@ class TestExhibitionString(TestCase):
         )
 
         self.assertEqual(str(exhibition), f"Exhibition {exhibition.pk} (no title)")
+
+
+class TestExhibitionGenerateTitles(TestCase):
+    def setUp(self) -> None:
+        self.french = make_language("fr", "French")
+        self.english = make_language("en", "English")
+        expos, _created = DataType.objects.get_or_create(name="expos")
+        Data.objects.create(
+            data_type=expos, text="Oiseaux de verre", language=self.french, weight=10
+        )
+        self.exhibition = make_exhibition(
+            make_artist(),
+            startdate=datetime(2025, 3, 1),
+            enddate=datetime(2025, 3, 8),
+        )
+
+    def _openai(self, translated: str | None, error: str | None = None) -> MagicMock:
+        api = MagicMock()
+        api.translate = AsyncMock(return_value=(translated, 0.01, error))
+        return api
+
+    def test_translates_the_french_title_to_english(self) -> None:
+        with patch(
+            "blockhaus101_app.models.exhibition.OpenAiAPI",
+            return_value=self._openai("Glass birds"),
+        ):
+            titles = self.exhibition.generate_titles()
+
+        self.assertEqual(titles["fr"].text, "Oiseaux de verre")
+        self.assertEqual(titles["en"].text, "Glass birds")
+        self.assertEqual(titles["en"].language, self.english)
+
+    def test_keeps_the_french_title_when_translation_fails(self) -> None:
+        with patch(
+            "blockhaus101_app.models.exhibition.OpenAiAPI",
+            return_value=self._openai(None, "unavailable"),
+        ):
+            titles = self.exhibition.generate_titles()
+
+        self.assertEqual(titles["en"].text, "Oiseaux de verre")
 
 
 class TestExhibitionPageUrl(TestCase):

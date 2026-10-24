@@ -56,37 +56,62 @@ class Exhibition(models.Model):
             return f"Exhibition {self.pk} (no title)"
 
     def generate_titles(self) -> dict[str, ExhibitionTitle]:
-        """Generate titles for all languages.
-        Returns a dictionary with the language code as key and the ExhibitionTitle object as value."""
+        """Generate a French title from templates, then translate it to English."""
+        title_fr, _structure_fr, used_data = self._french_title_from_template()
+        res: dict[str, ExhibitionTitle] = {"fr": title_fr}
+        logger.debug(f"Used data for exhibition title FR: {used_data}")
 
-        # Generate original French title
+        translated = self.translate_title(title_fr)
+        if not translated:
+            logger.error("Translation failed for exhibition title. Using French text as fallback.")
+            translated = title_fr.text
+        res["en"] = ExhibitionTitle(
+            language=Language.objects.get(code="en"),
+            exhibition=self,
+            text=translated,
+        )
+        return res
+
+    def translate_title(self, french_title: ExhibitionTitle) -> str | None:
+        """Translate a French title to English. Returns None when the API fails."""
+        openai_api = OpenAiAPI()
+        translated, _price, error_msg = asyncio.run(
+            openai_api.translate(
+                text=french_title.text,
+                origin_language=french_title.language,
+                dest_language=Language.objects.get(code="en"),
+            )
+        )
+        if error_msg:
+            logger.error(f"Error while translating exhibition title: {error_msg}")
+        if not translated or not translated.strip():
+            return None
+        return translated.strip()[:80]
+
+    def random_title_text(self, lang: str) -> str:
+        """Throwaway title for [EXPO] placeholders, built from templates."""
+        title_fr, structure_fr, used_data = self._french_title_from_template()
+        if lang == "fr":
+            return title_fr.text
+        language = Language.objects.get(code=lang)
+        title_structure = Data.objects.get(language=language, translation=structure_fr)
+        text = replace_text_translations(
+            text=title_structure.text, original_keywords=used_data, lang=lang
+        )
+        return correct_text(text, lang)
+
+    def _french_title_from_template(self) -> tuple[ExhibitionTitle, Data, list[Data]]:
         title_structure_fr = Data.choose_random(data_type="expos", lang="fr")
         if not title_structure_fr:
             raise ValueError("Could not find a random French title structure")
-
-        text_fr: str = title_structure_fr.text
-        text_fr, used_data = replace_text(text_fr, "fr")
+        text_fr, used_data = replace_text(title_structure_fr.text, "fr")
         text_fr = correct_text(text_fr, "fr")
-        exhibition_title_fr = ExhibitionTitle(
-            language=Language.objects.get(code="fr"), exhibition=self, text=text_fr
+        title_fr = ExhibitionTitle(
+            language=Language.objects.get(code="fr"),
+            exhibition=self,
+            text=text_fr,
         )
-        res: dict = {"fr": exhibition_title_fr}
-
-        logger.debug(f"Used data for exhibition title FR: {used_data}")
-
-        # Generate titles for all other languages
-        for lg in Language.objects.all().exclude(code="fr"):
-            title_structure = Data.objects.get(
-                language=lg,
-                translation=title_structure_fr,
-            )
-            text: str = title_structure.text
-            text = replace_text_translations(text=text, original_keywords=used_data, lang=lg.code)
-            text = correct_text(text, lg.code)
-            exhibition_title = ExhibitionTitle(language=lg, exhibition=self, text=text)
-            res[lg.code] = exhibition_title
-
-        return res
+        return title_fr, title_structure_fr, used_data
 
     def save(self, *args, **kwargs) -> None:
         if not self.startdate or not self.enddate:
