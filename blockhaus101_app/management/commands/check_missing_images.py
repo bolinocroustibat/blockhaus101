@@ -32,14 +32,14 @@ class Command(BaseCommand):
             media_path = Path("/app/media/exhibitions_imgs") / filename
 
             # Check if file exists in container
-            if Path(static_path).exists or Path(media_path).exists:
+            if static_path.exists() or media_path.exists():
                 found_in_container += 1
                 if verbose:
-                    print(f"  ✓ {ex.id}: {ex} - {filename}")
+                    print(f"  ✓ {ex.pk}: {ex} - {filename}")
             else:
                 missing_from_container += 1
                 if verbose:
-                    print(f"  ✗ {ex.id}: {ex} - {filename}")
+                    print(f"  ✗ {ex.pk}: {ex} - {filename}")
 
         print("\nSummary:")
         print(f"  Total exhibitions with image1: {total_with_images}")

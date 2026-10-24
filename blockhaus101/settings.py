@@ -145,10 +145,11 @@ LOCATIONS = [
     ("beijing", "Beijing"),
 ]
 
+
 # A helpful rule of thumb is that one token generally corresponds to ~4 characters of text for common English text.
 # This translates to roughly ¾ of a word (so 100 tokens ~= 75 words).
 # https://openai.com/pricing/
-OPENAI_MODEL = {
+OPENAI_MODEL: dict = {
     "id": "gpt-4o-mini",
     "pricing": {
         "input_per_1M": 0.15,  # $0.15 per 1M input tokens

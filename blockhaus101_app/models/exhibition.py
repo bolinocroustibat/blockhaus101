@@ -144,11 +144,12 @@ class Exhibition(models.Model):
                 filename: str = f"{now}_{self.artist.name_slug}"
                 img_bytes: bytes = base64.b64decode(b64_data, validate=True)
                 logger.debug(f"Successfully decoded base64 data, got {len(img_bytes)} bytes")
-                self.image1 = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+                content_file = ContentFile(img_bytes, name=f"{filename}.{img_format}")
+                self.image1 = content_file
                 logger.info(
                     f'Image generated for a cost of {cost}$ as "{self.image1!s}", not saved in DB (yet?)'
                 )
-                return self.image1
+                return content_file
 
         logger.debug("Image generation failed or returned no images")
         return None

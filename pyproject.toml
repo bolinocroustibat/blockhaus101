@@ -40,9 +40,8 @@ dev = [
     "ty>=0.0.16",
 ]
 
-[tool.ty]
-[tool.ty.environment]
-python-version = "3.14"
+[tool.ty.src]
+exclude = ["**/migrations/"]
 [tool.ty.analysis]
 allowed-unresolved-imports = [
     "captcha.**",

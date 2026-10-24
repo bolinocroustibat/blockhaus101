@@ -74,26 +74,21 @@ class Data(models.Model):
         Returns:
             tuple: the chosen entry and the updated excluding list, or None.
         """
-        chosen_entry: Data | None = cls.choose_random(data_type=data_type, lang=lang)
-        if chosen_entry:
-            if not excluding:
-                # create the forbidden entries array if it doesn't exist
-                excluding = []
-            else:
-                while chosen_entry in excluding:
-                    logger.debug(
-                        f"entry '{chosen_entry.text}' of type '{data_type}' has been used already, let's choose another"
-                    )
-                    chosen_entry = cls.choose_random(data_type=data_type, lang=lang)
-                    if chosen_entry not in excluding:
-                        logger.debug(f"...ok we found another: {chosen_entry.text}")
-                        break
-            # add the entry to the array of the entry type in the forbidden entries array
-            excluding.append(chosen_entry)
-            # # TODO
-            # try:  # if there is a gender attribute to the data
-            #     gender = chosen_entry.gender
-            # except:
-            #     gender = ""
-            return (chosen_entry, excluding)
-        return None
+        chosen_entry = cls.choose_random(data_type=data_type, lang=lang)
+        if chosen_entry is None:
+            return None
+        if not excluding:
+            excluding = []
+        else:
+            while chosen_entry in excluding:
+                logger.debug(
+                    f"entry '{chosen_entry.text}' of type '{data_type}' has been used already, let's choose another"
+                )
+                chosen_entry = cls.choose_random(data_type=data_type, lang=lang)
+                if chosen_entry is None:
+                    return None
+                if chosen_entry not in excluding:
+                    logger.debug(f"...ok we found another: {chosen_entry.text}")
+                    break
+        excluding.append(chosen_entry)
+        return (chosen_entry, excluding)

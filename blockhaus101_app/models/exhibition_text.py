@@ -92,7 +92,7 @@ class ExhibitionText(models.Model):
         Calculates a unique slug of ``value`` for an instance.
         WARNING: This create A LOT of queries to the database if some text have been created before, and thus should maybe be limited.
         """
-        slug_len = self._meta.get_field("slug").max_length
+        slug_len = getattr(self._meta.get_field("slug"), "max_length", None)
 
         # Sort out the initial slug. Chop its length down if we need to.
         slug = slugify(value)

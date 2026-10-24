@@ -26,7 +26,11 @@ class Command(BaseCommand):
         )
         language = Language.objects.get(code=lang)
         response = niquests.get(url=csv_url)
-        csv_bytestream = response.content.decode("utf-8")
+        content = response.content
+        if content is None:
+            logger.error("Empty response from Google Sheet")
+            return
+        csv_bytestream = content.decode("utf-8")
         csv_reader = csv.reader(csv_bytestream.splitlines())
         for r in range(skipped_rows):
             next(csv_reader)

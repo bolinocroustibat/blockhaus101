@@ -29,6 +29,10 @@ class GetImgAiAPI:
                 logger.error("Authentication failed - check your API key")
                 return None
 
+            if response.text is None:
+                logger.error("Empty response body")
+                return None
+
             try:
                 data = json.loads(response.text)
                 if "error" in data:
@@ -56,7 +60,7 @@ class GetImgAiAPI:
 
     async def get_models(
         self, family: str | None = "stable-diffusion-xl", pipeline: str | None = "text-to-image"
-    ) -> list | None:
+    ) -> dict | list | None:
         """Get available models from GetImg.AI API.
         More info on https://docs.getimg.ai/reference/getmodels
 
@@ -115,7 +119,7 @@ class GetImgAiAPI:
             endpoint="essential-v2/text-to-image",
             data=data,
             added_headers=added_headers,
-        )  # type: ignore
+        )
 
     async def stable_diffusion_xl(
         self,
@@ -257,7 +261,7 @@ class GetImgAiAPI:
         }
         return await self._post(
             endpoint="stable-diffusion/text-to-image", data=data, added_headers=added_headers
-        )  # type: ignore
+        )
 
     async def latent_consistency(
         self,
@@ -286,4 +290,4 @@ class GetImgAiAPI:
         }
         return await self._post(
             endpoint="latent-consistency/text-to-image", data=data, added_headers=added_headers
-        )  # type: ignore
+        )
