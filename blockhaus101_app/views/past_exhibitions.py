@@ -9,6 +9,7 @@ from django.shortcuts import render
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
+from blockhaus101_app.helpers import image_size
 from blockhaus101_app.models import (
     ArtistBiography,
     Exhibition,
@@ -64,8 +65,11 @@ def past_exhibitions(request, lang: str) -> HttpResponse:
 
             # Image
             exhibition["image1"] = None
+            exhibition["image_width"] = None
+            exhibition["image_height"] = None
             if e.image1:
                 exhibition["image1"] = e.image1.url
+                exhibition["image_width"], exhibition["image_height"] = image_size(e.image1)
 
             exhibitions_details.append(exhibition)
 

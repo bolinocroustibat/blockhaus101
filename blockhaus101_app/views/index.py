@@ -6,7 +6,7 @@ from django.shortcuts import render
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import OpenAiAPI, get_client_ip
+from blockhaus101_app.helpers import OpenAiAPI, get_client_ip, image_size
 from blockhaus101_app.models import (
     Artist,
     ArtistBiography,
@@ -93,6 +93,7 @@ def index(request, lang: str) -> HttpResponse:
             logger.error(f"Error while reformulating text: {error_msg}")
         expo_text.save()
 
+    image_width, image_height = image_size(exhibition.image1)
     return render(
         request,
         f"{lang}/index.html",
@@ -111,6 +112,8 @@ def index(request, lang: str) -> HttpResponse:
             if expo_text
             else "",  # Handle None case with error already logged
             "expo_image1": exhibition.image1.url if exhibition.image1 else None,
+            "expo_image_width": image_width,
+            "expo_image_height": image_height,
             "artist_gender": artist.gender,
         },
     )

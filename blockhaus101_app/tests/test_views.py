@@ -1,8 +1,12 @@
 """Unit tests for public pages that do not generate content."""
 
+import tempfile
 from datetime import datetime, timedelta
+from io import BytesIO
 
-from django.test import TestCase
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
+from PIL import Image
 
 from blockhaus101.settings import MAIL_INVALID_MESSAGE
 from blockhaus101_app.models import (
@@ -207,3 +211,69 @@ class TestDocumentLanguage(TestCase):
             response, 'property="og:image:alt" content="Ada Lovelace — Oiseaux de verre"'
         )
         self.assertContains(response, 'property="og:description" content="Une salle blanche."')
+        self.assertContains(response, 'href="/media/exhibitions_imgs/show.jpg"')
+        self.assertContains(response, 'alt="Ada Lovelace — Oiseaux de verre"')
+        self.assertContains(response, 'class="expo-image-fallback"')
+        self.assertNotContains(response, 'loading="lazy"')
+
+
+def _jpeg(width: int, height: int) -> SimpleUploadedFile:
+    buffer = BytesIO()
+    Image.new("RGB", (width, height), "white").save(buffer, format="JPEG")
+    return SimpleUploadedFile("show.jpg", buffer.getvalue(), content_type="image/jpeg")
+
+
+class TestExhibitionImages(TestCase):
+    def test_current_show_image_reserves_its_ratio(self) -> None:
+        french = make_language("fr", "French")
+        now = datetime.now()
+        artist = make_artist(name="Ada Lovelace", language=french)
+        exhibition = make_exhibition(
+            artist,
+            startdate=now - timedelta(days=1),
+            enddate=now + timedelta(days=6),
+        )
+        ExhibitionTitle.objects.create(
+            language=french, exhibition=exhibition, text="oiseaux de verre"
+        )
+        ArtistBiography.objects.create(language=french, artist=artist, text="Née à Paris.")
+        ExhibitionText.objects.create(
+            language=french, exhibition=exhibition, text="Une salle blanche."
+        )
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            exhibition.image1.save("show.jpg", _jpeg(8, 16), save=True)
+            response = self.client.get("/fr/")
+
+        page = response.content.decode()
+        self.assertIn(f'href="{exhibition.image1.url}"', page)
+        self.assertIn('alt="Ada Lovelace — Oiseaux de verre"', page)
+        self.assertIn('width="8"', page)
+        self.assertIn('height="16"', page)
+        self.assertNotIn('loading="lazy"', page)
+        self.assertNotIn("expo-image-fallback", page)
+
+    def test_archive_image_loads_later(self) -> None:
+        french = make_language("fr", "French")
+        now = datetime.now()
+        artist = make_artist(name="Recent Artist", language=french)
+        end = now - timedelta(days=1)
+        exhibition = make_exhibition(
+            artist,
+            startdate=end - timedelta(days=7),
+            enddate=end,
+        )
+        ExhibitionTitle.objects.create(language=french, exhibition=exhibition, text="titre long")
+        with tempfile.TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            exhibition.image1.save("show.jpg", _jpeg(8, 16), save=True)
+            page = self.client.get("/fr/past-exhibitions/")
+            partial = self.client.get("/fr/past-exhibitions/", HTTP_HX_REQUEST="true")
+
+        html = page.content.decode()
+        fragment = partial.content.decode()
+        for body in (html, fragment):
+            self.assertIn(f'href="{exhibition.image1.url}"', body)
+            self.assertIn('alt="Recent Artist — Titre long"', body)
+            self.assertIn('width="8"', body)
+            self.assertIn('height="16"', body)
+            self.assertIn('loading="lazy"', body)
+            self.assertNotIn("expo-image-fallback", body)

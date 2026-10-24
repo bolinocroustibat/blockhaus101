@@ -1,0 +1,10 @@
+{% if url %}
+<a class="expo-image" href="{{ url }}" target="_blank" rel="noopener">
+	<img
+		src="{{ url }}"
+		alt="{% if title %}{{ artist }} — {{ title|capfirst }}{% else %}{{ artist }}{% endif %}"
+		{% if width and height %}width="{{ width }}" height="{{ height }}"{% else %}class="expo-image-fallback"{% endif %}
+		{% if lazy %}loading="lazy"{% endif %}
+	/>
+</a>
+{% endif %}

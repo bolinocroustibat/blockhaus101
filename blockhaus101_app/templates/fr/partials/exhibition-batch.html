@@ -6,9 +6,7 @@
         <div class="bio">{{ e.bio }}</div>
         <div class="text">{{ e.text }}</div>
     </div>
-    {% if e.image1 %}
-    <img src="{{ e.image1 }}" />
-    {% endif %}
+    {% include "partials/exhibition-image.html" with url=e.image1 artist=e.name title=e.title width=e.image_width height=e.image_height lazy=True %}
 </div>
 {% endfor %}
 

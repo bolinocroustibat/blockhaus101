@@ -27,9 +27,7 @@
 		<div class="bio">{{ artist_bio }}</div>
 		<div class="expo-text">{{ expo_text }}</div>
 	</div>
-	{% if expo_image1 %}
-		<img src="{{ expo_image1 }}" />
-	{% endif %}
+	{% include "partials/exhibition-image.html" with url=expo_image1 artist=artist_name title=expo_title width=expo_image_width height=expo_image_height lazy=False %}
 </div>
 
 {% endblock %}

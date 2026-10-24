@@ -3,6 +3,7 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import render
 
 from blockhaus101.settings import logger
+from blockhaus101_app.helpers import image_size
 from blockhaus101_app.models import (
     ArtistBiography,
     ExhibitionText,
@@ -19,6 +20,7 @@ def exhibition(request, slug: str) -> HttpResponse:
         exhibition_title = ExhibitionTitle.objects.get(language=language, exhibition=exhibition)
         artist = exhibition.artist
         biography = ArtistBiography(language=language, artist=artist)
+        image_width, image_height = image_size(exhibition.image1)
         return render(
             request,
             f"{language.code}/index.html",
@@ -39,6 +41,8 @@ def exhibition(request, slug: str) -> HttpResponse:
                 "expo_title": exhibition_title.text,
                 "expo_text": expo_text.text,
                 "expo_image1": exhibition.image1.url if exhibition.image1 else None,
+                "expo_image_width": image_width,
+                "expo_image_height": image_height,
                 "artist_gender": artist.gender,
             },
         )

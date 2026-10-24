@@ -47,11 +47,6 @@ h2 {
 		border-left: none;
 		gap: 2rem;
 	}
-	.expo-wrapper img {
-		width: 100%;
-		max-width: 100%;
-		margin-bottom: 2rem;
-	}
 	nav ul {
 		margin: 1.5rem 0;
 		padding: 0.75rem 0;
@@ -190,10 +185,23 @@ nav li a.active::after {
 		}
 	}
 
-	img {
+	.expo-image {
+		flex: 0 1 40%;
 		max-width: 40%;
+		display: block;
+		line-height: 0;
+	}
+
+	img {
+		width: 100%;
+		max-width: 100%;
 		height: auto;
 		object-fit: contain;
+		background: #f3f3f3;
+	}
+
+	img.expo-image-fallback {
+		aspect-ratio: 1 / 1;
 	}
 }
 
@@ -205,8 +213,22 @@ nav li a.active::after {
 	text-decoration: underline;
 }
 
-.expo-wrapper img:hover {
+.expo-wrapper a.expo-image,
+.expo-wrapper a.expo-image:hover {
+	text-decoration: none;
+}
+
+.expo-image:hover img {
 	opacity: 0.95;
+}
+
+@media (max-width: 600px) {
+	.expo-wrapper .expo-image {
+		flex: 1 1 auto;
+		max-width: 100%;
+		width: 100%;
+		margin-bottom: 2rem;
+	}
 }
 
 #share-wrapper {
