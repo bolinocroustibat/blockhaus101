@@ -123,6 +123,41 @@ class TestCreateExhibitionTexts(ExhibitionTextFixture):
         self.assertEqual(texts["en"], existing)
         api.translate.assert_not_called()
 
+    def test_copies_a_plain_ip_from_the_french_text(self) -> None:
+        french = ExhibitionText.objects.create(
+            language=self.french,
+            exhibition=self.exhibition,
+            text="Une salle.",
+            ip="1.2.3.4",
+        )
+
+        with patch(
+            "blockhaus101_app.helpers.exhibition_text.OpenAiAPI",
+            return_value=_openai_mock(),
+        ):
+            texts = create_exhibition_texts(self.exhibition, french=french)
+
+        assert texts["en"] is not None
+        self.assertEqual(texts["en"].ip, "1.2.3.4")
+
+    def test_strips_a_cidr_suffix_from_the_copied_ip(self) -> None:
+        french = ExhibitionText.objects.create(
+            language=self.french,
+            exhibition=self.exhibition,
+            text="Une salle.",
+            ip="1.2.3.4",
+        )
+        french.ip = "220.146.192.136/32                     "
+
+        with patch(
+            "blockhaus101_app.helpers.exhibition_text.OpenAiAPI",
+            return_value=_openai_mock(),
+        ):
+            texts = create_exhibition_texts(self.exhibition, french=french)
+
+        assert texts["en"] is not None
+        self.assertEqual(texts["en"].ip, "220.146.192.136")
+
 
 class TestGenerateEnglishTextsCommand(ExhibitionTextFixture):
     def _older_show(self) -> None:
@@ -225,3 +260,40 @@ class TestGenerateEnglishTextsCommand(ExhibitionTextFixture):
     def test_rejects_an_invalid_from_date(self) -> None:
         with self.assertRaisesMessage(CommandError, "YYYY-MM-DD"):
             call_command("generate_english_texts", "--from", "20-03-2024")
+
+    def test_save_continues_after_one_show_fails(self) -> None:
+        ExhibitionText.objects.create(
+            language=self.french, exhibition=self.exhibition, text="Premier."
+        )
+        later = make_exhibition(
+            self.artist,
+            startdate=datetime(2025, 8, 1),
+            enddate=datetime(2025, 8, 8),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=later, text="plus tard")
+        ExhibitionTitle.objects.create(language=self.english, exhibition=later, text="later on")
+        ExhibitionText.objects.create(language=self.french, exhibition=later, text="Deuxième.")
+
+        calls = {"count": 0}
+
+        def fail_then_ok(exhibition, french=None, ip=None):
+            calls["count"] += 1
+            if calls["count"] == 1:
+                raise ValueError("bad ip")
+            return create_exhibition_texts(exhibition, french=french, ip=ip)
+
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.generate_english_texts.create_exhibition_texts",
+                side_effect=fail_then_ok,
+            ),
+            patch(
+                "blockhaus101_app.helpers.exhibition_text.OpenAiAPI",
+                return_value=_openai_mock(),
+            ),
+        ):
+            call_command("generate_english_texts", "--save", stdout=out)
+
+        self.assertIn("Saved 1 English text(s). Failed: 1.", out.getvalue())
+        self.assertEqual(ExhibitionText.objects.filter(language=self.english).count(), 1)

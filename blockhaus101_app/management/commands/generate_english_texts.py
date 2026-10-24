@@ -1,7 +1,9 @@
 from datetime import datetime
 from typing import Any
 
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
+from django.db import DatabaseError
 
 from blockhaus101.settings import logger
 from blockhaus101_app.helpers.exhibition_text import create_exhibition_texts
@@ -46,7 +48,12 @@ class Command(BaseCommand):
         saved = 0
         failed = 0
         for exhibition, french in to_translate:
-            texts = create_exhibition_texts(exhibition, french=french)
+            try:
+                texts = create_exhibition_texts(exhibition, french=french)
+            except (ValueError, ValidationError, DatabaseError) as error:
+                failed += 1
+                logger.error(f"Could not translate exhibition {exhibition.pk}: {error}")
+                continue
             if texts.get("en"):
                 saved += 1
             else:

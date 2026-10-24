@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import ipaddress
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
@@ -82,9 +83,23 @@ def _save_english_translation(french: ExhibitionText, *, ip: str | None) -> Exhi
     english = ExhibitionText(
         language=english_language,
         exhibition=french.exhibition,
-        ip=ip if ip is not None else french.ip,
+        ip=usable_ip(ip if ip is not None else french.ip),
         text=translated,
         ai_model=openai_api.model["id"],
     )
     english.save()
     return english
+
+
+def usable_ip(value: str | None) -> str | None:
+    """Return a plain IPv4/IPv6 address, or None when the value cannot be stored."""
+    if not value:
+        return None
+    cleaned = value.strip().split("/", 1)[0].strip()
+    if not cleaned:
+        return None
+    try:
+        ipaddress.ip_address(cleaned)
+    except ValueError:
+        return None
+    return cleaned
