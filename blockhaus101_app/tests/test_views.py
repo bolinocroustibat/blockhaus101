@@ -66,6 +66,13 @@ class TestPastExhibitions(TestCase):
         self.assertContains(response, "Il n'y a pas encore d'expositions passées.")
         self.assertNotContains(response, "Still Showing")
 
+    def test_english_empty_state_uses_the_plural(self) -> None:
+        make_language("en", "English")
+
+        response = self.client.get("/en/past-exhibitions/")
+
+        self.assertContains(response, "There are no past exhibitions yet.")
+
     def test_lists_past_exhibitions_newest_first(self) -> None:
         recent_artist, recent = self._past("Recent Artist", days_ago=1)
         _middle_artist, middle = self._past("Middle Artist", days_ago=3)
