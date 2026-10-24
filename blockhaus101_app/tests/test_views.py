@@ -151,12 +151,36 @@ class TestContact(TestCase):
     def test_rejects_an_incomplete_message(self) -> None:
         response = self.client.post(
             "/fr/contact/",
-            {"name": "", "email": "not-an-email", "phone": "", "text": ""},
+            {"name": "", "email": "not-an-email", "phone": "06 12 34 56 78", "text": ""},
         )
 
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "<form")
+        self.assertContains(response, "not-an-email")
+        self.assertContains(response, "06 12 34 56 78")
+        self.assertContains(response, "Ce champ est obligatoire.")
+        self.assertEqual(response.content.decode().count("Saisissez une adresse e-mail valide."), 1)
+        self.assertContains(response, "errorlist")
+        self.assertNotContains(response, "message-success")
         shown = response.content.decode().replace("&#x27;", "'")
         self.assertIn(MAIL_INVALID_MESSAGE["fr"], shown)
+
+    def test_english_form_uses_english_labels(self) -> None:
+        response = self.client.post(
+            "/en/contact/",
+            {"name": "Ada", "email": "not-an-email", "phone": "+33 6 12 34 56 78", "text": ""},
+        )
+
+        self.assertContains(response, "<form")
+        self.assertContains(response, "Your name")
+        self.assertContains(response, "Your phone")
+        self.assertContains(response, "Why do you want to see this artist")
+        self.assertNotContains(response, "Votre nom")
+        self.assertContains(response, 'name="phone"')
+        self.assertContains(response, "+33 6 12 34 56 78")
+        self.assertContains(response, "This field is required.")
+        self.assertEqual(response.content.decode().count("Enter a valid email address."), 1)
+        self.assertNotContains(response, 'type="number"')
 
 
 class TestDocumentLanguage(TestCase):

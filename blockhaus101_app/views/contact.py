@@ -14,8 +14,9 @@ from blockhaus101_app.forms import FormContact
 
 
 def contact(request, lang: str) -> HttpResponse:
-    form = FormContact(request.POST or None)
+    form = FormContact(request.POST or None, lang=lang)
     message = None
+    success = False
     if request.method == "POST":  # Checks to see if we get a POST back...
         if form.is_valid():  # Checks to see form is valid
             try:
@@ -41,18 +42,19 @@ def contact(request, lang: str) -> HttpResponse:
                     + " <br/> Message text: "
                     + form.cleaned_data["text"],
                 )
-                form = FormContact()
             except (SMTPException, BadHeaderError, OSError) as e:
                 logger.error(f"Error while sending email: {e!s}")
                 message = MAIL_ERROR_MESSAGE[lang]
             else:
                 logger.info("Contact email sent!")
                 message = MAIL_SUCCESS_MESSAGE[lang]
+                success = True
+                form = FormContact(lang=lang)
         else:
             logger.warning("Form is not valid")
             message = MAIL_INVALID_MESSAGE[lang]
     return render(
         request,
         f"{lang}/contact.html",
-        {"lang": lang, "form_contact": form, "message": message},
+        {"lang": lang, "form_contact": form, "message": message, "success": success},
     )

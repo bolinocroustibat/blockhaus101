@@ -13,34 +13,38 @@
 <div class="contact-form-wrapper">
 	<div class="form-section">
 		{% if message %}
-			<p class="message">{{message}}</p>
-		{% else %}
-			<p>Vous pouvez demander une visite à la galerie Søren Bollinger sur rendez-vous uniquement en remplissant ce formulaire :
-			<form role="form" action="" method="POST">
-				<div class="form-group">
-					{{ form_contact.name.label_tag }}
-					{{ form_contact.name }}
-				</div>
-				<div class="form-group">
-					{{ form_contact.email.label_tag }}
-					{{ form_contact.email }}
-				</div>
-				<div class="form-group">
-					{{ form_contact.phone.label_tag }}
-					{{ form_contact.phone }}
-				</div>
-				<div class="form-group">
-					{{ form_contact.text.label_tag }}
-					{{ form_contact.text }}
-				</div>
-				<div class="form-group">
-					{{ form_contact.captcha.label_tag|linebreaks }}
-					{{ form_contact.captcha|linebreaks }}
-				</div>
-				{% csrf_token %}
-				<input type="submit" class="btn-primary" value="Envoyer votre demande">
-			</form>
+			<p class="message{% if success %} message-success{% endif %}">{{ message }}</p>
 		{% endif %}
+		<p>Vous pouvez demander une visite à la galerie Søren Bollinger sur rendez-vous uniquement en remplissant ce formulaire :</p>
+		<form role="form" action="" method="POST">
+			<div class="form-group">
+				{{ form_contact.name.label_tag }}
+				{{ form_contact.name }}
+				{{ form_contact.name.errors }}
+			</div>
+			<div class="form-group">
+				{{ form_contact.email.label_tag }}
+				{{ form_contact.email }}
+				{{ form_contact.email.errors }}
+			</div>
+			<div class="form-group">
+				{{ form_contact.phone.label_tag }}
+				{{ form_contact.phone }}
+				{{ form_contact.phone.errors }}
+			</div>
+			<div class="form-group">
+				{{ form_contact.text.label_tag }}
+				{{ form_contact.text }}
+				{{ form_contact.text.errors }}
+			</div>
+			<div class="form-group">
+				{{ form_contact.captcha.label_tag|linebreaks }}
+				{{ form_contact.captcha|linebreaks }}
+				{{ form_contact.captcha.errors }}
+			</div>
+			{% csrf_token %}
+			<input type="submit" class="btn-primary" value="Envoyer votre demande">
+		</form>
 	</div>
 </div>
 
