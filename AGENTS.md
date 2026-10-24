@@ -114,15 +114,13 @@ from blockhaus101.settings import logger
 Run with: `uv run python manage.py <command_name>`.
 
 - `generate_exhibition` – full AI exhibition pipeline (artist + titles + bios + image + texts). Flags: `--img`, `--save`.
-- `generate_expo_img` – generate image for a specific exhibition (`--id`).
-- `generate_expo_imgs` – batch generate images for all exhibitions missing images.
 - `generate_tweet` – generate/post social content (`--lang`, `--type tweets1|tweets2`).
 - `reformulate_expo_text` – refine exhibition text via OpenAI (`--id`, `--save`).
 - `get_openai_models` – list OpenAI models.
 - `delete_exhibitions` – delete exhibitions after a given date (uses `transaction.atomic()`).
 - `check_exhibition_images` – report exhibitions with no image or a missing file (`--generate` asks to create them, `--from YYYY-MM-DD` limits by start date).
 - `import` – import base data from Google Sheets CSV.
-- `sync_remote_db` – copy `REMOTE_DATABASE_URL` onto `DATABASE_URL` and download exhibition images (`--to-remote` uploads exhibition images over `REMOTE_SSH` to `REMOTE_MEDIA_PATH`, then copies the local database onto the remote one, `--yes` skips typing the database name). Refuses to run unless `ENVIRONMENT=local`. The remote database is not replaced if the image upload fails.
+- `sync_remote_db` – by default, print the exhibition image copies and image-link changes and change nothing. `--apply` copies `REMOTE_DATABASE_URL` onto `DATABASE_URL` and downloads exhibition images (`--to-remote` uploads exhibition images over `REMOTE_SSH` to `REMOTE_MEDIA_PATH`, then copies the local database onto the remote one, `--yes` skips typing the database name). Refuses to run unless `ENVIRONMENT=local`. The remote database is not replaced if the image upload fails.
 - `generate_translations` (base_data_app) – translate Data entries via Google Translate.
 
 ### Practices

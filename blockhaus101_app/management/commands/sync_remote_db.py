@@ -5,6 +5,8 @@ The destination database is renamed aside only after that restore succeeds,
 then replaced. A failed dump or restore leaves the destination database in place.
 """
 
+import csv
+import io
 import os
 import re
 import shutil
@@ -27,27 +29,29 @@ from blockhaus101_app.models import Exhibition
 REMOTE_SITE_URL = "https://www.blockhaus101.com"
 
 _DB_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
-_IMAGE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
 _SSH_TARGET = re.compile(r"^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+$")
 _REMOTE_PATH = re.compile(r"^/[A-Za-z0-9._/-]+$")
 _RESERVED_DATABASES = frozenset({"postgres", "template0", "template1"})
 _SUPPORTED_QUERY = frozenset({"sslmode"})
 _PG_TOOLS = ("pg_dump", "pg_restore", "psql")
 _UPLOAD_TOOLS = ("ssh", "rsync")
-DEFAULT_REMOTE_MEDIA = "/home/www/blockhaus101/media"
 _SSH_OPTIONS = ("-o", "BatchMode=yes", "-o", "ConnectTimeout=30")
 _RSYNC_RSH = "ssh -o BatchMode=yes -o ConnectTimeout=30"
 _REMOTE_SIZE_SCRIPT = """\
 root=$1
 shift
-mkdir -p -- "$root" || exit 1
+if [ ! -d "$root" ] || [ ! -r "$root" ] || [ ! -w "$root" ] || [ ! -x "$root" ]; then
+  printf 'The media folder is not readable and writable: %s\\n' "$root" >&2
+  exit 1
+fi
 for name in "$@"; do
   path="$root/$name"
   if [ -f "$path" ]; then
     if size=$(stat -c %s -- "$path" 2>/dev/null); then
       printf '%s\\n' "$size"
     else
-      printf '0\\n'
+      printf 'Could not read the size of %s\\n' "$path" >&2
+      exit 1
     fi
   else
     printf '0\\n'
@@ -407,18 +411,98 @@ class ImageDownload:
     failed: int
 
 
-def exhibition_image_names() -> list[str]:
+def exhibition_image_rows() -> list[tuple[int, str, str]]:
+    """Return each exhibition id with its two image paths. Blank images are empty strings."""
+    rows: list[tuple[int, str, str]] = []
+    exhibitions = Exhibition.objects.all().only("id", "image1", "image2").order_by("id")
+    for exhibition in exhibitions:
+        exhibition_id = exhibition.pk
+        if not isinstance(exhibition_id, int):
+            continue
+        image1 = exhibition.image1.name if exhibition.image1 else ""
+        image2 = exhibition.image2.name if exhibition.image2 else ""
+        rows.append((exhibition_id, image1 or "", image2 or ""))
+    return rows
+
+
+def image_names_from_rows(rows: list[tuple[int, str, str]]) -> list[str]:
     names: list[str] = []
     seen: set[str] = set()
-    exhibitions = Exhibition.objects.all().only("image1", "image2")
-    for exhibition in exhibitions:
-        for field_name in ("image1", "image2"):
-            image = getattr(exhibition, field_name)
-            if not image or not image.name or image.name in seen:
+    for _exhibition_id, image1, image2 in rows:
+        for name in (image1, image2):
+            if not name or name in seen:
                 continue
-            seen.add(image.name)
-            names.append(image.name)
+            seen.add(name)
+            names.append(name)
     return names
+
+
+def exhibition_image_names() -> list[str]:
+    return image_names_from_rows(exhibition_image_rows())
+
+
+_EXHIBITION_IMAGE_COPY = (
+    "COPY (SELECT id, COALESCE(image1, ''), COALESCE(image2, '') "
+    "FROM blockhaus101_exhibitions ORDER BY id) TO STDOUT WITH (FORMAT csv)"
+)
+
+
+def fetch_exhibition_images(target: DatabaseTarget, run: PgRunner) -> list[tuple[int, str, str]]:
+    """Read exhibition image paths from a database without changing it."""
+    output = run(
+        "psql",
+        ["-X", "-v", "ON_ERROR_STOP=1", "-q", "-c", _EXHIBITION_IMAGE_COPY],
+        target,
+    )
+    return parse_exhibition_image_csv(output)
+
+
+def parse_exhibition_image_csv(text: str) -> list[tuple[int, str, str]]:
+    rows: list[tuple[int, str, str]] = []
+    for record in csv.reader(io.StringIO(text)):
+        if not record:
+            continue
+        if len(record) != 3 or not record[0].isdigit():
+            raise PgCommandFailed("Could not read exhibition image links from the database.")
+        rows.append((int(record[0]), record[1], record[2]))
+    return rows
+
+
+@dataclass(frozen=True)
+class ImageLinkChange:
+    exhibition_id: int
+    field: str
+    before: str
+    after: str
+
+
+@dataclass(frozen=True)
+class ExhibitionImageDiff:
+    changes: tuple[ImageLinkChange, ...]
+    added: tuple[tuple[int, str, str], ...]
+    removed: tuple[tuple[int, str, str], ...]
+
+
+def diff_exhibition_images(
+    incoming_rows: list[tuple[int, str, str]],
+    current_rows: list[tuple[int, str, str]],
+) -> ExhibitionImageDiff:
+    """Compare image paths. Incoming rows are what the destination database would become."""
+    incoming = {row[0]: row for row in incoming_rows}
+    current = {row[0]: row for row in current_rows}
+    changes: list[ImageLinkChange] = []
+    for exhibition_id in sorted(set(incoming) & set(current)):
+        _exhibition_id, incoming_1, incoming_2 = incoming[exhibition_id]
+        _exhibition_id, current_1, current_2 = current[exhibition_id]
+        if incoming_1 != current_1:
+            changes.append(ImageLinkChange(exhibition_id, "image1", current_1, incoming_1))
+        if incoming_2 != current_2:
+            changes.append(ImageLinkChange(exhibition_id, "image2", current_2, incoming_2))
+    added = tuple(incoming[exhibition_id] for exhibition_id in sorted(set(incoming) - set(current)))
+    removed = tuple(
+        current[exhibition_id] for exhibition_id in sorted(set(current) - set(incoming))
+    )
+    return ExhibitionImageDiff(tuple(changes), added, removed)
 
 
 def media_file_url(base_url: str, media_url: str, name: str) -> str:
@@ -482,11 +566,23 @@ class ImageUpload:
     failed: int
 
 
-def load_remote_media_target(
-    ssh_target: str | None,
-    remote_media: str | None,
-) -> tuple[str, str]:
-    """Read the server and folder that store exhibition images."""
+@dataclass(frozen=True)
+class ImageUploadPlan:
+    to_upload: tuple[str, ...]
+    already_remote: tuple[str, ...]
+    missing_local: tuple[str, ...]
+    refused: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class ImageDownloadPlan:
+    to_download: tuple[str, ...]
+    already_local: tuple[str, ...]
+    refused: tuple[str, ...]
+
+
+def load_remote_ssh_target(ssh_target: str | None) -> str:
+    """Read the server that stores exhibition images."""
     target = (ssh_target or "").strip()
     if not target:
         raise SyncRefused(
@@ -494,11 +590,20 @@ def load_remote_media_target(
         )
     if _SSH_TARGET.fullmatch(target) is None:
         raise SyncRefused("REMOTE_SSH must look like user@host.")
-    folder = (remote_media or "").strip() or DEFAULT_REMOTE_MEDIA
-    folder = folder.rstrip("/")
+    return target
+
+
+def load_remote_media_path(remote_media: str | None) -> str:
+    """Read the folder on the server that stores exhibition images."""
+    folder = (remote_media or "").strip().rstrip("/")
+    if not folder:
+        raise SyncRefused(
+            "Set REMOTE_MEDIA_PATH in .env to the absolute folder on the server "
+            "that stores exhibition images."
+        )
     if not _is_safe_remote_path(folder):
-        raise SyncRefused("REMOTE_MEDIA_PATH must be an absolute path inside the server.")
-    return target, folder
+        raise SyncRefused("REMOTE_MEDIA_PATH must be an absolute path on the server.")
+    return folder
 
 
 def require_upload_tools() -> None:
@@ -507,6 +612,49 @@ def require_upload_tools() -> None:
         raise SyncRefused(
             "Tools required to upload exhibition images were not found: " + ", ".join(missing) + "."
         )
+
+
+def plan_image_upload(
+    names: list[str],
+    *,
+    media_root: Path,
+    ssh_target: str,
+    remote_media: str,
+    run: TransferRunner,
+) -> ImageUploadPlan:
+    """Decide which exhibition images would be copied. This only reads remote file sizes."""
+    root = media_root.resolve()
+    missing_local: list[str] = []
+    refused: list[str] = []
+    present: list[str] = []
+    for name in names:
+        path = _local_image_path(root, name)
+        if path is None:
+            logger.error("Refusing to upload an image outside the media folder: %s", name)
+            refused.append(name)
+            continue
+        if not path.is_file() or path.stat().st_size <= 0:
+            logger.error("Exhibition image is missing locally: %s", name)
+            missing_local.append(name)
+            continue
+        present.append(name)
+    if not present:
+        return ImageUploadPlan((), (), tuple(missing_local), tuple(refused))
+
+    sizes = _remote_image_sizes(ssh_target, remote_media, present, run)
+    to_upload: list[str] = []
+    already_remote: list[str] = []
+    for name, size in zip(present, sizes, strict=True):
+        if size <= 0:
+            to_upload.append(name)
+        else:
+            already_remote.append(name)
+    return ImageUploadPlan(
+        tuple(to_upload),
+        tuple(already_remote),
+        tuple(missing_local),
+        tuple(refused),
+    )
 
 
 def upload_images(
@@ -522,32 +670,42 @@ def upload_images(
     A file already stored on the server is left in place. The caller decides
     whether a missing local file should stop the database copy.
     """
+    plan = plan_image_upload(
+        names,
+        media_root=media_root,
+        ssh_target=ssh_target,
+        remote_media=remote_media,
+        run=run,
+    )
+    if plan.to_upload:
+        run(
+            _rsync_argv(media_root.resolve(), ssh_target, remote_media),
+            stdin=("\n".join(plan.to_upload) + "\n").encode(),
+        )
+    return ImageUpload(
+        uploaded=len(plan.to_upload),
+        skipped=len(plan.already_remote),
+        failed=len(plan.missing_local) + len(plan.refused),
+    )
+
+
+def plan_image_download(names: list[str], *, media_root: Path) -> ImageDownloadPlan:
+    """Decide which exhibition images would be fetched. This does not download them."""
     root = media_root.resolve()
-    failed = 0
-    present: list[str] = []
+    to_download: list[str] = []
+    already_local: list[str] = []
+    refused: list[str] = []
     for name in names:
         path = _local_image_path(root, name)
         if path is None:
-            logger.error("Refusing to upload an image outside the media folder: %s", name)
-            failed += 1
+            logger.error("Refusing to save an image outside the media folder: %s", name)
+            refused.append(name)
             continue
-        if not path.is_file() or path.stat().st_size <= 0:
-            logger.error("Exhibition image is missing locally: %s", name)
-            failed += 1
+        if path.is_file() and path.stat().st_size > 0:
+            already_local.append(name)
             continue
-        present.append(name)
-    if not present:
-        return ImageUpload(uploaded=0, skipped=0, failed=failed)
-
-    sizes = _remote_image_sizes(ssh_target, remote_media, present, run)
-    to_upload = [name for name, size in zip(present, sizes, strict=True) if size <= 0]
-    skipped = len(present) - len(to_upload)
-    if to_upload:
-        run(
-            _rsync_argv(root, ssh_target, remote_media),
-            stdin=("\n".join(to_upload) + "\n").encode(),
-        )
-    return ImageUpload(uploaded=len(to_upload), skipped=skipped, failed=failed)
+        to_download.append(name)
+    return ImageDownloadPlan(tuple(to_download), tuple(already_local), tuple(refused))
 
 
 def run_transfer(argv: list[str], stdin: bytes | None = None) -> str:
@@ -570,9 +728,15 @@ def _is_safe_remote_path(path: str) -> bool:
 
 
 def _is_safe_image_name(name: str) -> bool:
-    if _IMAGE_NAME.fullmatch(name) is None:
+    """Allow generated filenames, including accented letters, and reject path tricks."""
+    if not name or "\\" in name:
         return False
-    return all(part not in {"", ".", ".."} for part in name.split("/"))
+    if any(character.isspace() or ord(character) < 32 or character == "\x7f" for character in name):
+        return False
+    parts = name.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
+        return False
+    return all(character.isalnum() or character in "._-" for character in name.replace("/", ""))
 
 
 def _local_image_path(root: Path, name: str) -> Path | None:
@@ -628,10 +792,9 @@ def _scrub(data: bytes | str | None, secret: str) -> str:
 class Command(BaseCommand):
     help = (
         "Replace one database with a copy of the other. "
-        "By default, delete the DATABASE_URL database and copy REMOTE_DATABASE_URL onto it, "
-        "then download exhibition images. "
-        "Use --to-remote to upload exhibition images and replace the remote database "
-        "with DATABASE_URL. "
+        "By default, only print the image copies and image-link changes. "
+        "Pass --apply to upload or download exhibition images and replace the database. "
+        "Use --to-remote to copy the local database onto the remote one. "
         "Runs only when ENVIRONMENT=local."
     )
 
@@ -639,7 +802,15 @@ class Command(BaseCommand):
         parser.add_argument(
             "--to-remote",
             action="store_true",
-            help="Delete the remote database and replace it with a copy of DATABASE_URL.",
+            help="Copy DATABASE_URL onto the remote database, instead of the other way around.",
+        )
+        parser.add_argument(
+            "--apply",
+            action="store_true",
+            help=(
+                "Replace the database and copy exhibition images. "
+                "Without this flag, nothing is uploaded or deleted."
+            ),
         )
         parser.add_argument(
             "--yes",
@@ -658,10 +829,8 @@ class Command(BaseCommand):
                 raise SyncRefused("Set DATABASE_URL in .env to the local database.")
             if to_remote:
                 source_url, destination_url = local_url, remote_url
-                ssh_target, remote_media = load_remote_media_target(
-                    os.getenv("REMOTE_SSH"),
-                    os.getenv("REMOTE_MEDIA_PATH"),
-                )
+                ssh_target = load_remote_ssh_target(os.getenv("REMOTE_SSH"))
+                remote_media = load_remote_media_path(os.getenv("REMOTE_MEDIA_PATH"))
                 require_upload_tools()
             else:
                 source_url, destination_url = remote_url, local_url
@@ -675,21 +844,34 @@ class Command(BaseCommand):
         except SyncRefused as exc:
             raise CommandError(str(exc)) from exc
 
+        dry_run = not bool(options["apply"])
         if to_remote:
             summary = (
-                "This deletes the remote database and replaces it with a copy of the local one."
+                "This would delete the remote database and replace it with a copy of the local one."
+                if dry_run
+                else "This deletes the remote database and replaces it with a copy of the local one."
             )
             images_note = (
-                "Exhibition images will be uploaded first to "
+                "Exhibition images would be uploaded first to "
+                f"{ssh_target}:{remote_media}. "
+                "The remote database would be replaced only after that upload succeeded."
+                if dry_run
+                else "Exhibition images will be uploaded first to "
                 f"{ssh_target}:{remote_media}. "
                 "The remote database is replaced only after that upload succeeds."
             )
             deleted = "remote"
         else:
             summary = (
-                "This deletes the local database and replaces it with a copy of the remote one."
+                "This would delete the local database and replace it with a copy of the remote one."
+                if dry_run
+                else "This deletes the local database and replaces it with a copy of the remote one."
             )
-            images_note = f"Exhibition images will be downloaded from {REMOTE_SITE_URL}."
+            images_note = (
+                f"Exhibition images would be downloaded from {REMOTE_SITE_URL}."
+                if dry_run
+                else f"Exhibition images will be downloaded from {REMOTE_SITE_URL}."
+            )
             deleted = "local"
         self.stdout.write(
             self.style.WARNING(
@@ -699,10 +881,14 @@ class Command(BaseCommand):
                 f"{images_note}\n"
             )
         )
-        if not options["yes"]:
+        if dry_run:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Dry run. Nothing will be uploaded or deleted. Pass --apply to do it."
+                )
+            )
+        elif not options["yes"]:
             self._confirm(destination, deleted)
-
-        connections.close_all()
 
         def run(
             tool: str,
@@ -713,6 +899,23 @@ class Command(BaseCommand):
             stdout: BinaryIO | None = None,
         ) -> str:
             return run_pg_tool(tool, args, target, stdin=stdin, stdout=stdout)
+
+        if dry_run:
+            try:
+                self._report_image_plan(
+                    to_remote=to_remote,
+                    source=source,
+                    destination=destination,
+                    ssh_target=ssh_target,
+                    remote_media=remote_media,
+                    run=run,
+                )
+            except PgCommandFailed as exc:
+                logger.error("Could not read exhibition image links: %s", exc)
+                raise CommandError(str(exc)) from exc
+            return
+
+        connections.close_all()
 
         def progress(message: str) -> None:
             self.stdout.write(message)
@@ -741,6 +944,119 @@ class Command(BaseCommand):
         if to_remote:
             return
         self._download_images()
+
+    def _report_image_plan(
+        self,
+        *,
+        to_remote: bool,
+        source: DatabaseTarget,
+        destination: DatabaseTarget,
+        ssh_target: str,
+        remote_media: str,
+        run: PgRunner,
+    ) -> None:
+        upload_blocked = False
+        if to_remote:
+            self.stdout.write("Reading local exhibition image links.")
+            incoming_rows = exhibition_image_rows()
+            self.stdout.write("Checking which exhibition images are already on the server.")
+            try:
+                upload_plan = plan_image_upload(
+                    image_names_from_rows(incoming_rows),
+                    media_root=Path(settings.MEDIA_ROOT),
+                    ssh_target=ssh_target,
+                    remote_media=remote_media,
+                    run=run_transfer,
+                )
+            except (OSError, ImageSyncFailed) as exc:
+                logger.error("Could not check exhibition images on the server: %s", exc)
+                raise CommandError(
+                    f"Could not check exhibition images on the server: {exc}"
+                ) from exc
+            upload_blocked = bool(upload_plan.missing_local or upload_plan.refused)
+            self._write_upload_plan(upload_plan)
+            self.stdout.write("Reading remote exhibition image links.")
+            current_rows = fetch_exhibition_images(destination, run)
+        else:
+            self.stdout.write("Reading remote exhibition image links.")
+            incoming_rows = fetch_exhibition_images(source, run)
+            self.stdout.write("Reading local exhibition image links.")
+            current_rows = exhibition_image_rows()
+            download_plan = plan_image_download(
+                image_names_from_rows(incoming_rows),
+                media_root=Path(settings.MEDIA_ROOT),
+            )
+            self._write_download_plan(download_plan)
+
+        diff = diff_exhibition_images(incoming_rows, current_rows)
+        self._write_image_link_diff(diff)
+        if upload_blocked:
+            self.stdout.write(
+                self.style.WARNING(
+                    "The real run would stop before replacing the remote database, "
+                    "because an exhibition image is missing locally or has an unsafe path."
+                )
+            )
+            return
+        if to_remote:
+            self.stdout.write(
+                "The real run would upload those files, then replace the whole remote database. "
+                "Every table would be replaced, including these image links."
+            )
+            return
+        self.stdout.write(
+            "The real run would replace the whole local database, then download those files "
+            f"from {REMOTE_SITE_URL}."
+        )
+
+    def _write_upload_plan(self, plan: ImageUploadPlan) -> None:
+        blocked = len(plan.missing_local) + len(plan.refused)
+        self.stdout.write(
+            "Exhibition images: "
+            f"{len(plan.to_upload)} would be uploaded, "
+            f"{len(plan.already_remote)} already on the server, "
+            f"{blocked} missing or refused locally."
+        )
+        self._write_names("Would upload", plan.to_upload)
+        self._write_names("Missing locally", plan.missing_local)
+        self._write_names("Refused", plan.refused)
+
+    def _write_download_plan(self, plan: ImageDownloadPlan) -> None:
+        self.stdout.write(
+            "Exhibition images: "
+            f"{len(plan.to_download)} would be downloaded, "
+            f"{len(plan.already_local)} already present, "
+            f"{len(plan.refused)} refused."
+        )
+        self._write_names("Would download", plan.to_download)
+        self._write_names("Refused", plan.refused)
+
+    def _write_image_link_diff(self, diff: ExhibitionImageDiff) -> None:
+        self.stdout.write(
+            "Exhibition image links: "
+            f"{len(diff.changes)} would change, "
+            f"{len(diff.added)} exhibitions would be added, "
+            f"{len(diff.removed)} exhibitions would be removed."
+        )
+        for change in diff.changes:
+            before = change.before or "(none)"
+            after = change.after or "(none)"
+            self.stdout.write(f"  {change.exhibition_id} {change.field}: {before} -> {after}")
+        for exhibition_id, image1, image2 in diff.added:
+            self.stdout.write(
+                f"  add {exhibition_id}: image1={image1 or '(none)'} image2={image2 or '(none)'}"
+            )
+        for exhibition_id, image1, image2 in diff.removed:
+            self.stdout.write(
+                f"  remove {exhibition_id}: image1={image1 or '(none)'} image2={image2 or '(none)'}"
+            )
+
+    def _write_names(self, label: str, names: tuple[str, ...]) -> None:
+        if not names:
+            return
+        self.stdout.write(f"{label}:")
+        for name in names:
+            self.stdout.write(f"  {name}")
 
     def _upload_images(self, ssh_target: str, remote_media: str) -> None:
         self.stdout.write(f"Uploading exhibition images to {ssh_target}:{remote_media}.")
