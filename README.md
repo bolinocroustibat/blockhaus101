@@ -39,7 +39,7 @@ uv run python manage.py sync_remote_db
 uv run python manage.py sync_remote_db --to-remote
 ```
 
-The first command deletes the local database and replaces it with the remote one, then downloads exhibition images from the public site into the local media folder. `--to-remote` does the opposite and deletes the remote database. Image files are not uploaded. It runs only when `ENVIRONMENT=local`. You will be asked to type the name of the database that will be deleted.
+The first command deletes the local database and replaces it with the remote one, then downloads exhibition images from the public site into the local media folder. `--to-remote` uploads local exhibition images to the server, then deletes the remote database and replaces it with the local one. The database is left unchanged if the upload fails. Set `REMOTE_SSH` to `user@host` (your SSH keys are used). Images go to `REMOTE_MEDIA_PATH`, which defaults to `/home/www/blockhaus101/media`. It runs only when `ENVIRONMENT=local`. You will be asked to type the name of the database that will be deleted.
 
 ### ▶️ Run
 

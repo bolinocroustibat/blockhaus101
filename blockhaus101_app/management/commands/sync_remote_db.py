@@ -27,13 +27,41 @@ from blockhaus101_app.models import Exhibition
 REMOTE_SITE_URL = "https://www.blockhaus101.com"
 
 _DB_NAME = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,62}$")
+_IMAGE_NAME = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/-]*$")
+_SSH_TARGET = re.compile(r"^[A-Za-z0-9._-]+@[A-Za-z0-9._-]+$")
+_REMOTE_PATH = re.compile(r"^/[A-Za-z0-9._/-]+$")
 _RESERVED_DATABASES = frozenset({"postgres", "template0", "template1"})
 _SUPPORTED_QUERY = frozenset({"sslmode"})
 _PG_TOOLS = ("pg_dump", "pg_restore", "psql")
+_UPLOAD_TOOLS = ("ssh", "rsync")
+DEFAULT_REMOTE_MEDIA = "/home/www/blockhaus101/media"
+_SSH_OPTIONS = ("-o", "BatchMode=yes", "-o", "ConnectTimeout=30")
+_RSYNC_RSH = "ssh -o BatchMode=yes -o ConnectTimeout=30"
+_REMOTE_SIZE_SCRIPT = """\
+root=$1
+shift
+mkdir -p -- "$root" || exit 1
+for name in "$@"; do
+  path="$root/$name"
+  if [ -f "$path" ]; then
+    if size=$(stat -c %s -- "$path" 2>/dev/null); then
+      printf '%s\\n' "$size"
+    else
+      printf '0\\n'
+    fi
+  else
+    printf '0\\n'
+  fi
+done
+"""
 
 
 class SyncRefused(Exception):
     """Raised when a remote-to-local copy must not run."""
+
+
+class ImageSyncFailed(Exception):
+    """Raised when exhibition images cannot be copied to the remote server."""
 
 
 class PgCommandFailed(Exception):
@@ -74,6 +102,10 @@ class PgRunner(Protocol):
         stdin: BinaryIO | None = None,
         stdout: BinaryIO | None = None,
     ) -> str: ...
+
+
+class TransferRunner(Protocol):
+    def __call__(self, argv: list[str], stdin: bytes | None = None) -> str: ...
 
 
 @dataclass(frozen=True)
@@ -443,6 +475,144 @@ def download_images(
     return ImageDownload(downloaded=downloaded, skipped=skipped, failed=failed)
 
 
+@dataclass(frozen=True)
+class ImageUpload:
+    uploaded: int
+    skipped: int
+    failed: int
+
+
+def load_remote_media_target(
+    ssh_target: str | None,
+    remote_media: str | None,
+) -> tuple[str, str]:
+    """Read the server and folder that store exhibition images."""
+    target = (ssh_target or "").strip()
+    if not target:
+        raise SyncRefused(
+            "Set REMOTE_SSH in .env to user@host for the server that stores exhibition images."
+        )
+    if _SSH_TARGET.fullmatch(target) is None:
+        raise SyncRefused("REMOTE_SSH must look like user@host.")
+    folder = (remote_media or "").strip() or DEFAULT_REMOTE_MEDIA
+    folder = folder.rstrip("/")
+    if not _is_safe_remote_path(folder):
+        raise SyncRefused("REMOTE_MEDIA_PATH must be an absolute path inside the server.")
+    return target, folder
+
+
+def require_upload_tools() -> None:
+    missing = [tool for tool in _UPLOAD_TOOLS if shutil.which(tool) is None]
+    if missing:
+        raise SyncRefused(
+            "Tools required to upload exhibition images were not found: " + ", ".join(missing) + "."
+        )
+
+
+def upload_images(
+    names: list[str],
+    *,
+    media_root: Path,
+    ssh_target: str,
+    remote_media: str,
+    run: TransferRunner,
+) -> ImageUpload:
+    """Copy exhibition image files to the remote media folder.
+
+    A file already stored on the server is left in place. The caller decides
+    whether a missing local file should stop the database copy.
+    """
+    root = media_root.resolve()
+    failed = 0
+    present: list[str] = []
+    for name in names:
+        path = _local_image_path(root, name)
+        if path is None:
+            logger.error("Refusing to upload an image outside the media folder: %s", name)
+            failed += 1
+            continue
+        if not path.is_file() or path.stat().st_size <= 0:
+            logger.error("Exhibition image is missing locally: %s", name)
+            failed += 1
+            continue
+        present.append(name)
+    if not present:
+        return ImageUpload(uploaded=0, skipped=0, failed=failed)
+
+    sizes = _remote_image_sizes(ssh_target, remote_media, present, run)
+    to_upload = [name for name, size in zip(present, sizes, strict=True) if size <= 0]
+    skipped = len(present) - len(to_upload)
+    if to_upload:
+        run(
+            _rsync_argv(root, ssh_target, remote_media),
+            stdin=("\n".join(to_upload) + "\n").encode(),
+        )
+    return ImageUpload(uploaded=len(to_upload), skipped=skipped, failed=failed)
+
+
+def run_transfer(argv: list[str], stdin: bytes | None = None) -> str:
+    result = subprocess.run(
+        argv,
+        input=stdin,
+        capture_output=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode(errors="replace").strip() or "no error output"
+        raise ImageSyncFailed(f"{argv[0]} failed: {detail}")
+    return result.stdout.decode(errors="replace")
+
+
+def _is_safe_remote_path(path: str) -> bool:
+    if path == "/" or _REMOTE_PATH.fullmatch(path) is None:
+        return False
+    return all(part not in {"", ".", ".."} for part in path.split("/")[1:])
+
+
+def _is_safe_image_name(name: str) -> bool:
+    if _IMAGE_NAME.fullmatch(name) is None:
+        return False
+    return all(part not in {"", ".", ".."} for part in name.split("/"))
+
+
+def _local_image_path(root: Path, name: str) -> Path | None:
+    if not _is_safe_image_name(name):
+        return None
+    path = (root / name).resolve()
+    if not path.is_relative_to(root):
+        return None
+    return path
+
+
+def _remote_image_sizes(
+    ssh_target: str,
+    remote_media: str,
+    names: list[str],
+    run: TransferRunner,
+) -> list[int]:
+    stdout = run(
+        ["ssh", *_SSH_OPTIONS, ssh_target, "bash", "-s", "--", remote_media, *names],
+        stdin=_REMOTE_SIZE_SCRIPT.encode(),
+    )
+    lines = stdout.splitlines()
+    if len(lines) != len(names) or any(not line.isdigit() for line in lines):
+        raise ImageSyncFailed("Could not read the size of the exhibition images on the server.")
+    return [int(line) for line in lines]
+
+
+def _rsync_argv(media_root: Path, ssh_target: str, remote_media: str) -> list[str]:
+    return [
+        "rsync",
+        "-rl",
+        "--chmod=D755,F644",
+        "--files-from=-",
+        "-e",
+        _RSYNC_RSH,
+        f"{media_root}/",
+        f"{ssh_target}:{remote_media}/",
+    ]
+
+
 def _scrub(data: bytes | str | None, secret: str) -> str:
     if data is None:
         text = ""
@@ -458,8 +628,10 @@ def _scrub(data: bytes | str | None, secret: str) -> str:
 class Command(BaseCommand):
     help = (
         "Replace one database with a copy of the other. "
-        "By default, delete the DATABASE_URL database and copy REMOTE_DATABASE_URL onto it. "
-        "Use --to-remote to delete the remote database instead. "
+        "By default, delete the DATABASE_URL database and copy REMOTE_DATABASE_URL onto it, "
+        "then download exhibition images. "
+        "Use --to-remote to upload exhibition images and replace the remote database "
+        "with DATABASE_URL. "
         "Runs only when ENVIRONMENT=local."
     )
 
@@ -486,8 +658,14 @@ class Command(BaseCommand):
                 raise SyncRefused("Set DATABASE_URL in .env to the local database.")
             if to_remote:
                 source_url, destination_url = local_url, remote_url
+                ssh_target, remote_media = load_remote_media_target(
+                    os.getenv("REMOTE_SSH"),
+                    os.getenv("REMOTE_MEDIA_PATH"),
+                )
+                require_upload_tools()
             else:
                 source_url, destination_url = remote_url, local_url
+                ssh_target, remote_media = "", ""
             source, destination = load_sync_targets(
                 source_url,
                 destination_url,
@@ -501,7 +679,11 @@ class Command(BaseCommand):
             summary = (
                 "This deletes the remote database and replaces it with a copy of the local one."
             )
-            images_note = "Exhibition images are not copied to the remote server."
+            images_note = (
+                "Exhibition images will be uploaded first to "
+                f"{ssh_target}:{remote_media}. "
+                "The remote database is replaced only after that upload succeeds."
+            )
             deleted = "remote"
         else:
             summary = (
@@ -520,7 +702,6 @@ class Command(BaseCommand):
         if not options["yes"]:
             self._confirm(destination, deleted)
 
-        logger.info("Replacing database %s with %s", destination.label(), source.label())
         connections.close_all()
 
         def run(
@@ -536,6 +717,10 @@ class Command(BaseCommand):
         def progress(message: str) -> None:
             self.stdout.write(message)
 
+        if to_remote:
+            self._upload_images(ssh_target, remote_media)
+
+        logger.info("Replacing database %s with %s", destination.label(), source.label())
         try:
             warning = replace_database(
                 source,
@@ -556,6 +741,42 @@ class Command(BaseCommand):
         if to_remote:
             return
         self._download_images()
+
+    def _upload_images(self, ssh_target: str, remote_media: str) -> None:
+        self.stdout.write(f"Uploading exhibition images to {ssh_target}:{remote_media}.")
+        try:
+            result = upload_images(
+                exhibition_image_names(),
+                media_root=Path(settings.MEDIA_ROOT),
+                ssh_target=ssh_target,
+                remote_media=remote_media,
+                run=run_transfer,
+            )
+        except (OSError, ImageSyncFailed) as exc:
+            logger.error("Could not upload exhibition images: %s", exc)
+            raise CommandError(
+                f"Exhibition images were not uploaded. The remote database was not changed: {exc}"
+            ) from exc
+        if result.failed:
+            logger.error(
+                "Exhibition image upload left %s file(s) missing locally",
+                result.failed,
+            )
+            missing = (
+                "1 exhibition image is missing locally"
+                if result.failed == 1
+                else f"{result.failed} exhibition images are missing locally"
+            )
+            raise CommandError(
+                "The remote database was not changed: "
+                f"{missing} "
+                f"({result.uploaded} uploaded, {result.skipped} already on the server)."
+            )
+        self.stdout.write(
+            "Exhibition images: "
+            f"{result.uploaded} uploaded, "
+            f"{result.skipped} already on the server."
+        )
 
     def _download_images(self) -> None:
         self.stdout.write(f"Downloading exhibition images from {REMOTE_SITE_URL}.")

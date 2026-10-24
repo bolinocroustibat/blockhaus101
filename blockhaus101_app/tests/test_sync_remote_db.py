@@ -15,18 +15,24 @@ from django.core.management.base import CommandError
 from django.test import SimpleTestCase, override_settings
 
 from blockhaus101_app.management.commands.sync_remote_db import (
+    DEFAULT_REMOTE_MEDIA,
     DatabaseTarget,
+    ImageSyncFailed,
+    ImageUpload,
     PgCommandFailed,
     SyncRefused,
     assert_sync_is_safe,
     download_images,
+    load_remote_media_target,
     load_sync_targets,
     media_file_url,
     parse_database_url,
     pg_invocation,
     replace_database,
     require_pg_tools,
+    require_upload_tools,
     run_pg_tool,
+    upload_images,
 )
 
 LOCAL_URL = "postgres://postgres:secret@127.0.0.1:5433/blockhaus101_django"
@@ -398,6 +404,173 @@ class TestDownloadImages(SimpleTestCase):
         )
 
 
+class RecordingTransfer:
+    def __init__(self, sizes: str, *, fail: str | None = None) -> None:
+        self.sizes = sizes
+        self.fail = fail
+        self.calls: list[tuple[list[str], bytes]] = []
+
+    def __call__(self, argv: list[str], stdin: bytes | None = None) -> str:
+        self.calls.append((argv, b"" if stdin is None else stdin))
+        if self.fail is not None and argv[0] == self.fail:
+            raise ImageSyncFailed(f"{argv[0]} failed")
+        if argv[0] == "ssh":
+            return self.sizes
+        return ""
+
+
+class TestRemoteMediaTarget(SimpleTestCase):
+    def test_reads_the_ssh_target_and_defaults_the_folder(self) -> None:
+        ssh_target, remote_media = load_remote_media_target("deploy@192.0.2.10", None)
+
+        self.assertEqual(ssh_target, "deploy@192.0.2.10")
+        self.assertEqual(remote_media, DEFAULT_REMOTE_MEDIA)
+
+    def test_strips_a_trailing_slash_from_the_folder(self) -> None:
+        _ssh_target, remote_media = load_remote_media_target(
+            "deploy@192.0.2.10",
+            "/home/www/blockhaus101/media/",
+        )
+
+        self.assertEqual(remote_media, "/home/www/blockhaus101/media")
+
+    def test_refuses_a_missing_ssh_target(self) -> None:
+        with self.assertRaisesMessage(SyncRefused, "REMOTE_SSH"):
+            load_remote_media_target("  ", None)
+
+    def test_refuses_an_ssh_target_that_is_not_user_at_host(self) -> None:
+        with self.assertRaisesMessage(SyncRefused, "user@host"):
+            load_remote_media_target("deploy@192.0.2.10;rm", None)
+
+    def test_refuses_a_relative_media_folder(self) -> None:
+        with self.assertRaisesMessage(SyncRefused, "absolute path"):
+            load_remote_media_target("deploy@192.0.2.10", "media")
+
+    def test_refuses_when_an_upload_tool_is_missing(self) -> None:
+        with (
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.shutil.which",
+                return_value=None,
+            ),
+            self.assertRaisesMessage(SyncRefused, "rsync"),
+        ):
+            require_upload_tools()
+
+
+class TestUploadImages(SimpleTestCase):
+    def test_uploads_only_images_missing_on_the_server(self) -> None:
+        transfer = RecordingTransfer("0\n12\n")
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write(root, "exhibitions_imgs/new.jpeg")
+            self._write(root, "exhibitions_imgs/old.jpeg")
+            result = upload_images(
+                ["exhibitions_imgs/new.jpeg", "exhibitions_imgs/old.jpeg"],
+                media_root=root,
+                ssh_target="deploy@192.0.2.10",
+                remote_media=DEFAULT_REMOTE_MEDIA,
+                run=transfer,
+            )
+
+        ssh_argv, ssh_stdin = transfer.calls[0]
+        self.assertEqual(ssh_argv[0], "ssh")
+        self.assertIn("BatchMode=yes", ssh_argv)
+        self.assertEqual(ssh_argv[-2:], ["exhibitions_imgs/new.jpeg", "exhibitions_imgs/old.jpeg"])
+        self.assertIn(b"mkdir -p", ssh_stdin)
+        rsync_argv, rsync_stdin = transfer.calls[1]
+        self.assertEqual(rsync_argv[0], "rsync")
+        self.assertEqual(rsync_argv[-2], f"{root.resolve()}/")
+        self.assertEqual(rsync_argv[-1], f"deploy@192.0.2.10:{DEFAULT_REMOTE_MEDIA}/")
+        self.assertEqual(rsync_stdin, b"exhibitions_imgs/new.jpeg\n")
+        self.assertEqual(result.uploaded, 1)
+        self.assertEqual(result.skipped, 1)
+        self.assertEqual(result.failed, 0)
+
+    def test_skips_rsync_when_every_image_is_already_on_the_server(self) -> None:
+        transfer = RecordingTransfer("8\n")
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write(root, "exhibitions_imgs/old.jpeg")
+            result = upload_images(
+                ["exhibitions_imgs/old.jpeg"],
+                media_root=root,
+                ssh_target="deploy@192.0.2.10",
+                remote_media=DEFAULT_REMOTE_MEDIA,
+                run=transfer,
+            )
+
+        self.assertEqual([call[0][0] for call in transfer.calls], ["ssh"])
+        self.assertEqual(result.skipped, 1)
+        self.assertEqual(result.uploaded, 0)
+
+    def test_counts_a_missing_local_image_and_still_uploads_the_others(self) -> None:
+        transfer = RecordingTransfer("0\n")
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write(root, "exhibitions_imgs/new.jpeg")
+            result = upload_images(
+                ["exhibitions_imgs/missing.jpeg", "exhibitions_imgs/new.jpeg"],
+                media_root=root,
+                ssh_target="deploy@192.0.2.10",
+                remote_media=DEFAULT_REMOTE_MEDIA,
+                run=transfer,
+            )
+
+        self.assertEqual(transfer.calls[1][1], b"exhibitions_imgs/new.jpeg\n")
+        self.assertEqual(result.failed, 1)
+        self.assertEqual(result.uploaded, 1)
+
+    def test_refuses_a_path_outside_the_media_folder(self) -> None:
+        transfer = RecordingTransfer("")
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            result = upload_images(
+                ["../outside.jpeg"],
+                media_root=root,
+                ssh_target="deploy@192.0.2.10",
+                remote_media=DEFAULT_REMOTE_MEDIA,
+                run=transfer,
+            )
+
+        self.assertEqual(transfer.calls, [])
+        self.assertFalse((root.parent / "outside.jpeg").exists())
+        self.assertEqual(result.failed, 1)
+
+    def test_stops_when_the_server_does_not_report_every_size(self) -> None:
+        transfer = RecordingTransfer("0\n")
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write(root, "exhibitions_imgs/one.jpeg")
+            self._write(root, "exhibitions_imgs/two.jpeg")
+            with self.assertRaisesMessage(ImageSyncFailed, "size"):
+                upload_images(
+                    ["exhibitions_imgs/one.jpeg", "exhibitions_imgs/two.jpeg"],
+                    media_root=root,
+                    ssh_target="deploy@192.0.2.10",
+                    remote_media=DEFAULT_REMOTE_MEDIA,
+                    run=transfer,
+                )
+
+    def test_stops_when_rsync_fails(self) -> None:
+        transfer = RecordingTransfer("0\n", fail="rsync")
+        with TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            self._write(root, "exhibitions_imgs/one.jpeg")
+            with self.assertRaisesMessage(ImageSyncFailed, "rsync failed"):
+                upload_images(
+                    ["exhibitions_imgs/one.jpeg"],
+                    media_root=root,
+                    ssh_target="deploy@192.0.2.10",
+                    remote_media=DEFAULT_REMOTE_MEDIA,
+                    run=transfer,
+                )
+
+    def _write(self, root: Path, name: str) -> None:
+        path = root / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"image-bytes")
+
+
 @override_settings(ENVIRONMENT="local")
 class TestSyncRemoteDbCommand(SimpleTestCase):
     def test_yes_copies_the_remote_database_onto_the_local_one(self) -> None:
@@ -408,6 +581,7 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
         self.assertEqual(source.host, "192.0.2.10")
         self.assertEqual(destination.host, "127.0.0.1")
         self.images.assert_called_once()
+        self.upload.assert_not_called()
 
     def test_to_remote_copies_the_local_database_onto_the_remote_one(self) -> None:
         replace = self._run("--to-remote", "--yes")
@@ -417,6 +591,7 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
         self.assertEqual(source.host, "127.0.0.1")
         self.assertEqual(destination.host, "192.0.2.10")
         self.images.assert_not_called()
+        self.upload.assert_called_once_with("deploy@192.0.2.10", DEFAULT_REMOTE_MEDIA)
 
     def test_confirmation_must_match_the_database_name(self) -> None:
         with self.assertRaisesMessage(CommandError, "not changed"):
@@ -440,6 +615,57 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
                 call_command("sync_remote_db", "--yes")
         replace.assert_not_called()
 
+    def test_to_remote_refuses_without_an_ssh_target(self) -> None:
+        with (
+            override_settings(ENVIRONMENT="local"),
+            patch.dict(
+                os.environ,
+                {"DATABASE_URL": LOCAL_URL, "REMOTE_DATABASE_URL": REMOTE_URL, "REMOTE_SSH": ""},
+            ),
+            patch("blockhaus101_app.management.commands.sync_remote_db.require_pg_tools"),
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.replace_database",
+                return_value=None,
+            ) as replace,
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.Command._upload_images",
+            ) as upload,
+            self.assertRaisesMessage(CommandError, "REMOTE_SSH"),
+        ):
+            call_command("sync_remote_db", "--to-remote", "--yes")
+        replace.assert_not_called()
+        upload.assert_not_called()
+
+    def test_to_remote_keeps_the_database_when_a_local_image_is_missing(self) -> None:
+        with (
+            override_settings(ENVIRONMENT="local"),
+            patch.dict(
+                os.environ,
+                {
+                    "DATABASE_URL": LOCAL_URL,
+                    "REMOTE_DATABASE_URL": REMOTE_URL,
+                    "REMOTE_SSH": "deploy@192.0.2.10",
+                },
+            ),
+            patch("blockhaus101_app.management.commands.sync_remote_db.require_pg_tools"),
+            patch("blockhaus101_app.management.commands.sync_remote_db.require_upload_tools"),
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.replace_database",
+                return_value=None,
+            ) as replace,
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.exhibition_image_names",
+                return_value=["exhibitions_imgs/missing.jpeg"],
+            ),
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.upload_images",
+                return_value=ImageUpload(uploaded=0, skipped=0, failed=1),
+            ),
+            self.assertRaisesMessage(CommandError, "not changed"),
+        ):
+            call_command("sync_remote_db", "--to-remote", "--yes")
+        replace.assert_not_called()
+
     @override_settings(ENVIRONMENT="production")
     def test_refuses_when_the_environment_is_production(self) -> None:
         with self.assertRaisesMessage(CommandError, "production"):
@@ -455,9 +681,14 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
             override_settings(ENVIRONMENT=environment),
             patch.dict(
                 os.environ,
-                {"DATABASE_URL": LOCAL_URL, "REMOTE_DATABASE_URL": REMOTE_URL},
+                {
+                    "DATABASE_URL": LOCAL_URL,
+                    "REMOTE_DATABASE_URL": REMOTE_URL,
+                    "REMOTE_SSH": "deploy@192.0.2.10",
+                },
             ),
             patch("blockhaus101_app.management.commands.sync_remote_db.require_pg_tools"),
+            patch("blockhaus101_app.management.commands.sync_remote_db.require_upload_tools"),
             patch(
                 "blockhaus101_app.management.commands.sync_remote_db.replace_database",
                 return_value=None,
@@ -465,8 +696,12 @@ class TestSyncRemoteDbCommand(SimpleTestCase):
             patch(
                 "blockhaus101_app.management.commands.sync_remote_db.Command._download_images",
             ) as images,
+            patch(
+                "blockhaus101_app.management.commands.sync_remote_db.Command._upload_images",
+            ) as upload,
             patch("builtins.input", return_value="" if input_value is None else input_value),
         ):
             self.images = images
+            self.upload = upload
             call_command("sync_remote_db", *args)
         return replace
