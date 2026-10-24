@@ -47,6 +47,7 @@ class OpenAiAPI:
             response = await self.client.chat.completions.create(
                 model=self.model["id"],
                 messages=messages,  # type: ignore
+                temperature=0.2,
                 user="blockhaus101",
             )
         except OpenAIError as e:
@@ -111,22 +112,29 @@ class OpenAiAPI:
             {
                 "role": "system",
                 "content": (
-                    f"You translate {origin_language.name} into {dest_language.name}. "
-                    "Keep the original meaning and the pretentious contemporary-art gallery style: "
-                    "slightly overwrought, theoretical, and self-serious. "
-                    f"Write natural, correct {dest_language.name}. Translate titles and quoted work names too. "
-                    "Return only the translated text."
+                    f"You translate {origin_language.name} into {dest_language.name} "
+                    "for a fictional contemporary-art gallery. "
+                    "The source is already deadpan and over-serious. Translate that voice. "
+                    "Do not make it smoother, more theoretical, or more elegant than the source.\n\n"
+                    "Rules:\n"
+                    "- Keep every fact: artist name, gender, dates, cities, schools, "
+                    "and quoted titles. Do not add or drop a sentence.\n"
+                    '- Keep gender. "Elle" and "née" become "she". Never default to "he".\n'
+                    "- Leave institution names unchanged when they are already a proper name "
+                    "(School of Visual Arts, HES-SO, Kunstakademie). "
+                    "Use the ordinary English name of a city (Copenhague → Copenhagen).\n"
+                    "- Translate a quoted work title and keep the quotation marks. Do not add a gloss.\n"
+                    "- A title or a fragment stays a title or a fragment of similar length. "
+                    "Do not turn it into a sentence.\n"
+                    f"- Write correct {dest_language.name}. Prefer a slightly odd grammatical sentence "
+                    "to a word-for-word calque.\n"
+                    "- Do not use: delve, tapestry, multifaceted, underscore, realm, "
+                    '"invites the viewer", "thereby", "in reality".\n'
+                    "- Return only the translation. No label, "
+                    "no quotation marks around the whole answer, no notes."
                 ),
             },
-            {
-                "role": "user",
-                "content": (
-                    f"Translate this {origin_language.name} text into {dest_language.name}. "
-                    "Keep its pretentious art-world tone and exact information. "
-                    "Do not add commentary.\n\n"
-                    f"{text}"
-                ),
-            },
+            {"role": "user", "content": text},
         ]
         return await self._process_openai_request(messages)
 
@@ -137,12 +145,21 @@ class OpenAiAPI:
         messages = [
             {
                 "role": "system",
-                "content": "Tu parles français et tu peux reformuler un texte français en gardant son style et son sens, mais en l'étoffant légèrement.",
+                "content": (
+                    "Tu réécris un communiqué de galerie d'art contemporain, en français. "
+                    "Le texte est déjà absurde, prétentieux et trop sérieux. Tu le rends un peu plus fluide. "
+                    "Tu n'expliques pas l'absurdité et tu ne l'éteins pas.\n\n"
+                    "Règles :\n"
+                    "- Garde l'artiste, le titre entre guillemets, les noms propres, les dates, "
+                    "les lieux et le genre (il/elle, né/née).\n"
+                    "- N'ajoute aucun fait, aucun nom, aucune ville, "
+                    "aucun concept absent du texte.\n"
+                    "- Tu peux rendre le texte deux plus long maximum que le texte original, mais jamais plus court.\n"
+                    "- Réponds uniquement par le texte réécrit. "
+                    "Pas de préambule, pas de guillemets autour de l'ensemble."
+                ),
             },
-            {
-                "role": "user",
-                "content": f"Reformule ce texte en français en gardant son sens, ses informations exactes principales. Son style doit conserver le style original, c'est à dire celui d'un texte prétentieux de galerie d'art contemporain, mais il doit être légèrement étoffé et allongé, si possible autour de 50% plus long. Ne pas inclure dans ta réponse autre chose que le texte en lui-même. Voici le texte à reformuler: « {text} »",
-            },
+            {"role": "user", "content": text},
         ]
         result_text, price, error_msg = await self._process_openai_request(messages)
 

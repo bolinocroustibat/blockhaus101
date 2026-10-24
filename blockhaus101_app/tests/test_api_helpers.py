@@ -234,9 +234,33 @@ class TestOpenAiAPI(SimpleTestCase):
         messages = await_args.args[0]
         self.assertIn("French", messages[0]["content"])
         self.assertIn("English", messages[0]["content"])
-        self.assertIn("pretentious", messages[0]["content"])
-        self.assertIn("English", messages[1]["content"])
-        self.assertIn("Bonjour", messages[1]["content"])
+        self.assertIn("deadpan", messages[0]["content"])
+        self.assertEqual(messages[1]["content"], "Bonjour")
+
+    def test_text_request_uses_a_low_temperature(self) -> None:
+        api = OpenAiAPI()
+        choice = MagicMock()
+        choice.finish_reason = "stop"
+        choice.message.content = "Hello"
+        usage = MagicMock()
+        usage.total_tokens = 10
+        usage.prompt_tokens = 8
+        usage.completion_tokens = 2
+        response = MagicMock()
+        response.choices = [choice]
+        response.usage = usage
+        api.client = MagicMock()
+        api.client.chat.completions.create = AsyncMock(return_value=response)
+        origin = Language(code="fr", name="French")
+        dest = Language(code="en", name="English")
+
+        asyncio.run(api.translate("Bonjour", origin, dest))
+
+        await_args = api.client.chat.completions.create.await_args
+        self.assertIsNotNone(await_args)
+        assert await_args is not None
+        self.assertEqual(await_args.kwargs["temperature"], 0.2)
+        self.assertEqual(await_args.kwargs["model"], api.model["id"])
 
     def test_reformulate_strips_guillemets(self) -> None:
         api = OpenAiAPI()
@@ -249,6 +273,12 @@ class TestOpenAiAPI(SimpleTestCase):
         self.assertEqual(text, "Un texte allongé")
         self.assertEqual(price, 0.002)
         self.assertIsNone(error_msg)
+        await_args = api._process_openai_request.await_args
+        self.assertIsNotNone(await_args)
+        assert await_args is not None
+        messages = await_args.args[0]
+        self.assertIn("jamais plus court", messages[0]["content"])
+        self.assertEqual(messages[1]["content"], "Un texte")
 
     def test_calculate_request_price(self) -> None:
         api = OpenAiAPI()
