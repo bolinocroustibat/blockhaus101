@@ -16,45 +16,10 @@ uv run ruff check --fix . && uv run ruff format .
 
 ### 🔑 Set the env vars in a .env file
 
-Create a `.env` file in the root directory with the following variables:
+Copy the example file and fill in your own values:
 
 ```bash
-# App settings
-ENVIRONMENT=local
-APP_PORT=8000
-POSTGRES_PORT=5433
-
-# Django core settings
-DEBUG=False
-DJANGO_SECRET_KEY="your-secret-key-here"
-ALLOWED_HOSTS=*
-CSRF_TRUSTED_ORIGINS=https://your-domain.com
-
-# Database settings
-POSTGRES_DB=blockhaus101_django
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-
-# Email settings
-EMAIL_HOST=your-smtp-host
-EMAIL_HOST_USER=your-email@example.com
-EMAIL_HOST_PASSWORD=your-email-password
-
-# External services
-## OpenAI
-OPENAI_API_KEY=your-openai-api-key
-
-## GetImgAI
-GETIMGAI_API_KEY=your-getimgai-api-key
-
-## Twitter API
-TWITTER_CONSUMER_KEY=your-twitter-consumer-key
-TWITTER_CONSUMER_SECRET=your-twitter-consumer-secret
-TWITTER_ACCESS_TOKEN=your-twitter-access-token
-TWITTER_ACCESS_TOKEN_SECRET=your-twitter-access-token-secret
-
-## Sentry
-SENTRY_DSN=your-sentry-dsn
+cp .env.example .env
 ```
 
 You can get these values from:
