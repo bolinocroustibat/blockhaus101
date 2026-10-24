@@ -158,7 +158,7 @@ OPENAI_MODEL: dict = {
 }
 
 OPENAI_IMAGE_MODEL: dict = {
-    "id": "gpt-image-1",
+    "id": "gpt-image-2.5-sunburst",
     "size": "1024x1024",
     "quality": "medium",
 }
