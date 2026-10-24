@@ -1,3 +1,5 @@
+from typing import Literal
+
 from openai import AsyncOpenAI, OpenAIError
 
 from base_data_app.models.language import Language
@@ -71,7 +73,7 @@ class OpenAiAPI:
         return result_text, price, error_msg
 
     async def generate_image(
-        self, prompt: str, output_format: str = "jpeg"
+        self, prompt: str, output_format: Literal["png", "jpeg", "webp"] = "jpeg"
     ) -> tuple[str | None, float | None, str | None]:
         """Generate an image from a text prompt using OpenAI Images."""
         b64_data: str | None = None
@@ -85,7 +87,7 @@ class OpenAiAPI:
                 prompt=prompt,
                 size=self.image_model["size"],
                 quality=self.image_model["quality"],
-                output_format=output_format,  # type: ignore[arg-type]
+                output_format=output_format,
             )
         except OpenAIError as e:
             error_msg = f"Error during OpenAI image request: {e!s}"

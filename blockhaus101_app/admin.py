@@ -63,5 +63,5 @@ class ExhibitionAdmin(admin.ModelAdmin):
 
     @staticmethod
     def _title_for_language(obj: Exhibition, lang: str) -> str:
-        title = obj.titles.filter(language__code=lang).first()
+        title = ExhibitionTitle.objects.filter(exhibition=obj, language__code=lang).first()
         return title.text if title else "—"

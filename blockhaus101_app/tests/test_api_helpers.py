@@ -222,7 +222,10 @@ class TestOpenAiAPI(SimpleTestCase):
         self.assertEqual(text, "Hello")
         self.assertEqual(price, 0.001)
         self.assertIsNone(error_msg)
-        messages = api._process_openai_request.await_args.args[0]
+        await_args = api._process_openai_request.await_args
+        self.assertIsNotNone(await_args)
+        assert await_args is not None
+        messages = await_args.args[0]
         self.assertIn("French", messages[0]["content"])
         self.assertIn("English", messages[1]["content"])
         self.assertIn("Bonjour", messages[1]["content"])
