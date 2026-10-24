@@ -35,17 +35,18 @@ class Command(BaseCommand):
         for r in range(skipped_rows):
             next(csv_reader)
         line_count = 0
-        data_type = DataType.objects.get_or_create(name=input_type, language=language)[0]
-        data_to_be_deleted = Data.objects.filter(data_type=data_type)
-        data_to_be_deleted.delete()
+        data_type = DataType.objects.get_or_create(name=input_type)[0]
+        Data.objects.filter(data_type=data_type, language=language).delete()
         for row in csv_reader:
             logger.debug(row)
             if len(row) == 1:
                 logger.info("Tab has one column")
-                Data.objects.create(data_type=data_type, text=row[0])
+                Data.objects.create(data_type=data_type, text=row[0], language=language)
             elif len(row) == 2:
                 logger.info("Tab has two columns, assuming the first is data, second one is gender")
-                Data.objects.create(data_type=data_type, text=row[0], gender=row[1])
+                Data.objects.create(
+                    data_type=data_type, text=row[0], gender=row[1], language=language
+                )
             else:
                 logger.info(
                     "Tab has many columns, assuming it's a data structure, joining with spaces"
@@ -57,7 +58,7 @@ class Command(BaseCommand):
                 for k in set(keywords):
                     data = data.replace(k, f"[{k}]")
                 data = self._normalize_text(text=data)
-                Data.objects.create(data_type=data_type, text=data)
+                Data.objects.create(data_type=data_type, text=data, language=language)
             line_count += 1
         logger.info(f"Processed {line_count} lines.")
 
