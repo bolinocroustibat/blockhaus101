@@ -52,11 +52,16 @@ class ExhibitionAdmin(admin.ModelAdmin):
     model = Exhibition
     list_display = ("get_fr_title", "startdate", "enddate", "created", "id")
     list_filter = ("artist__name",)
-    search_fields = ("get_fr_title", "get_en_title", "artist__name")
+    search_fields = ("titles__text", "artist__name")
     inlines = (ExhibitionTitleAdminInline, ExhibitionTextAdminInline)
 
-    def get_fr_title(self, obj):
-        return obj.titles.filter(language__code="fr").first().text
+    def get_fr_title(self, obj: Exhibition) -> str:
+        return self._title_for_language(obj, "fr")
 
-    def get_en_title(self, obj):
-        return obj.titles.filter(language__code="en").first().text
+    def get_en_title(self, obj: Exhibition) -> str:
+        return self._title_for_language(obj, "en")
+
+    @staticmethod
+    def _title_for_language(obj: Exhibition, lang: str) -> str:
+        title = obj.titles.filter(language__code=lang).first()
+        return title.text if title else "—"
