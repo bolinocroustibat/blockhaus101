@@ -8,6 +8,10 @@ from dotenv import load_dotenv
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from blockhaus101.captcha import custom_captcha_challenge
+from blockhaus101.image_model_pricing import (
+    GETIMGAI_IMAGE_MODELS_PRICING,
+    OPENAI_IMAGE_MODELS_PRICING,
+)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -157,16 +161,20 @@ OPENAI_MODEL: dict = {
     },
 }
 
+_OPENAI_IMAGE_MODEL_ID = "gpt-image-2.5-sunburst"
 OPENAI_IMAGE_MODEL: dict = {
-    "id": "gpt-image-2.5-sunburst",
+    "id": _OPENAI_IMAGE_MODEL_ID,
     "size": "1024x1024",
     "quality": "medium",
+    "pricing": OPENAI_IMAGE_MODELS_PRICING[_OPENAI_IMAGE_MODEL_ID],
 }
 
+_GETIMGAI_IMAGE_MODEL_ID = "seedream-5-lite"
 GETIMGAI_IMAGE_MODEL: dict = {
-    "id": "seedream-5-lite",
+    "id": _GETIMGAI_IMAGE_MODEL_ID,
     "aspect_ratio": "1:1",
     "output_format": "jpeg",
+    "pricing": GETIMGAI_IMAGE_MODELS_PRICING[_GETIMGAI_IMAGE_MODEL_ID],
 }
 
 _IMAGE_PROVIDERS = {"openai", "getimg"}

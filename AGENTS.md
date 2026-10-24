@@ -70,6 +70,7 @@ from blockhaus101.settings import logger
 - **`USE_TZ = False`**: Naive datetimes; use `datetime.now()`, never `timezone.now()`.
 - **`DEFAULT_AUTO_FIELD = "django.db.models.AutoField"`**: Integer PKs (not BigAutoField).
 - **`OPENAI_MODEL`**: A dict with `id` and `pricing` keys, not a plain string.
+- **Image model pricing**: Full catalogs in `blockhaus101/image_model_pricing.py`. Active models (`OPENAI_IMAGE_MODEL`, `GETIMGAI_IMAGE_MODEL`) include a `pricing` entry from those catalogs (reference only; GetImg bills via API `usage`, OpenAI image token cost is not computed yet).
 - **`db_table`**: All models set explicit `db_table` prefixed `blockhaus101_`.
 - **`on_delete`**: `CASCADE` for owned content, `PROTECT` for reference data (Language, Data), `SET_NULL` for optional links.
 
