@@ -192,6 +192,20 @@ class TestDocumentLanguage(TestCase):
                 self.assertNotContains(response, "&nbsp;&nbsp;|&nbsp;&nbsp;")
                 self.assertEqual(response.content.decode().count("<nav>"), 1)
 
+    def test_language_switch_opens_the_same_page(self) -> None:
+        response = self.client.get("/en/contact/")
+
+        self.assertContains(response, 'class="lang-switch"')
+        self.assertContains(
+            response,
+            '<a href="http://testserver/fr/contact/" hreflang="fr" lang="fr">FR</a>',
+        )
+        self.assertContains(
+            response,
+            '<a href="http://testserver/en/contact/" hreflang="en" lang="en" '
+            'class="active" aria-current="page">EN</a>',
+        )
+
     def test_english_pages_are_marked_english(self) -> None:
         response = self.client.get("/en/contact/")
 
@@ -250,6 +264,10 @@ class TestDocumentLanguage(TestCase):
         self.assertContains(
             response,
             'hreflang="en" href="http://testserver/en/past-exhibitions/?page=2"',
+        )
+        self.assertContains(
+            response,
+            '<a href="http://testserver/en/past-exhibitions/?page=2" hreflang="en" lang="en">EN</a>',
         )
 
     def test_current_show_shares_its_image(self) -> None:
@@ -335,6 +353,14 @@ class TestExhibitionPage(TestCase):
         self.assertContains(
             response,
             'hreflang="en" href="http://testserver/en/ada-lovelace-glass-birds/"',
+        )
+        self.assertContains(
+            response,
+            '<a href="http://testserver/en/ada-lovelace-glass-birds/" hreflang="en" lang="en">EN</a>',
+        )
+        self.assertContains(
+            response,
+            'hreflang="fr" lang="fr" class="active" aria-current="page">FR</a>',
         )
         self.assertContains(
             response,

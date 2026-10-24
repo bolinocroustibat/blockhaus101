@@ -61,6 +61,7 @@
 				<li>
 					<a href="{% url 'contact' lang='en' %}" class="{% if request.resolver_match.url_name == "contact" %}active{% endif %}">visits</a>
 				</li>
+				{% include "partials/language-switch.html" %}
 			</ul>
 		</nav>
 

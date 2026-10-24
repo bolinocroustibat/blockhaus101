@@ -101,6 +101,23 @@ nav li:not(:last-child)::after {
 	font-weight: 400;
 }
 
+nav li:has(+ .lang-switch)::after {
+	content: none;
+}
+
+nav li.lang-switch {
+	margin-left: auto;
+	display: flex;
+	align-items: baseline;
+	gap: 0.35rem;
+	white-space: nowrap;
+}
+
+nav li.lang-switch .lang-switch-sep {
+	color: #777;
+	font-weight: 400;
+}
+
 li {
 	color: #777;
 	list-style-type: square;

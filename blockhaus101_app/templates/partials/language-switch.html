@@ -1,0 +1,6 @@
+{% load site %}
+<li class="lang-switch">
+	<a href="{% language_url 'fr' %}" hreflang="fr" lang="fr"{% if request.resolver_match.kwargs.lang == "fr" %} class="active" aria-current="page"{% endif %}>FR</a>
+	<span class="lang-switch-sep" aria-hidden="true">/</span>
+	<a href="{% language_url 'en' %}" hreflang="en" lang="en"{% if request.resolver_match.kwargs.lang == "en" %} class="active" aria-current="page"{% endif %}>EN</a>
+</li>
