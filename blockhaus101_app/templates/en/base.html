@@ -53,7 +53,7 @@
 		<nav>
 			<ul>
 				<li>
-					<a href="{% url 'index' lang='en' %}" class="{% if request.resolver_match.url_name == "index" %}active{% endif %}">this month</a>
+					<a href="{% url 'index' lang='en' %}" class="{% if request.resolver_match.url_name == "index" %}active{% endif %}">this week</a>
 				</li>
 				<li>
 					<a href="{% url 'past_exhibitions' lang='en' %}" class="{% if request.resolver_match.url_name == "past_exhibitions" %}active{% endif %}">past exhibitions</a>
