@@ -92,6 +92,10 @@ class TestPastExhibitions(TestCase):
         self.assertContains(response, "Recent title")
         self.assertContains(response, "A short biography")
         self.assertContains(response, "A short exhibition text")
+        self.assertContains(response, "Du ")
+        self.assertContains(response, " au ")
+        self.assertContains(response, 'class="expo-text"')
+        self.assertNotContains(response, 'class="text"')
         self.assertContains(response, "Middle Artist")
         self.assertNotContains(response, "Old Artist")
         body = response.content.decode()
@@ -109,6 +113,7 @@ class TestPastExhibitions(TestCase):
         response = self.client.get("/fr/past-exhibitions/", HTTP_HX_REQUEST="true")
 
         self.assertContains(response, "Recent Artist")
+        self.assertContains(response, 'class="expo-text"')
         self.assertNotContains(response, "<!DOCTYPE html>")
 
     def test_next_page_is_one_link_replaced_in_place(self) -> None:

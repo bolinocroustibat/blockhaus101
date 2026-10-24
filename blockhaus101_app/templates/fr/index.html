@@ -16,16 +16,10 @@
 {% block content %}
 <div class="gallery-description">
 	la galerie søren bollinger expose chaque semaine une nouvelle voix marginale de l'art contemporain. Uniquement sur rendez-vous.
-	<div class="exhibition-date">Du {{ expo_startdate }} au {{ expo_enddate }} :</div>
 </div>
 
-<div class="exhibition-item expo-wrapper">
-	<div class="expo-text-wrapper">
-		<span class="artist">{{ artist_name }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ expo_title|capfirst }}</span>
-		<div class="bio">{{ artist_bio }}</div>
-		<div class="expo-text">{{ expo_text }}</div>
-	</div>
-	{% include "partials/exhibition-image.html" with url=expo_image1 artist=artist_name title=expo_title width=expo_image_width height=expo_image_height lazy=False %}
-</div>
+{% with date_line="Du "|add:expo_startdate|add:" au "|add:expo_enddate|add:" :" %}
+{% include "partials/exhibition-card.html" with date_line=date_line artist=artist_name title=expo_title bio=artist_bio text=expo_text image_url=expo_image1 image_width=expo_image_width image_height=expo_image_height lazy=False %}
+{% endwith %}
 
 {% endblock %}

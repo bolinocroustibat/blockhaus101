@@ -1,0 +1,9 @@
+<div class="exhibition-date">{{ date_line }}</div>
+<div class="exhibition-item expo-wrapper">
+	<div class="expo-text-wrapper">
+		<span class="artist">{{ artist }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ title|capfirst }}</span>
+		<div class="bio">{{ bio }}</div>
+		<div class="expo-text">{{ text }}</div>
+	</div>
+	{% include "partials/exhibition-image.html" with url=image_url artist=artist title=title width=image_width height=image_height lazy=lazy %}
+</div>

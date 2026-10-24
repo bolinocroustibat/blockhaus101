@@ -1,13 +1,7 @@
 {% for e in exhibitions_details %}
-<div class="exhibition-date">Du {{ e.startdate }} au {{ e.enddate }}</div>
-<div class="exhibition-item expo-wrapper">
-    <div class="expo-text-wrapper">
-        <span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ e.title|capfirst }}</span>
-        <div class="bio">{{ e.bio }}</div>
-        <div class="text">{{ e.text }}</div>
-    </div>
-    {% include "partials/exhibition-image.html" with url=e.image1 artist=e.name title=e.title width=e.image_width height=e.image_height lazy=True %}
-</div>
+{% with date_line="Du "|add:e.startdate|add:" au "|add:e.enddate %}
+{% include "partials/exhibition-card.html" with date_line=date_line artist=e.name title=e.title bio=e.bio text=e.text image_url=e.image1 image_width=e.image_width image_height=e.image_height lazy=True %}
+{% endwith %}
 {% endfor %}
 
 {% if page_obj.has_next %}

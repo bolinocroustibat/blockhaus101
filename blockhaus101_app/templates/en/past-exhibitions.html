@@ -19,28 +19,7 @@
 	There are no past exhibitions yet.
 {% else %}
 	<div id="exhibitions-container">
-		{% for e in exhibitions_details %}
-		<div class="exhibition-date">From {{ e.startdate }} to {{ e.enddate }}</div>
-		<div class="exhibition-item expo-wrapper">
-			<div class="expo-text-wrapper">
-				<span class="artist">{{ e.name }}</span>&nbsp;|&nbsp;<span class="expo-title">{{ e.title|capfirst }}</span>
-				<div class="bio">{{ e.bio }}</div>
-				<div class="text">{{ e.text }}</div>
-			</div>
-			{% include "partials/exhibition-image.html" with url=e.image1 artist=e.name title=e.title width=e.image_width height=e.image_height lazy=True %}
-		</div>
-		{% endfor %}
-
-		{% if page_obj.has_next %}
-		<a
-			href="?page={{ page_obj.next_page_number }}"
-			hx-get="?page={{ page_obj.next_page_number }}"
-			hx-trigger="revealed"
-			hx-swap="outerHTML"
-			class="loading-trigger">
-			Loading...
-		</a>
-		{% endif %}
+		{% include "en/partials/exhibition-batch.html" %}
 	</div>
 {% endif %}
 
