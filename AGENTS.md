@@ -114,6 +114,7 @@ from blockhaus101.settings import logger
 Run with: `uv run python manage.py <command_name>`.
 
 - `generate_exhibition` – full AI exhibition pipeline (artist + titles + bios + image + texts). Flags: `--img`, `--save`.
+- `generate_english_texts` – translate French exhibition texts into English (`--from YYYY-MM-DD`, default `2025-01-01`). Without `--save`, print the shows that would be translated.
 - `generate_tweet` – generate/post social content (`--lang`, `--type tweets1|tweets2`).
 - `reformulate_expo_text` – refine exhibition text via OpenAI (`--id`, `--save`).
 - `get_openai_models` – list OpenAI models.

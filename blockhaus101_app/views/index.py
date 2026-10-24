@@ -1,12 +1,11 @@
-import asyncio
-
 from babel.dates import format_date
 from django.http import HttpResponse
 from django.shortcuts import render
 
 from base_data_app.models import Language
 from blockhaus101.settings import logger
-from blockhaus101_app.helpers import OpenAiAPI, get_client_ip, image_size
+from blockhaus101_app.helpers import get_client_ip, image_size
+from blockhaus101_app.helpers.exhibition_text import create_exhibition_texts
 from blockhaus101_app.models import (
     Artist,
     ArtistBiography,
@@ -68,30 +67,8 @@ def index(request, lang: str) -> HttpResponse:
         bio = bios[lang]
         logger.debug(f'New artist biography "{bio.text}" has been created in DB')
 
-        # create a new exhibition text
-        expo_text = ExhibitionText(
-            language=language, exhibition=exhibition, ip=get_client_ip(request)
-        )
-        expo_text.generate()
-        # reformulate the text using OpenAI API
-        openai_api = OpenAiAPI()
-        reformulated_text, price, error_msg = asyncio.run(
-            openai_api.reformulate(text=str(expo_text.text), language=language)
-        )  # call the async function from the sync context
-        if reformulated_text:
-            logger.info(
-                f"Text has been reformulated by OpenAI {openai_api.model['id']}:\n{reformulated_text}\nCost: {price}$"
-            )
-            expo_text = ExhibitionText(
-                language=language,
-                exhibition=exhibition,
-                ip=get_client_ip(request),
-                text=reformulated_text,
-                ai_model=openai_api.model["id"],
-            )
-        if error_msg:
-            logger.error(f"Error while reformulating text: {error_msg}")
-        expo_text.save()
+        texts = create_exhibition_texts(exhibition, ip=get_client_ip(request))
+        expo_text = texts.get(lang)
 
     image_width, image_height = image_size(exhibition.image1)
     return render(
