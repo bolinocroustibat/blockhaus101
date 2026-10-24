@@ -46,6 +46,8 @@ class Exhibition(models.Model):
         verbose_name = "exposition"
 
     def __str__(self) -> str:
+        if self.pk is None:
+            return "Exhibition (unsaved)"
         try:
             exhibition_title = ExhibitionTitle.objects.get(exhibition=self, language__code="fr")
             return f"{exhibition_title.text} ({self.pk})"

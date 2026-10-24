@@ -151,6 +151,9 @@ class TestExhibitionString(TestCase):
 
         self.assertEqual(str(exhibition), f"Oiseaux de verre ({exhibition.pk})")
 
+    def test_unsaved_exhibition_skips_the_title_lookup(self) -> None:
+        self.assertEqual(str(Exhibition()), "Exhibition (unsaved)")
+
     def test_reports_a_missing_title(self) -> None:
         artist = make_artist()
         exhibition = make_exhibition(

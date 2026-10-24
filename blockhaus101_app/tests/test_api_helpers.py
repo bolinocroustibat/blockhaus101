@@ -144,6 +144,12 @@ class TestGetImgAiAPI(SimpleTestCase):
 
 
 class TestOpenAiAPI(SimpleTestCase):
+    def setUp(self) -> None:
+        # The client rejects an empty key before any request. These tests replace it.
+        patcher = patch("blockhaus101_app.helpers.api_openai.AsyncOpenAI")
+        self.addCleanup(patcher.stop)
+        patcher.start()
+
     def test_generate_image_returns_b64_data(self) -> None:
         api = OpenAiAPI()
         image = MagicMock()
