@@ -368,7 +368,7 @@ class TestReformulateExpoTextsCommand(ExhibitionTextFixture):
         self.assertEqual(french.ai_model, "gpt-test")
 
     def test_asks_once_per_text(self) -> None:
-        self._french_text(self.exhibition, "Premier.")
+        first = self._french_text(self.exhibition, "Premier.")
         later = make_exhibition(
             self.artist,
             startdate=datetime(2025, 8, 1),
@@ -387,9 +387,9 @@ class TestReformulateExpoTextsCommand(ExhibitionTextFixture):
         ):
             call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
 
-        self.exhibition.expotexts.get(language=self.french).refresh_from_db()
+        first.refresh_from_db()
         second.refresh_from_db()
-        self.assertEqual(self.exhibition.expotexts.get(language=self.french).text, "Premier.")
+        self.assertEqual(first.text, "Premier.")
         self.assertEqual(second.text, "Texte réécrit.")
         self.assertEqual(second.ai_model, "gpt-test")
         self.assertIn("Replaced 1. Kept: 1. Failed: 0.", out.getvalue())
@@ -484,7 +484,7 @@ class TestReformulateExpoTextsCommand(ExhibitionTextFixture):
         self.assertNotIn("Texte trop tardif.", out.getvalue())
 
     def test_continues_after_a_request_crashes(self) -> None:
-        self._french_text(self.exhibition, "Premier.")
+        first = self._french_text(self.exhibition, "Premier.")
         later = make_exhibition(
             self.artist,
             startdate=datetime(2025, 8, 1),
@@ -507,10 +507,11 @@ class TestReformulateExpoTextsCommand(ExhibitionTextFixture):
         ):
             call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
 
+        first.refresh_from_db()
         second.refresh_from_db()
         self.assertEqual(api_cls.call_count, 2)
         self.assertEqual(api.client.close.await_count, 2)
-        self.assertEqual(self.exhibition.expotexts.get(language=self.french).text, "Premier.")
+        self.assertEqual(first.text, "Premier.")
         self.assertEqual(second.text, "Texte réécrit.")
         self.assertIn("Rewrite failed: Event loop is closed", out.getvalue())
         self.assertIn("Replaced 1. Kept: 0. Failed: 1.", out.getvalue())
