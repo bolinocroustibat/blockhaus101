@@ -147,7 +147,7 @@ class OpenAiAPI:
                 "role": "system",
                 "content": (
                     "Tu réécris un communiqué de galerie d'art contemporain, en français. "
-                    "Le texte est déjà absurde, prétentieux et trop sérieux. Tu le rends un peu plus fluide. "
+                    "Le texte est déjà absurde, prétentieux et trop sérieux. Tu le rends un peu plus fluide et plus long. "
                     "Tu n'expliques pas l'absurdité et tu ne l'éteins pas.\n\n"
                     "Règles :\n"
                     "- Garde l'artiste, le titre entre guillemets, les noms propres, les dates, "

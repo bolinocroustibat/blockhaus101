@@ -117,6 +117,7 @@ Run with: `uv run python manage.py <command_name>`.
 - `generate_english_texts` – translate French exhibition texts into English (`--from YYYY-MM-DD`, default `2025-01-01`). Without `--save`, print the shows that would be translated.
 - `generate_tweet` – generate/post social content (`--lang`, `--type tweets1|tweets2`).
 - `reformulate_expo_text` – refine exhibition text via OpenAI (`--id`, `--save`).
+- `reformulate_expo_texts` – rewrite French exhibition texts between start dates (`--from YYYY-MM-DD`, optional `--to YYYY-MM-DD`). Prints each rewrite and asks before replacing that text. `--yes` replaces every rewrite without asking.
 - `get_openai_models` – list OpenAI models.
 - `delete_exhibitions` – delete exhibitions after a given date (uses `transaction.atomic()`).
 - `check_exhibition_images` – report exhibitions with no image or a missing file (`--generate` asks to create them, `--from YYYY-MM-DD` limits by start date).

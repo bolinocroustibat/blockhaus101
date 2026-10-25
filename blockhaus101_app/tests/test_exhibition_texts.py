@@ -9,7 +9,7 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 
 from blockhaus101_app.helpers.exhibition_text import create_exhibition_texts
-from blockhaus101_app.models import ExhibitionText, ExhibitionTitle
+from blockhaus101_app.models import Exhibition, ExhibitionText, ExhibitionTitle
 from blockhaus101_app.tests.factories import make_artist, make_exhibition, make_language
 
 
@@ -42,6 +42,7 @@ def _openai_mock(
     api.model = {"id": "gpt-test"}
     api.translate = AsyncMock(return_value=(translated, 0.01, translate_error))
     api.reformulate = AsyncMock(return_value=(reformulated, 0.02, reformulate_error))
+    api.client.close = AsyncMock()
     return api
 
 
@@ -297,3 +298,248 @@ class TestGenerateEnglishTextsCommand(ExhibitionTextFixture):
 
         self.assertIn("Saved 1 English text(s). Failed: 1.", out.getvalue())
         self.assertEqual(ExhibitionText.objects.filter(language=self.english).count(), 1)
+
+
+class TestReformulateExpoTextsCommand(ExhibitionTextFixture):
+    def _french_text(self, exhibition: Exhibition, text: str) -> ExhibitionText:
+        return ExhibitionText.objects.create(language=self.french, exhibition=exhibition, text=text)
+
+    def test_rejects_an_invalid_from_date(self) -> None:
+        with self.assertRaisesMessage(CommandError, "YYYY-MM-DD"):
+            call_command("reformulate_expo_texts", "--from", "20-03-2024")
+
+    def test_rejects_an_invalid_to_date(self) -> None:
+        with self.assertRaisesMessage(CommandError, "YYYY-MM-DD"):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", "--to", "20-03-2024")
+
+    def test_rejects_a_to_date_before_from(self) -> None:
+        with self.assertRaisesMessage(CommandError, "--to must be on or after --from."):
+            call_command("reformulate_expo_texts", "--from", "2025-08-01", "--to", "2025-03-01")
+
+    def test_reports_when_no_french_text_matches(self) -> None:
+        self._french_text(self.exhibition, "Une salle.")
+        api = _openai_mock()
+        out = StringIO()
+        with patch(
+            "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+            return_value=api,
+        ):
+            call_command("reformulate_expo_texts", "--from", "2026-01-01", stdout=out)
+
+        self.assertIn("0 French text(s)", out.getvalue())
+        api.reformulate.assert_not_called()
+
+    def test_keeps_the_current_text_when_the_answer_is_no(self) -> None:
+        french = self._french_text(self.exhibition, "Une salle.")
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=_openai_mock(),
+            ),
+            patch("builtins.input", return_value="n"),
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
+
+        french.refresh_from_db()
+        text = out.getvalue()
+        self.assertIn("Une salle.", text)
+        self.assertIn("Une salle blanche.", text)
+        self.assertIn("Kept the current text.", text)
+        self.assertIn("Replaced 0. Kept: 1. Failed: 0.", text)
+        self.assertEqual(french.text, "Une salle.")
+        self.assertIsNone(french.ai_model)
+
+    def test_replaces_the_text_when_the_answer_is_yes(self) -> None:
+        french = self._french_text(self.exhibition, "Une salle.")
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=_openai_mock(),
+            ),
+            patch("builtins.input", return_value="y"),
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
+
+        french.refresh_from_db()
+        self.assertIn("Replaced.", out.getvalue())
+        self.assertEqual(french.text, "Une salle blanche.")
+        self.assertEqual(french.ai_model, "gpt-test")
+
+    def test_asks_once_per_text(self) -> None:
+        self._french_text(self.exhibition, "Premier.")
+        later = make_exhibition(
+            self.artist,
+            startdate=datetime(2025, 8, 1),
+            enddate=datetime(2025, 8, 8),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=later, text="plus tard")
+        second = self._french_text(later, "Deuxième.")
+
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=_openai_mock(reformulated="Texte réécrit."),
+            ),
+            patch("builtins.input", side_effect=["n", "y"]),
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
+
+        self.exhibition.expotexts.get(language=self.french).refresh_from_db()
+        second.refresh_from_db()
+        self.assertEqual(self.exhibition.expotexts.get(language=self.french).text, "Premier.")
+        self.assertEqual(second.text, "Texte réécrit.")
+        self.assertEqual(second.ai_model, "gpt-test")
+        self.assertIn("Replaced 1. Kept: 1. Failed: 0.", out.getvalue())
+
+    def test_skips_confirmation_when_the_rewrite_fails(self) -> None:
+        french = self._french_text(self.exhibition, "Une salle.")
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=_openai_mock(reformulated=None, reformulate_error="unavailable"),
+            ),
+            patch("builtins.input") as prompt,
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
+
+        french.refresh_from_db()
+        prompt.assert_not_called()
+        self.assertIn("Rewrite failed: unavailable", out.getvalue())
+        self.assertIn("Replaced 0. Kept: 0. Failed: 1.", out.getvalue())
+        self.assertEqual(french.text, "Une salle.")
+
+    def test_ignores_english_texts_and_older_shows(self) -> None:
+        self._french_text(self.exhibition, "Une salle.")
+        ExhibitionText.objects.create(
+            language=self.english, exhibition=self.exhibition, text="A white room."
+        )
+        older = make_exhibition(
+            self.artist,
+            startdate=datetime(2024, 6, 1),
+            enddate=datetime(2024, 6, 8),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=older, text="avant")
+        self._french_text(older, "Texte trop ancien.")
+
+        api = _openai_mock()
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=api,
+            ),
+            patch("builtins.input", return_value="n"),
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
+
+        self.assertEqual(api.reformulate.await_count, 1)
+        self.assertEqual(api.reformulate.await_args.args, ())
+        self.assertEqual(api.reformulate.await_args.kwargs["text"], "Une salle.")
+        self.assertIn("1 French text(s)", out.getvalue())
+        self.assertNotIn("Texte trop ancien.", out.getvalue())
+        self.assertNotIn("A white room.", out.getvalue())
+
+    def test_to_keeps_shows_through_the_end_of_that_day(self) -> None:
+        self._french_text(self.exhibition, "Une salle.")
+        on_the_day = make_exhibition(
+            self.artist,
+            startdate=datetime(2025, 8, 1, 16, 52, 23),
+            enddate=datetime(2025, 8, 8),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=on_the_day, text="ce jour")
+        self._french_text(on_the_day, "Texte du jour.")
+        later = make_exhibition(
+            self.artist,
+            startdate=datetime(2025, 8, 8),
+            enddate=datetime(2025, 8, 15),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=later, text="après")
+        self._french_text(later, "Texte trop tardif.")
+
+        api = _openai_mock()
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=api,
+            ),
+            patch("builtins.input", return_value="n"),
+        ):
+            call_command(
+                "reformulate_expo_texts",
+                "--from",
+                "2025-03-01",
+                "--to",
+                "2025-08-01",
+                stdout=out,
+            )
+
+        rewritten = [call.kwargs["text"] for call in api.reformulate.await_args_list]
+        self.assertEqual(rewritten, ["Une salle.", "Texte du jour."])
+        self.assertIn("through 2025-08-01", out.getvalue())
+        self.assertNotIn("Texte trop tardif.", out.getvalue())
+
+    def test_continues_after_a_request_crashes(self) -> None:
+        self._french_text(self.exhibition, "Premier.")
+        later = make_exhibition(
+            self.artist,
+            startdate=datetime(2025, 8, 1),
+            enddate=datetime(2025, 8, 8),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=later, text="plus tard")
+        second = self._french_text(later, "Deuxième.")
+        api = _openai_mock(reformulated="Texte réécrit.")
+        api.reformulate = AsyncMock(
+            side_effect=[RuntimeError("Event loop is closed"), ("Texte réécrit.", 0.02, None)]
+        )
+
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=api,
+            ) as api_cls,
+            patch("builtins.input", return_value="y"),
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", stdout=out)
+
+        second.refresh_from_db()
+        self.assertEqual(api_cls.call_count, 2)
+        self.assertEqual(api.client.close.await_count, 2)
+        self.assertEqual(self.exhibition.expotexts.get(language=self.french).text, "Premier.")
+        self.assertEqual(second.text, "Texte réécrit.")
+        self.assertIn("Rewrite failed: Event loop is closed", out.getvalue())
+        self.assertIn("Replaced 1. Kept: 0. Failed: 1.", out.getvalue())
+
+    def test_yes_replaces_every_text_without_asking(self) -> None:
+        first = self._french_text(self.exhibition, "Premier.")
+        later = make_exhibition(
+            self.artist,
+            startdate=datetime(2025, 8, 1),
+            enddate=datetime(2025, 8, 8),
+        )
+        ExhibitionTitle.objects.create(language=self.french, exhibition=later, text="plus tard")
+        second = self._french_text(later, "Deuxième.")
+
+        out = StringIO()
+        with (
+            patch(
+                "blockhaus101_app.management.commands.reformulate_expo_texts.OpenAiAPI",
+                return_value=_openai_mock(reformulated="Texte réécrit."),
+            ),
+            patch("builtins.input") as prompt,
+        ):
+            call_command("reformulate_expo_texts", "--from", "2025-01-01", "--yes", stdout=out)
+
+        first.refresh_from_db()
+        second.refresh_from_db()
+        prompt.assert_not_called()
+        self.assertEqual(first.text, "Texte réécrit.")
+        self.assertEqual(second.text, "Texte réécrit.")
+        self.assertEqual(first.ai_model, "gpt-test")
+        self.assertIn("without asking", out.getvalue())
+        self.assertIn("Replaced 2. Kept: 0. Failed: 0.", out.getvalue())
