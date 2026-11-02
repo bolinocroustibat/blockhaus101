@@ -31,7 +31,7 @@ services:
       - /home/www/blockhaus101/static:/app/static
       - /home/www/blockhaus101/media:/app/media
     ports:
-      - "${APP_PORT:-8000}:8000"
+      - "127.0.0.1:${APP_PORT:-8000}:8000"
     environment:
       # Django core settings
       - ENVIRONMENT=${ENVIRONMENT}
