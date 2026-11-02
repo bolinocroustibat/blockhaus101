@@ -367,8 +367,9 @@ form {
 #main-wrapper {
 	box-sizing: border-box;
 	width: 100%;
-	max-width: 1000px;
-	padding: 1.75rem 8% 0;
+	/* 1000px of content plus the side padding (border-box) */
+	max-width: calc(1000px + 8rem);
+	padding: 1.75rem 4rem 0;
 }
 
 .loading-trigger {
